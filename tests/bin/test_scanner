@@ -1,0 +1,36 @@
+#!/bin/bash
+#
+# Run test_scanner against multiple of .go files
+#
+# Synopsis:
+#     test_scanner
+#
+
+SELF="${0##*/}"
+SELF_FQ=$(realpath -P $0)
+ROOT=$(dirname $(dirname $(dirname $SELF_FQ)))
+
+[[ -f "test-scanner" ]] || make build-test || exit 1
+
+
+errors=0
+for file in $ROOT/tests/test_files/test_scanner/*; do
+    regex=$(echo $file | grep -Po '\w+$')
+    echo $file
+    ./test-scanner $file > out
+    error=$?
+    echo $error
+    [[ $error -eq 1 && $regex = error* ]] && continue # Expected to be error
+    [[ $error -eq 1 ]] && errors=$((errors + 1)) # Error not expected
+    [[ $regex = "comment" ]] && continue # Skip comments
+
+    echo "Errors:"
+    grep -v $regex out || errors=$((errors + 1))
+    echo "--------------"
+    cat out
+    echo "--------------"
+done
+
+rm out
+
+exit $errors

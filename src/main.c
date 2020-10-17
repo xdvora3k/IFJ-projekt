@@ -3,6 +3,7 @@
  */
 
 #include <stdio.h>
+#include "scanner.h"
 
 #define FILE_ERROR 5
 
@@ -17,6 +18,7 @@ int main(int argc, char *argv[]){
         printf("File could not be opened.\n");
         return FILE_ERROR;
     }
+    set_source_file(f);
 
     // TODO: add other functions
 }

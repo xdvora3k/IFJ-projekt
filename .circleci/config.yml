@@ -1,13 +1,20 @@
 version: 2.1
 jobs:
-  compile:
+  compile-main:
     docker:
       - image: cimg/base:2020.01
     steps:
       - checkout
-      - run: cd src && make
+      - run: make
+  run-scanner-test:
+    docker:
+      - image: cimg/base:2020.01
+    steps:
+      - checkout
+      - run: tests/bin/test_scanner
 
 workflows:
   compile:
     jobs:
-      - compile
+      - compile-main
+      - run-scanner-test
