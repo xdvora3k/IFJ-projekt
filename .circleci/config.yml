@@ -1,0 +1,13 @@
+version: 2.1
+jobs:
+  compile:
+    docker:
+      - image: cimg/base:2020.01
+    steps:
+      - checkout
+      - run: cd src && make
+
+workflows:
+  compile:
+    jobs:
+      - compile
