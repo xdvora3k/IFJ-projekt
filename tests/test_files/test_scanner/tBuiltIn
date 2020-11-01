@@ -1,0 +1,4 @@
+inputs inputi inputs
+print int2float float2int
+len substr ord chr
+print
