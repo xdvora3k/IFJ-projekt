@@ -54,3 +54,4 @@ dkms.conf
 # Compiled files
 proj
 test-scanner
+test-ilist

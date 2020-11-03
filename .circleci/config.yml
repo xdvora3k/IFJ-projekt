@@ -12,9 +12,16 @@ jobs:
     steps:
       - checkout
       - run: tests/bin/test_scanner
+  run-ilist-test:
+    docker:
+      - image: cimg/base:2020.01
+    steps:
+      - checkout
+      - run: tests/bin/test_ilist
 
 workflows:
   compile:
     jobs:
       - compile-main
       - run-scanner-test
+      - run-ilist-test
