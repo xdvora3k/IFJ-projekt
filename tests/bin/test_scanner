@@ -10,7 +10,7 @@ SELF="${0##*/}"
 SELF_FQ=$(realpath -P $0)
 ROOT=$(dirname $(dirname $(dirname $SELF_FQ)))
 
-[[ -f "test-scanner" ]] || make build-test || exit 1
+[[ -f "test-scanner" ]] || make build-test-scanner || exit 1
 
 
 errors=0
