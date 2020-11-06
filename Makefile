@@ -1,8 +1,8 @@
 PROJ=proj
 BINARY_FILES=$(PROJ) test-scanner
 CC=gcc
-CFLAGS=-std=gnu99 -Wall -Wextra -Werror -pedantic -pthread
-FILES=src/str.c src/scanner.c
+CFLAGS=-std=c11 -Wall -Wextra -Werror -pedantic -pthread
+FILES=src/str.c src/scanner.c src/symtable.c
 
 .PHONY: all
 all: $(PROJ)
@@ -14,6 +14,6 @@ $(PROJ) : $(FILES)
 clean:
 	@rm -f *.o $(BINARY_FILES)
 
-.PHONY: build-test
-build-test:
-	$(CC) $(CFLAGS) -o test-scanner $(FILES) tests/test_scanner.c
+.PHONY: build-test-scanner
+build-test-scanner:
+	$(CC) $(CFLAGS) -o test-scanner tests/test_scanner.c src/scanner.c src/str.c
