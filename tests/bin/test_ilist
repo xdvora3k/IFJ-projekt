@@ -1,0 +1,11 @@
+#!/bin/bash
+#
+# Run test_scanner against multiple of .go files
+#
+# Synopsis:
+#     test_scanner
+#
+
+[[ -f "test-ilist" ]] || make build-test-ilist || exit 1
+
+./test-ilist
