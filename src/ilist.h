@@ -8,6 +8,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include "str.h"
 
 // TODO: Define types of instructions
 // Example:
@@ -28,28 +29,22 @@ typedef struct {
 } tInstr;
 
 typedef struct listItem{
-    tInstr Instruction;
+    void* Content;
     struct listItem *nextItem;
 } tListItem;
 
 typedef struct {
     struct listItem *first;
-    struct listItem *last;
-    struct listItem *active;
-} tListOfInstr;
+} tLinkedList;
 
-void LLInit(tListOfInstr *L);
-void LLDisposeAll(tListOfInstr *L);
-void LLInsertFirst(tListOfInstr *L, tInstr Instruction);
-void LLSetActiveToFirst(tListOfInstr *L);
-void LLSetActiveToLast(tListOfInstr *L);
-void LLCopyFirst(tListOfInstr *L, tInstr *Instruction);
-void LLDeleteFirst(tListOfInstr *L);
-void LLPostDelete(tListOfInstr *L);
-void LLPostInsert(tListOfInstr *L, tInstr Instruction);
-void LLInsertLast(tListOfInstr *L, tInstr Instruction);
-void LLCopyActive(tListOfInstr *L, tInstr *Instruction);
-void LLActualize(tListOfInstr *L, tInstr Instruction);
-void LLActiveNext(tListOfInstr *L);
+void InstrLLInit(tLinkedList *L);
+void InstrLLDisposeAll(tLinkedList *L);
+void InstrLLInsertFirst(tLinkedList *L, tInstr Instruction);
+void InstrLLCopyFirst(tLinkedList *L, tInstr *Instruction);
+void InstrLLDeleteFirst(tLinkedList *L);
+
+void StrLLInit(tLinkedList *L);
+void StrLLInsert(tLinkedList *L, string K);
+int StrLLStringAlreadyOccupied(tLinkedList *L, char *S);
 
 #endif

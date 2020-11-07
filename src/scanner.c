@@ -14,7 +14,6 @@ void set_source_file(FILE *file) {
 	source = file;
 }
 
-
 int get_token(string *attr){
 	tState state = start;
 	char c;
@@ -201,11 +200,11 @@ int get_token(string *attr){
 			}
 			else if (c == '.') {
 				add_to_string(attr, c);
-				state = double_point;
+				state = float_point;
 			}
 			else if (c == 'e' || c == 'E') {
 				add_to_string(attr, c);
-				state = double_exponent;
+				state = float_exponent;
 			}
 			else if (is_alpha(c)) {
 				return LEX_ERROR;
@@ -215,49 +214,49 @@ int get_token(string *attr){
 				return tInteger;
 			}
 			break;
-		case double_point:
+		case float_point:
 			// 25. 22222.
 			if (is_num(c)) {
 				add_to_string(attr, c);
-				state = double_point_number;
+				state = float_point_number;
 			}
 			else {
 				ungetc(c, source);
 				return LEX_ERROR;
 			}
 			break;
-		case double_point_number:
+		case float_point_number:
 			// 25.2 222.2
 			if (is_num(c)) {
 				add_to_string(attr, c);
 			}
 			else if (c == 'e' || c == 'E') {
 				add_to_string(attr, c);
-				state = double_exponent;
+				state = float_exponent;
 			}
 			else {
 				ungetc(c, source);
-				return tDouble;
+				return tFloat;
 			}
 			break;
-		case double_exponent:
+		case float_exponent:
 			// 25.2E 25E
 			if (is_num(c)) {
 				add_to_string(attr, c);
-				state = double_exponent_number;
+				state = float_exponent_number;
 			}
 			else if (c == '+' || c == '-') {
 				add_to_string(attr, c);
-				state = double_singed_exponent;
+				state = float_singed_exponent;
 			}
 			else if (!number_ending(c)) {
 				return LEX_ERROR;
 			}
 			else {
-				return tDouble;
+				return tFloat;
 			}
 			break;
-		case double_exponent_number:
+		case float_exponent_number:
 			// 25E2 25.2E2
 			if (is_num(c)) {
 				add_to_string(attr, c);
@@ -266,25 +265,25 @@ int get_token(string *attr){
 				return LEX_ERROR;
 			}
 			else {
-				return tDouble;
+				return tFloat;
 			}
 			break;
-		case double_singed_exponent:
+		case float_singed_exponent:
 			if (is_num(c)) {
 				add_to_string(attr, c);
-				state = tDouble;
+				state = tFloat;
 			}
 			else {
 				ungetc(c, source);
 				return LEX_ERROR;
 			}
 			break;
-		case tDouble:
+		case tFloat:
 			if (is_num(c)) {
 				add_to_string(attr, c);
 			}
 			else {
-				return tDouble;
+				return tFloat;
 			}
 			break;
 		case unknown_identifier:
