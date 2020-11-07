@@ -96,22 +96,26 @@ void TableLLDeleteFirst(tLinkedList *L){
         return;
     }
     tListItem *to_delete = L->first;
-    L->first = L->first->nextItem;
+    L->first = to_delete->nextItem;
     SymTableDispose(to_delete->Content);
     free(to_delete);
 }
 
+void TableLLInsertFirstSeenVariable(tLinkedList *L, tLinkedList *variables, tExpressionList *expr_list){
+    tDataVariable *var = SymTableInsertVariable(L->first->Content, variables->first->Content)->Content;
+    var->dataType = expr_list->first->data_type;
+}
+
 void TableLLInsertFirst(tLinkedList *L, tSymtable *local_var_table){
     tListItem *new_node = malloc(sizeof(tListItem));
-    tSymtable *new_content = malloc(sizeof(tSymtable));
-    new_node->Content = local_var_table;
+    new_node->Content = malloc(sizeof(tSymtable));
     if (!L->first){
         new_node->nextItem = NULL;
     }
     else {
         new_node->nextItem = L->first;
     }
-    new_node->Content = new_content;
+    new_node->Content = local_var_table;
     L->first = new_node;
 }
 
@@ -136,6 +140,23 @@ int TableLLLen(tLinkedList *L){
     return i;
 }
 
+tDataVariable* TableLLGetSingleVariable(tLinkedList *func_variable_list, char* var){
+    if (!func_variable_list || !func_variable_list->first){
+        return NULL;
+    }
+    for (int i = 0; i < TableLLLen(func_variable_list); i++){
+        tSymtable *curr_table = (tSymtable*) TableLLLocateNthElem(func_variable_list, i)->Content;
+        if (!SymTableSearch(curr_table, var)){
+            continue;
+        }
+        tDataVariable *var_node = (tDataVariable*) SymTableSearch(curr_table, var)->Content;
+        if (var_node){
+            return var_node;
+        }
+    }
+    return NULL;
+}
+
 int TableLLFindAllVariables(tLinkedList *func_variable_list, tLinkedList *variables){
     if (!func_variable_list || !func_variable_list->first){
         return 100;
@@ -145,15 +166,12 @@ int TableLLFindAllVariables(tLinkedList *func_variable_list, tLinkedList *variab
     }
     int not_found = 0;
     for (int i = 0; i < StrLLLen(variables); i++){
-        for (int j = 0; j < TableLLLen(func_variable_list); j++){
-            tSymtable *curr_table = (tSymtable*) TableLLLocateNthElem(func_variable_list, j)->Content;
-            tListItem *var_node = StrLLLocateNthElem(variables, i);
-            if (SymTableSearch(curr_table, ((string*) var_node->Content)->str)){
-                continue;
-            }
+        char *var_name = StrLLLocateNthElem(variables, i)->Content;
+        if (!TableLLGetSingleVariable(func_variable_list, var_name) && strcmp(var_name, "_")){
+            not_found++;
         }
-        not_found++;
     }
+
     return not_found;
 }
 
@@ -171,21 +189,59 @@ int TableLLGetNumOfNests(tLinkedList *func_variable_list, char* var){
     return -1;
 }
 
-tDataVariable* TableLLGetSingleVariable(tLinkedList *func_variable_list, char* var){
-    if (!func_variable_list || !func_variable_list->first){
-        return NULL;
+// Passed side list
+//---------------------------------------------------------
+
+void PassedLLInit(tPassedSide *L){
+    L->first = NULL;
+}
+
+void PassedLLInsert(tPassedSide *L, char* value, int is_variable, tVarDataType data_type){
+    tPassedNode *new_node = malloc(sizeof(tPassedNode));
+    new_node->is_variable = is_variable;
+    int str_len;
+    if (value) {
+        str_len = strlen(value);
     }
-    for (int i = 0; i < TableLLLen(func_variable_list); i++){
-        tSymtable *curr_table = (tSymtable*) TableLLLocateNthElem(func_variable_list, i)->Content;
-        if (!SymTableSearch(curr_table, var)){
-            return NULL;
-        }
-        tDataVariable *var_node = (tDataVariable*) SymTableSearch(curr_table, var)->Content;
-        if (var_node){
-            return var_node;
-        }
+    else {
+        str_len = 0;
     }
-    return NULL;
+    new_node->value = malloc(str_len + 1);
+    strncpy(new_node->value, value, str_len);
+    new_node->value[str_len] = '\0';
+    new_node->data_type = data_type;
+    new_node->nextItem = NULL;
+
+    if (!L->first){
+        L->first = new_node;
+        return;
+    }
+
+    tPassedNode *item = L->first;
+    while (item->nextItem){
+        item = item->nextItem;
+    }
+    item->nextItem = new_node;
+}
+
+void PassedLLDeleteLast(tPassedSide *L){
+    if (!L->first){
+        return;
+    }
+
+    tPassedNode **to_delete = &L->first;
+    while ((*to_delete)->nextItem){
+        to_delete = &(*to_delete)->nextItem;
+    }
+
+    free(*to_delete);
+    *to_delete = NULL;
+}
+
+void PassedLLDispose(tPassedSide *L){
+    while (L->first){
+        PassedLLDeleteLast(L);
+    }
 }
 
 // Expression List
@@ -282,6 +338,7 @@ int ExprLLRuleLen(tExpressionList *L, int index){
         rule = rule->next;
         i++;
     }
+
     return i;
 }
 
