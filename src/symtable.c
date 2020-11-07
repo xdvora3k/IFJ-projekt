@@ -9,59 +9,60 @@ void BSTInit(tBSTNodePtr *RootPtr){
     *RootPtr = NULL;
 }
 
-int BSTSearch(tBSTNodePtr RootPtr, char* K, tBSTContent *Content){
-    if (RootPtr == NULL){
-        return FALSE;
+tBSTNodePtr BSTSearch(tBSTNodePtr RootPtr, char *K){
+    if (!RootPtr){
+        return NULL;
     }
 
     if (RootPtr->Key == K){
-        *Content = RootPtr->Content;
-        return TRUE;
+        return RootPtr;
     }
-
-    if (K > RootPtr->Key){
-        return BSTSearch(RootPtr->RPtr, K, Content);
+    else if (K > RootPtr->Key){
+        return BSTSearch(RootPtr->RPtr, K);
     }
-    return BSTSearch(RootPtr->LPtr, K, Content);
+    else {
+        return BSTSearch(RootPtr->LPtr, K);
+    }
 }
 
-tBSTNodePtr BSTCreateNode(char* K, char* type, double position){
-    tBSTContent *new_content = (tBSTContent*) malloc(sizeof(tBSTContent));
-    new_content->position = position;
-    new_content->type = type;
+tBSTNodePtr BSTCreateNode(char* K, void* Data){
     tBSTNodePtr new_node = (tBSTNodePtr) malloc(sizeof(struct tBSTNode));
-    new_node->Content = *new_content;
-    new_node->Key = K;
+    new_node->Content = Data;
     new_node->LPtr = NULL;
     new_node->RPtr = NULL;
+    new_node->Key = K;
     return new_node;
 }
 
-void BSTInsert(tBSTNodePtr* RootPtr, char* K, char* type, double position){
+tBSTNodePtr BSTInsert(tBSTNodePtr* RootPtr, char* K, void* Data){
     if (!(*RootPtr)){
-        *RootPtr = BSTCreateNode(K, type, position);
+        *RootPtr = BSTCreateNode(K, Data);
+        return *RootPtr;
     }
 
+    // If already exists, Semantic error
     if (K == (*RootPtr)->Key){
-        (*RootPtr)->Content.type = type;
-        (*RootPtr)->Content.position = position;
+        exit(SEM_ERROR);
     }
     else if (K > (*RootPtr)->Key){
         if ((*RootPtr)->RPtr){
-            BSTInsert(&(*RootPtr)->RPtr, K, type, position);
+            BSTInsert(&(*RootPtr)->RPtr, K, Data);
         }
         else {
-            (*RootPtr)->RPtr = BSTCreateNode(K, type, position);
+            (*RootPtr)->RPtr = BSTCreateNode(K, Data);
+            return (*RootPtr)->RPtr;
         }
     }
-    else if (K < (*RootPtr)->Key){
+    else {
         if ((*RootPtr)->LPtr){
-            BSTInsert(&(*RootPtr)->LPtr, K, type, position);
+            BSTInsert(&(*RootPtr)->LPtr, K, Data);
         }
         else {
-            (*RootPtr)->LPtr = BSTCreateNode(K, type, position);
+            (*RootPtr)->LPtr = BSTCreateNode(K, Data);
+            return (*RootPtr)->LPtr;
         }
     }
+    return NULL;
 }
 
 void ReplaceByRightmost(tBSTNodePtr PtrReplaced, tBSTNodePtr *RootPtr){
@@ -144,4 +145,215 @@ void BSTDispose(tBSTNodePtr *RootPtr){
     free(&(*RootPtr)->Content);
     free(*RootPtr);
     *RootPtr = NULL;
+}
+
+/*
+ * ------------------------------------------------------------------------------------
+ */
+
+void SymTableInit(tSymtable* SymTable){
+    BSTInit(&(SymTable->root));
+}
+
+tBSTNodePtr SymTableInsertFunction(tSymtable* SymTable, string *key){
+    tDataFunction* funcPtr = (tDataFunction*) malloc(sizeof(struct tDataFunction));
+    string params;
+    init_string(&params);
+
+    funcPtr->params = params;
+    funcPtr->declared = FALSE;
+    funcPtr->defined = FALSE;
+
+    return BSTInsert(&(SymTable->root), key->str, funcPtr);
+}
+
+tBSTNodePtr SymTableInsertVariable(tSymtable* SymTable, string *key){
+    tDataVariable* varPtr = (tDataVariable*) malloc(sizeof(struct tDataVariable));
+    varPtr->dataType = -1;
+    return BSTInsert(&(SymTable->root), key->str, varPtr);
+}
+
+tBSTNodePtr SymTableSearch(tSymtable* SymTable, string *key){
+    return BSTSearch(SymTable->root, key->str);
+}
+
+void SymTableDelete(tSymtable* SymTable, string *key){
+    BSTDelete(&SymTable->root, key->str);
+}
+
+void SymTableDispose(tSymtable* Symtable){
+    BSTDispose(&(Symtable->root));
+}
+void InsertBuiltInFuncs(tSymtable* SymTable){
+    tDataFunction* func;
+
+    // Built-in functions
+
+    // INPUTI
+    // ---------------------------------
+    string inputi;
+    init_string(&inputi);
+    adds_to_string(&inputi, "inputi");
+
+    tBSTNodePtr new_node_inputi = SymTableInsertFunction(SymTable, &inputi);
+    func = (tDataFunction*)(new_node_inputi->Content);
+    func->defined = TRUE;
+    func->declared = TRUE;
+
+    init_string(&(func->returnType));
+    adds_to_string(&(func->returnType),"ii");
+    // ---------------------------------
+
+    // INPUTS
+    // ---------------------------------
+    string inputs;
+    init_string(&inputs);
+    adds_to_string(&inputs,"inputs");
+
+    tBSTNodePtr new_node_inputs = SymTableInsertFunction(SymTable, &inputs);
+    func = (tDataFunction*)(new_node_inputs->Content);
+    func->declared = TRUE;
+    func->defined = TRUE;
+
+    init_string(&(func->returnType));
+    adds_to_string(&(func->returnType),"si");
+    // ---------------------------------
+
+    // INPUTF
+    // ---------------------------------
+    string inputf;
+    init_string(&inputf);
+    adds_to_string(&inputf,"inputf");
+
+    tBSTNodePtr new_node_inputf = SymTableInsertFunction(SymTable, &inputf);
+    func = (tDataFunction*)(new_node_inputf->Content);
+    func->defined = TRUE;
+    func->declared = TRUE;
+
+    init_string(&(func->returnType));
+    adds_to_string(&(func->returnType),"fi");
+    // ---------------------------------
+
+    // PRINT
+    // ---------------------------------
+    string print;
+    init_string(&print);
+
+    adds_to_string(&print,"print");
+    tBSTNodePtr new_node_print = SymTableInsertFunction(SymTable, &print);
+    func = (tDataFunction*)(new_node_print->Content);
+    func->defined = TRUE;
+    func->declared = TRUE;
+
+    StrLLInit(&(func->paramNames));
+    func->list_initialized = TRUE;
+    // ---------------------------------
+
+    // INT2FLOAT
+    // ---------------------------------
+    string int2float;
+    init_string(&int2float);
+    adds_to_string(&int2float,"int2float");
+
+    tBSTNodePtr new_node_int2float = SymTableInsertFunction(SymTable, &int2float);
+    func = (tDataFunction*)(new_node_int2float->Content);
+    func->defined = TRUE;
+    func->declared = TRUE;
+
+    func->list_initialized = false; //TODO: Fix
+    init_string(&(func->params));
+    add_to_string(&(func->params),'i');
+    init_string(&(func->returnType));
+    add_to_string(&(func->returnType),'f');
+    // ---------------------------------
+
+    // FLOAT2INT
+    // ---------------------------------
+    string float2int;
+    init_string(&int2float);
+    adds_to_string(&float2int,"float2int");
+
+    tBSTNodePtr new_node_float2int = SymTableInsertFunction(SymTable, &float2int);
+    func = (tDataFunction*)(new_node_float2int->Content);
+    func->defined = TRUE;
+    func->declared = TRUE;
+
+    func->list_initialized = false; //TODO: Fix
+    init_string(&(func->params));
+    add_to_string(&(func->params),'f');
+    init_string(&(func->returnType));
+    add_to_string(&(func->returnType),'i');
+    // ---------------------------------
+
+    // LEN
+    // ---------------------------------
+    string len;
+    init_string(&len);
+    adds_to_string(&len,"len");
+
+    tBSTNodePtr new_node_len = SymTableInsertFunction(SymTable, &len);
+    func = (tDataFunction*)(new_node_len->Content);
+    func->declared = TRUE;
+    func->defined = TRUE;
+
+    func->list_initialized = false; //TODO: Fix
+    init_string(&(func->params));
+    add_to_string(&(func->params),'s');
+    init_string(&(func->returnType));
+    add_to_string(&(func->returnType),'i');
+    // ---------------------------------
+
+    // SUBSTR
+    // ---------------------------------
+    string substr;
+    init_string(&substr);
+    adds_to_string(&substr,"substr");
+
+    tBSTNodePtr new_node_substr = SymTableInsertFunction(SymTable, &substr);
+    func = (tDataFunction*)(new_node_substr->Content);
+    func->defined = TRUE;
+    func->declared = TRUE;
+
+    func->list_initialized = false; //TODO: Fix
+    init_string(&(func->params));
+    adds_to_string(&(func->params),"sii");
+    init_string(&(func->returnType));
+    adds_to_string(&(func->returnType),"si");
+    // ---------------------------------
+
+    // ORD
+    // ---------------------------------
+    string ord;
+    init_string(&ord);
+    adds_to_string(&ord,"ord");
+
+    tBSTNodePtr new_node_ord = SymTableInsertFunction(SymTable, &ord);
+    func = (tDataFunction*)(new_node_ord->Content);
+    func->declared = TRUE;
+    func->defined = TRUE;
+
+    func->list_initialized = false; //TODO: Fix
+    init_string(&(func->params));
+    adds_to_string(&(func->params),"si");
+    init_string(&(func->returnType));
+    adds_to_string(&(func->returnType),"ii");
+    // ---------------------------------
+
+    // CHR
+    // ---------------------------------
+    string chr;
+    init_string(&chr);
+    adds_to_string(&chr,"chr");
+
+    tBSTNodePtr new_node_chr = SymTableInsertFunction(SymTable, &chr);
+    func = (tDataFunction*)(new_node_chr->Content);
+    func->declared = TRUE;
+    func->defined = TRUE;
+
+    func->list_initialized = false; //TODO: Fix
+    init_string(&(func->params));
+    add_to_string(&(func->params),'i');
+    init_string(&(func->returnType));
+    adds_to_string(&(func->returnType),"si");
+    // ---------------------------------
 }
