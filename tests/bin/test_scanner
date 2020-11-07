@@ -25,7 +25,7 @@ for file in $ROOT/tests/test_files/test_scanner/*; do
     [[ $regex = "comment" ]] && continue # Skip comments
 
     echo "Errors:"
-    grep $regex out || errors=$((errors + 1))
+    grep -v $regex out || errors=$((errors + 1))
     echo "--------------"
     cat out
     echo "--------------"
