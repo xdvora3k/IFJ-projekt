@@ -177,6 +177,7 @@ void StrLLDispose(tLinkedList *L);
 
 void TableLLInit(tLinkedList *L);
 void TableLLInsertFirst(tLinkedList *L, tSymtable *local_var_table);
+void TableLLInsertFirstSeenVariable(tLinkedList *L, tLinkedList *variables, tPassedSide *data_types);
 void TableLLDeleteFirst(tLinkedList *L);
 void TableLLInsertFirstSeenVariable(tLinkedList *L, tLinkedList *variables, tExpressionList *expr_list);
 tListItem* TableLLLocateNthElem(tLinkedList *L, int index);
