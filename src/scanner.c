@@ -14,11 +14,10 @@ void set_source_file(FILE *file) {
 	source = file;
 }
 
-
 int get_token(string *attr){
 	tState state = start;
 	char c;
-	init_string(attr);
+	clear_str(attr);
 
 	while (TRUE) {
 		c = getc(source);
@@ -106,7 +105,7 @@ int get_token(string *attr){
 				return tClosingCurlyBrace;
 			}
 			else if (c == EOF) {
-				return EOF;
+				return tEOF;
 			}
 			break;
 		case tBiggerThan:
@@ -115,7 +114,7 @@ int get_token(string *attr){
 				return tBiggerOrEqual;
 			}
 			else if (!comparison_assumption(c)) {
-				return LEX_ERROR;
+				return tLEX_ERROR;
 			}
 			ungetc(c, source);
 			return tBiggerThan;
@@ -125,7 +124,7 @@ int get_token(string *attr){
 				return tSmallerOrEqual;
 			}
 			else if (!comparison_assumption(c)) {
-				return LEX_ERROR;
+				return tLEX_ERROR;
 			}
 			return tSmallerThan;
 		case tAssignment:
@@ -142,13 +141,13 @@ int get_token(string *attr){
 				add_to_string(attr, c);
 				return tNotEqual;
 			}
-			return LEX_ERROR;
+			return tLEX_ERROR;
 		case tDeclaration:
 			if (c == '=') {
 				add_to_string(attr, c);
 				return tDeclaration;
 			}
-			return LEX_ERROR;
+			return tLEX_ERROR;
 		case string_start:
 			if (c == '"') {
 				return tString;
@@ -174,7 +173,7 @@ int get_token(string *attr){
 				state = string_start;
 			}
 			else {
-				return LEX_ERROR;
+				return tLEX_ERROR;
 			}
 			break;
 		case string_hex1:
@@ -183,7 +182,7 @@ int get_token(string *attr){
 				state = string_hex2;
 			}
 			else {
-				return LEX_ERROR;
+				return tLEX_ERROR;
 			}
 			break;
 		case string_hex2:
@@ -192,7 +191,7 @@ int get_token(string *attr){
 				state = string_start;
 			}
 			else {
-				return LEX_ERROR;
+				return tLEX_ERROR;
 			}
 			break;
 		case tInteger:
@@ -201,90 +200,90 @@ int get_token(string *attr){
 			}
 			else if (c == '.') {
 				add_to_string(attr, c);
-				state = double_point;
+				state = float_point;
 			}
 			else if (c == 'e' || c == 'E') {
 				add_to_string(attr, c);
-				state = double_exponent;
+				state = float_exponent;
 			}
 			else if (is_alpha(c)) {
-				return LEX_ERROR;
+				return tLEX_ERROR;
 			}
 			else {
 				ungetc(c, source);
 				return tInteger;
 			}
 			break;
-		case double_point:
+		case float_point:
 			// 25. 22222.
 			if (is_num(c)) {
 				add_to_string(attr, c);
-				state = double_point_number;
+				state = float_point_number;
 			}
 			else {
 				ungetc(c, source);
-				return LEX_ERROR;
+				return tLEX_ERROR;
 			}
 			break;
-		case double_point_number:
+		case float_point_number:
 			// 25.2 222.2
 			if (is_num(c)) {
 				add_to_string(attr, c);
 			}
 			else if (c == 'e' || c == 'E') {
 				add_to_string(attr, c);
-				state = double_exponent;
+				state = float_exponent;
 			}
 			else {
 				ungetc(c, source);
-				return tDouble;
+				return tFloat;
 			}
 			break;
-		case double_exponent:
+		case float_exponent:
 			// 25.2E 25E
 			if (is_num(c)) {
 				add_to_string(attr, c);
-				state = double_exponent_number;
+				state = float_exponent_number;
 			}
 			else if (c == '+' || c == '-') {
 				add_to_string(attr, c);
-				state = double_singed_exponent;
+				state = float_singed_exponent;
 			}
 			else if (!number_ending(c)) {
-				return LEX_ERROR;
+				return tLEX_ERROR;
 			}
 			else {
-				return tDouble;
+				return tFloat;
 			}
 			break;
-		case double_exponent_number:
+		case float_exponent_number:
 			// 25E2 25.2E2
 			if (is_num(c)) {
 				add_to_string(attr, c);
 			}
 			else if (!number_ending(c)) {
-				return LEX_ERROR;
+				return tLEX_ERROR;
 			}
 			else {
-				return tDouble;
+				return tFloat;
 			}
 			break;
-		case double_singed_exponent:
+		case float_singed_exponent:
 			if (is_num(c)) {
 				add_to_string(attr, c);
-				state = tDouble;
+				state = tFloat;
 			}
 			else {
 				ungetc(c, source);
-				return LEX_ERROR;
+				return tLEX_ERROR;
 			}
 			break;
-		case tDouble:
+		case tFloat:
 			if (is_num(c)) {
 				add_to_string(attr, c);
 			}
 			else {
-				return tDouble;
+				return tFloat;
 			}
 			break;
 		case unknown_identifier:
@@ -349,7 +348,7 @@ int get_token(string *attr){
 			break;
 		case tEqual:
 			if (!comparison_assumption(c)) {
-				return LEX_ERROR;
+				return tLEX_ERROR;
 			}
 			ungetc(c, source);
 			return tEqual;
