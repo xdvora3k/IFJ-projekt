@@ -17,12 +17,12 @@ typedef enum{
 
     tInteger,
 
-    double_point,
-    double_point_number,
-    double_exponent,
-    double_exponent_number,
-    double_singed_exponent,
-    tDouble,
+    float_point,
+    float_point_number,
+    float_exponent,
+    float_exponent_number,
+    float_singed_exponent,
+    tFloat,
 
     string_start,
     string_special,
@@ -62,7 +62,27 @@ typedef enum{
 
     EOL,
 
-    LEX_ERROR = 1000
+    LEX_ERROR = 1000,
+
+    // ------------------------- For parser
+    sFunc,
+
+    sFor,
+
+    sIf,
+    sElse,
+
+    sReturn,
+
+    sDeclare,
+    sAssign,
+
+    sEnd,
+
+    // Datatypes
+    sString,
+    sInt,
+    sFloat64
 
 }tState;
 
