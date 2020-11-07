@@ -1,6 +1,7 @@
 /*
  * IFJ project 2020
- * Author: xdvora3k, Jakub Dvorak
+ * Authors: xdvora3k, Jakub Dvorak
+ *          xkuzel08, Marie Kuzelova
  */
 
 #include <stdio.h>

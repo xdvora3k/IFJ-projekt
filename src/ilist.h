@@ -11,8 +11,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "symtable.h"
 #include "str.h"
+#include "scanner.h"
+#include "symtable.h"
+#include "expression.h"
 #include "scanner.h"
 
 typedef enum{
@@ -141,6 +143,21 @@ typedef struct {
     tListItem *first;
 } tLinkedList;
 
+typedef struct tPassedNode {
+    char* value;
+    int is_variable;
+    tVarDataType data_type;
+    struct tPassedNode *nextItem;
+} tPassedNode;
+
+typedef struct tPassedSide {
+    tPassedNode *first;
+} tPassedSide;
+
+typedef struct tDataVariable {
+    tVarDataType dataType;
+} tDataVariable;
+
 typedef struct tDataFunction {
     string returnType;
     bool declared;
@@ -185,6 +202,7 @@ void StrLLDispose(tLinkedList *L);
 void TableLLInit(tLinkedList *L);
 void TableLLInsertFirst(tLinkedList *L, tSymtable *local_var_table);
 void TableLLDeleteFirst(tLinkedList *L);
+void TableLLInsertFirstSeenVariable(tLinkedList *L, tLinkedList *variables, tExpressionList *expr_list);
 tListItem* TableLLLocateNthElem(tLinkedList *L, int index);
 int TableLLLen(tLinkedList *L);
 int TableLLFindAllVariables(tLinkedList *func_variable_list, tLinkedList *variables);
@@ -198,8 +216,12 @@ void Instruction1(INSTRUCTION InstrType, tInstructionOperand op);
 void Instruction2(INSTRUCTION InstrType, tInstructionOperand op, tInstructionOperand op2);
 void Instruction3(INSTRUCTION InstrType, tInstructionOperand op, tInstructionOperand op2, tInstructionOperand op3);
 void InstructionPrint(tInstr i);
-
 void Print_BuiltIn_Functions();
+
+void PassedLLInit(tPassedSide *L);
+void PassedLLInsert(tPassedSide *L, char* value, int is_variable, tVarDataType data_type);
+void PassedLLDeleteLast(tPassedSide *L);
+void PassedLLDispose(tPassedSide *L);
 
 void ExprLLInit(tExpressionList *L);
 void ExprLLCreateNextNode(tExpressionList *L, tVarDataType data_type);

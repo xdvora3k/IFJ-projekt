@@ -1,3 +1,8 @@
+/*
+ * IFJ project 2020
+ * Author: xdvora3k, Jakub Dvorak
+ */
+
 #ifndef IFJ_PROJEKT_SCANNER_H
 #define IFJ_PROJEKT_SCANNER_H
 

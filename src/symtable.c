@@ -1,6 +1,7 @@
 /*
  * IFJ project 2020
- * Author: xdvora3k, Jakub Dvorak
+ * Authors: xdvora3k, Jakub Dvorak
+ *          xkuzel08, Marie Kuzelova
  */
 
 #include "symtable.h"
@@ -29,7 +30,7 @@ tBSTNodePtr BSTCreateNode(char* K, void* Data){
     new_node->Content = Data;
     new_node->LPtr = NULL;
     new_node->RPtr = NULL;
-    char *key = malloc(sizeof(K));
+    char *key = malloc(sizeof(K) + 1);
     strcpy(key, K);
     new_node->Key = key;
     return new_node;
@@ -40,13 +41,14 @@ tBSTNodePtr BSTInsert(tBSTNodePtr* RootPtr, char* K, void* Data){
         *RootPtr = BSTCreateNode(K, Data);
         return *RootPtr;
     }
+
     // If already exists, Semantic error
     if (strcmp(K,(*RootPtr)->Key) == 0){  //K == (*RootPtr)->Key
-        exit(SEM_ERROR);
+        return NULL;
     }
     else if (strcmp(K, (*RootPtr)->Key) > 0){ //K > (*RootPtr)->Key
         if ((*RootPtr)->RPtr){
-            BSTInsert(&(*RootPtr)->RPtr, K, Data);
+            return BSTInsert(&(*RootPtr)->RPtr, K, Data);
         }
         else {
             (*RootPtr)->RPtr = BSTCreateNode(K, Data);
@@ -55,7 +57,7 @@ tBSTNodePtr BSTInsert(tBSTNodePtr* RootPtr, char* K, void* Data){
     }
     else {
         if ((*RootPtr)->LPtr){
-            BSTInsert(&(*RootPtr)->LPtr, K, Data);
+            return BSTInsert(&(*RootPtr)->LPtr, K, Data);
         }
         else {
             (*RootPtr)->LPtr = BSTCreateNode(K, Data);
@@ -191,7 +193,7 @@ void InsertBuiltInFuncs(tSymtable* SymTable){
 
     // function INPUTI()(int, int)
     //---------------------------------
-    tBSTNodePtr new_node_inputi = SymTableInsertFunction(SymTable, "inputi");
+    tBSTNodePtr new_node_inputi = SymTableInsertFunction(SymTable, "inputi\0");
     func = (tDataFunction*)(new_node_inputi->Content);
     func->defined = TRUE;
     func->declared = TRUE;
@@ -222,11 +224,10 @@ void InsertBuiltInFuncs(tSymtable* SymTable){
     // function PRINT(...,...,...)
     //---------------------------------
     tBSTNodePtr new_node_print = SymTableInsertFunction(SymTable, "print");
-    func = (tDataFunction*)(new_node_print->Content);
+    func = (tDataFunction*) new_node_print->Content;
     func->defined = TRUE;
     func->declared = TRUE;
     //---------------------------------
-
     // function INT2FLOAT(i int)(float64)
     //---------------------------------
     tBSTNodePtr new_node_int2float = SymTableInsertFunction(SymTable, "int2float");
