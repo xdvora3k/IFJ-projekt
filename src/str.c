@@ -32,8 +32,8 @@ int adds_to_string(string *string, char* S){
         if (add_to_string(string, S[i]) == NO_ERROR){
             continue;
         }
-        return INTERNAL_ERROR;
     }
+    return INTERNAL_ERROR;
 }
 
 int is_whitespace(char c){

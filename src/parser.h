@@ -17,27 +17,6 @@
 #define SYN_ERROR 500
 #define SEM_ERROR 501
 
-typedef enum{
-    sFunc,
-
-    sFor,
-
-    sIf,
-    sElse,
-
-    sReturn,
-
-    sDeclare,
-    sAssign,
-
-    sEnd,
-
-    // Datatypes
-    sString,
-    sInt,
-    sFloat64
-} sKeywordType;
-
 int end_of_line();
 int program();
 int parse(tBSTNodePtr *RootPtr, tListOfInstr *Instr);

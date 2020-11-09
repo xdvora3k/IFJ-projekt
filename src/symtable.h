@@ -11,6 +11,7 @@
 #include <stdarg.h>
 #include <stdbool.h>
 #include "str.h"
+#include "ilist.h"
 
 #define TRUE 1
 #define FALSE 0
@@ -25,11 +26,12 @@ typedef struct tDataVariable {
 } tDataVariable;
 
 typedef struct tDataFunction {
-    char returnType[50];
+    string returnType;
     bool declared;
     bool defined;
     string params;
-    string paramName[50];
+    bool list_initialized = false;
+    tLinkedList paramNames;
 } tDataFunction;
 
 typedef struct tBSTNode {

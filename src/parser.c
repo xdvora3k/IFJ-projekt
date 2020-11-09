@@ -7,9 +7,27 @@
 
 tSymtable *GlobalRoot;
 tListOfInstr *GlobalInstr;
-sKeywordType token;
+tState token;
 string attr;
 
+
+void check_lex_error(){
+    if (token == LEX_ERROR){
+        exit(1);
+    }
+}
+
+void check_syn_error(int error){
+    if (error == SYN_ERROR){
+        exit(2);
+    }
+}
+
+void check_sem_error(int error){
+    if (error == SEM_ERROR){
+        exit(3);
+    }
+}
 
 // see get_adjusted_token()
 int translate_scanner_states(string *attr){
@@ -43,9 +61,7 @@ int translate_scanner_states(string *attr){
 // Returns LEX_ERROR if get_token() fails
 int get_adjusted_token(){
     token = get_token(&attr);
-    if (token == LEX_ERROR){
-        return LEX_ERROR;
-    }
+    check_lex_error();
     else if (token == EOL){
         return sEnd;
     }
@@ -55,10 +71,8 @@ int get_adjusted_token(){
 // skip EOL
 // return 0 if everything goes right
 int end_of_line(){
-    token = get_adjusted_token(&attr);
-    if (token == LEX_ERROR){
-        return LEX_ERROR;
-    }
+    token = get_adjusted_token();
+    check_lex_error();
     else if (token == tKeyword){
         return 0;
     }
@@ -70,28 +84,58 @@ int end_of_line(){
 
 // Private-like helper function
 // Parse `i int` `x float64`
-int _parse_param(){
+int _parse_param(tBSTNodePtr node){
     token = get_adjusted_token();
-    // TODO
+    check_lex_error();
+    if (token != tId){
+        return SYN_ERROR;
+    }
+
+    tDataFunction* Content = (tDataFunction*) node->Content;
+    if (!Content->list_initialized){
+        Content->list_initialized = TRUE;
+        StrLLInit(Content->paramNames);
+    }
+    if (StrLLStringAlreadyOccupied(Content->paramNames, &attr.str)){
+        return SEM_ERROR;
+    }
+    StrLLInsertFirst(Content->paramNames, &attr.str);
+    token = get_adjusted_token();
+
+
 }
 
 // Private-like helper function
 // Parse `(i int)(char, int)`
-// Token ~= tOpeningSimpleBrace
-int _parse_params(){
-    int result;
+// Token current state ~= tId
+int _parse_params(tBSTNodePtr node){
     token = get_adjusted_token();
-    if (token == LEX_ERROR){
-        return LEX_ERROR;
-    }
-    if (token == tClosingSimpleBrace){
-        return NO_ERROR;
-    }
 
-    while (token != tClosingSimpleBrace){
-        _parse_param();
+    // Expecting `(`
+    token = get_adjusted_token();
+    check_lex_error();
+    if (token != tOpeningSimpleBrace){
+        return SYN_ERROR;
     }
-    // TODO
+    int error_state;
+    while (token != tClosingSimpleBrace){
+        error_state = _parse_param(node);
+        check_lex_error();
+        else if (error_state == SYN_ERROR){
+            return SYN_ERROR;
+        }
+        else if (error_state == SEM_ERROR){
+            return SEM_ERROR;
+        }
+    }
+    return NO_ERROR;
+}
+
+int _parse_return_type(){
+
+}
+
+int _parse_return_types(){
 
 }
 
@@ -110,15 +154,8 @@ int parse_func_header(){
     ((tDataFunction *) new_node->Content)->declared = true;
     ((tDataFunction *) new_node->Content)->defined = false;
 
-    // Expecting `(`
-    token = get_adjusted_token();
-    if (token == LEX_ERROR){
-        return LEX_ERROR;
-    }
-    if (token != tOpeningSimpleBrace){
-        return SYN_ERROR;
-    }
-    result = _parse_params();
+    // Proceeding with parsing params
+    result = _parse_params(new_node);
     // TODO
 
 }
