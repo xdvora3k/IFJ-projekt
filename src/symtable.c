@@ -188,7 +188,6 @@ void SymTableDispose(tSymtable* Symtable){
 
 
 void InsertBuiltInFuncs(tSymtable* SymTable){
-    tBSTNodePtr node;
     tDataFunction* func;
 
     // Built-in  //
