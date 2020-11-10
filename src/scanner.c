@@ -14,7 +14,6 @@ void set_source_file(FILE *file) {
 	source = file;
 }
 
-
 int get_token(string *attr){
 	tState state = start;
 	char c;

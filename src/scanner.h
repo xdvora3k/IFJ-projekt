@@ -62,7 +62,27 @@ typedef enum{
 
     EOL,
 
-    LEX_ERROR = 1000
+    LEX_ERROR = 1000,
+
+    // ------------------------- For parser
+    sFunc,
+
+    sFor,
+
+    sIf,
+    sElse,
+
+    sReturn,
+
+    sDeclare,
+    sAssign,
+
+    sEnd,
+
+    // Datatypes
+    sString,
+    sInt,
+    sFloat64
 
 }tState;
 
