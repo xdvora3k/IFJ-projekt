@@ -19,14 +19,14 @@ tBSTNodePtr BSTSearch(tBSTNodePtr RootPtr, char *K){
     }
 
     if (K > RootPtr->Key){
-        return BSTSearch(RootPtr->RPtr, K, Content);
+        return BSTSearch(RootPtr->RPtr, K);
     }
     else if (K < RootPtr->Key) {
-        return BSTSearch(RootPtr->LPtr, K, Content);
+        return BSTSearch(RootPtr->LPtr, K);
     }
 }
 
-tBSTNodePtr BSTCreateNode(char* K, void* Data, tNodeDataType dataType){
+tBSTNodePtr BSTCreateNode(char* K, void* Data, tNodeDataType dataType){ //TODO: Fix
     tBSTNodePtr new_node = (tBSTNodePtr) malloc(sizeof(struct tBSTNode));
     new_node->Content = Data;
     new_node->LPtr = NULL;
@@ -37,17 +37,17 @@ tBSTNodePtr BSTCreateNode(char* K, void* Data, tNodeDataType dataType){
 
 tBSTNodePtr BSTInsert(tBSTNodePtr* RootPtr, char* K, void* Data, tNodeDataType dataType){
     if (!(*RootPtr)){
-        *RootPtr = BSTCreateNode(L, Data, dataType);
+        *RootPtr = BSTCreateNode(L, Data, dataType); //TODO: Fix
         return *RootPtr;
     }
 
     if (K == (*RootPtr)->Key){
         (*RootPtr)->Content = Data;
-        (*RootPtr)->Content.position = position;
+        (*RootPtr)->Content.position = position; //TODO: Fix
     }
     else if (K > (*RootPtr)->Key){
         if ((*RootPtr)->RPtr){
-            BSTInsert(&(*RootPtr)->RPtr, K, type, position);
+            BSTInsert(&(*RootPtr)->RPtr, K, type, position); // TODO: Fix
         }
         else {
             (*RootPtr)->RPtr = BSTCreateNode(L, Data, dataType);
@@ -168,11 +168,9 @@ tBSTNodePtr SymTableInsertFunction(tSymtable* SymTable, string key){
     return BSTInsert(SymTable, key.str, funcPtr, Function);
 }
 
-tBSTNodePtr SymTableInsertVariable(tSymtable* SymTable, string key){
+tBSTNodePtr SymTableInsertVariable(tSymtable* SymTable, string *key){
     tDataVariable* varPtr = (tDataVariable*) malloc(sizeof(struct tDataVariable));
-
     varPtr->dataType = -1;
-
     return BSTInsert(SymTable, key.str, varPtr, Variable);
 }
 
@@ -187,6 +185,7 @@ void SymTableDelete(tSymtable* SymTable, string key){
 void SymTableDispose(tSymtable* Symtable){
     BSTDispose(&(Symtable->root));
 }
+
 
 void InsertBuiltInFuncs(tSymtable* SymTable){
     tBSTNodePtr node;

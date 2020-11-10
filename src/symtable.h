@@ -30,7 +30,7 @@ typedef struct tDataFunction {
     bool declared;
     bool defined;
     string params;
-    bool list_initialized = false;
+    bool list_initialized;
     tLinkedList paramNames;
 } tDataFunction;
 
@@ -54,7 +54,7 @@ void BSTDispose(tBSTNodePtr *RootPtr);
 
 void SymTableInit(tSymtable* SymTable);
 tBSTNodePtr SymTableInsertFunction(tSymtable* SymTable, string key);
-tBSTNodePtr SymTableInsertVariable(tSymtable* SymTable, string key)
+tBSTNodePtr SymTableInsertVariable(tSymtable* SymTable, string key);
 tBSTNodePtr SymTableSearch(tSymtable* SymTable, string key);
 void SymTableDelete(tSymtable* SymTable, string key);
 void SymTableDispose(tSymtable* Symtable);

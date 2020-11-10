@@ -44,7 +44,7 @@ void InstrLLCopyFirst(tLinkedList *L, tInstr *Instruction);
 void InstrLLDeleteFirst(tLinkedList *L);
 
 void StrLLInit(tLinkedList *L);
-void StrLLInsertFirst(tLinkedList *L, string K);
+void StrLLInsert(tLinkedList *L, string K);
 int StrLLStringAlreadyOccupied(tLinkedList *L, char *S);
 
 #endif

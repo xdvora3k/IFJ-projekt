@@ -29,11 +29,14 @@ void InstrLLInsertFirst(tLinkedList *L, tInstr Instruction){
     L->first = new_node;
 }
 
-void StrLLInsertFirst(tLinkedList *L, string K){
+void StrLLInsert(tLinkedList *L, string *K){
     tListItem *new_node = (tListItem*) malloc(sizeof(tListItem));
     ((string*) new_node->Content) = K;
-    new_node->nextItem = L->first;
-    L->first = new_node;
+    tListItem *curr = L->first;
+    while (curr->nextItem){
+        curr = curr->nextItem;
+    }
+    curr->nextItem = new_node;
 }
 
 void InstrLLCopyFirst(tLinkedList *L, tInstr *Instruction){

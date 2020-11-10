@@ -8,24 +8,12 @@
 tSymtable *GlobalRoot;
 tListOfInstr *GlobalInstr;
 tState token;
-string attr;
+string *attr;
 
 
 void check_lex_error(){
-    if (token == LEX_ERROR){
-        exit(1);
-    }
-}
-
-void check_syn_error(int error){
-    if (error == SYN_ERROR){
-        exit(2);
-    }
-}
-
-void check_sem_error(int error){
-    if (error == SEM_ERROR){
-        exit(3);
+    if (token == LEX_ERROR){ // TODO: FIX, won't work
+        exit(LEX_ERROR);
     }
 }
 
@@ -60,89 +48,151 @@ int translate_scanner_states(string *attr){
 // Try to adjust token type for parser
 // Returns LEX_ERROR if get_token() fails
 int get_adjusted_token(){
-    token = get_token(&attr);
+    token = get_token(attr);
     check_lex_error();
     else if (token == EOL){
         return sEnd;
     }
-    return translate_scanner_states(&attr);
+    return translate_scanner_states(attr);
 }
 
 // skip EOL
 // return 0 if everything goes right
-int end_of_line(){
+void end_of_line(){
     token = get_adjusted_token();
-    check_lex_error();
     else if (token == tKeyword){
-        return 0;
+        return;
     }
     else if (token == EOF){
-        return SYN_ERROR;
+        exit(SYN_ERROR);
     }
     return end_of_line();
 }
 
+void _insert_datatype(tDataFunction* Content){
+    char datatype;
+    switch (token){
+        case sInt:
+            datatype = 'i';
+            break;
+        case sFloat64:
+            datatype = 'f';
+            break;
+        case sString:
+            datatype = 's';
+            break;
+    }
+    if (add_to_string(&Content->params, datatype)){
+        exit(INTERNAL_ERROR);
+    }
+}
+
 // Private-like helper function
 // Parse `i int` `x float64`
-int _parse_param(tBSTNodePtr node){
+void _parse_param(tBSTNodePtr node){
     token = get_adjusted_token();
-    check_lex_error();
+    if (token == tClosingSimpleBrace){
+        return;
+    }
     if (token != tId){
-        return SYN_ERROR;
+        exit(SYN_ERROR);
     }
 
     tDataFunction* Content = (tDataFunction*) node->Content;
     if (!Content->list_initialized){
         Content->list_initialized = TRUE;
-        StrLLInit(Content->paramNames);
+        init_string(&Content->returnType);
+        init_string(&Content->params);
+        StrLLInit(&Content->paramNames);
     }
-    if (StrLLStringAlreadyOccupied(Content->paramNames, &attr.str)){
-        return SEM_ERROR;
+    if (StrLLStringAlreadyOccupied(&Content->paramNames, attr.str)){
+        exit(SEM_ERROR);
     }
-    StrLLInsertFirst(Content->paramNames, &attr.str);
+    StrLLInsert(&Content->paramNames, &attr);
     token = get_adjusted_token();
 
+    if (!is_datatype(attr)){
+        exit(SEM_ERROR);
+    }
+    _insert_datatype(Content);
 
+    token = get_adjusted_token();
+    if (token != tClosingSimpleBrace && token != tComma){
+        exit(SYN_ERROR);
+    }
 }
 
 // Private-like helper function
 // Parse `(i int)(char, int)`
 // Token current state ~= tId
-int _parse_params(tBSTNodePtr node){
+void _parse_params(tBSTNodePtr node){
     token = get_adjusted_token();
 
     // Expecting `(`
     token = get_adjusted_token();
-    check_lex_error();
     if (token != tOpeningSimpleBrace){
-        return SYN_ERROR;
+        exit(SYN_ERROR);
     }
-    int error_state;
+
     while (token != tClosingSimpleBrace){
-        error_state = _parse_param(node);
-        check_lex_error();
-        else if (error_state == SYN_ERROR){
-            return SYN_ERROR;
-        }
-        else if (error_state == SEM_ERROR){
-            return SEM_ERROR;
-        }
+        _parse_param(node);
     }
-    return NO_ERROR;
 }
 
-int _parse_return_type(){
+void _insert_return_type(tBSTNodePtr node){
+    char return_type;
+    switch (token){
+        case sInt:
+            datatype = 'i';
+            break;
+        case sFloat64:
+            datatype = 'f';
+            break;
+        case sString:
+            datatype = 's';
+            break;
+    }
+    if (add_to_string(((tDataFunction*) node->Content)->returnType, datatype)){
+        exit(INTERNAL_ERROR);
+    }
+}
+
+void _parse_return_type(tBSTNodePtr node){
+    token = get_adjusted_token();
+    if (token == tClosingSimpleBrace){
+        return;
+    }
+    if (!is_datatype(attr)){
+        exit(SYN_ERROR);
+    }
+
+    tDataFunction *Content = ((tDataFunction*) node->Content);
+    if (!Content->list_initialized){
+        init_string(&Content->returnType);
+        Content->list_initialized = TRUE;
+    }
+
+    add_to_string((tDataFunction*) node->Content)->returnType, )
+    token = get_adjusted_token();
 
 }
 
-int _parse_return_types(){
-
+void _parse_return_types(tBSTNodePtr node){
+    token = get_adjusted_token();
+    if (token == tOpeningCurlyBrace){
+        return;
+    }
+    if (token != tOpeningSimpleBrace){
+        exit(SEM_ERROR);
+    }
+    while (token != tClosingCurlyBrace){
+        _parse_return_type(node);
+    }
 }
 
 int parse_func_header(){
-    if (get_adjusted_token() == LEX_ERROR){
-        return LEX_ERROR;
-    }
+    token = get_adjusted_token();
+    check_lex_error();
     if (token != tId){
         return SYN_ERROR;
     }
@@ -155,8 +205,10 @@ int parse_func_header(){
     ((tDataFunction *) new_node->Content)->defined = false;
 
     // Proceeding with parsing params
-    result = _parse_params(new_node);
-    // TODO
+    _parse_params(new_node);
+
+    // Proceeding with parsing return types
+    _parse_return_types(new_node);
 
 }
 
