@@ -6,7 +6,7 @@
 #include "parser.h"
 
 tSymtable *GlobalRoot;
-tListOfInstr *GlobalInstr;
+tLinkedList *GlobalInstr;
 tState token;
 string *attr;
 
@@ -19,54 +19,60 @@ void check_lex_error(){
 
 // see get_adjusted_token()
 int translate_scanner_states(string *attr){
-    switch (attr->str){
-        case "func":
-            return sFunc;
-        case "for":
-            return sFor;
-        case "if":
-            return sIf;
-        case "else":
-            return sElse;
-        case "return":
-            return sReturn;
-        case ":=":
-            return sDeclare;
-        case "=":
-            return sAssign;
-        case "string":
-            return sString;
-        case "int":
-            return sInt;
-        case "float64":
-            return sFloat64;
-        default:
-            return token;
+    char* compare = attr->str;
+    if (!strcmp(compare, "func")){
+        return sFunc;
     }
+    else if (!strcmp(compare, "for")){
+        return sFor;
+    }
+    else if (!strcmp(compare, "if")){
+        return sIf;
+    }
+    else if (!strcmp(compare, "else")){
+        return sElse;
+    }
+    else if (!strcmp(compare, "return")){
+        return sReturn;
+    }
+    else if (!strcmp(compare, ":=")){
+        return sDeclare;
+    }
+    else if (!strcmp(compare, "=")){
+        return sAssign;
+    }
+    else if (!strcmp(compare, "string")){
+        return sString;
+    }
+    else if (!strcmp(compare, "int")){
+        return sInt;
+    }
+    else if (!strcmp(compare, "float64")){
+        return sFloat64;
+    }
+    return token;
 }
 
 // Try to adjust token type for parser
 // Returns LEX_ERROR if get_token() fails
 int get_adjusted_token(){
-    token = get_token(attr);
-    check_lex_error();
-    else if (token == EOL){
+    int result = get_token(attr);
+    if (result == EOF){
         return sEnd;
     }
+    token = result;
+    check_lex_error();
     return translate_scanner_states(attr);
 }
 
 // skip EOL
 // return 0 if everything goes right
-void end_of_line(){
+void handle_EOL(){
     token = get_adjusted_token();
-    else if (token == tKeyword){
+    if (token == tKeyword){
         return;
     }
-    else if (token == EOF){
-        exit(SYN_ERROR);
-    }
-    return end_of_line();
+    handle_EOL();
 }
 
 void _insert_datatype(tDataFunction* Content){
@@ -81,6 +87,8 @@ void _insert_datatype(tDataFunction* Content){
         case sString:
             datatype = 's';
             break;
+        default:
+            exit(INTERNAL_ERROR);
     }
     if (add_to_string(&Content->params, datatype)){
         exit(INTERNAL_ERROR);
@@ -105,10 +113,10 @@ void _parse_param(tBSTNodePtr node){
         init_string(&Content->params);
         StrLLInit(&Content->paramNames);
     }
-    if (StrLLStringAlreadyOccupied(&Content->paramNames, attr.str)){
+    if (StrLLStringAlreadyOccupied(&Content->paramNames, attr->str)){
         exit(SEM_ERROR);
     }
-    StrLLInsert(&Content->paramNames, &attr);
+    StrLLInsert(&Content->paramNames, attr);
     token = get_adjusted_token();
 
     if (!is_datatype(attr)){
@@ -140,7 +148,7 @@ void _parse_params(tBSTNodePtr node){
 }
 
 void _insert_return_type(tBSTNodePtr node){
-    char return_type;
+    char datatype;
     switch (token){
         case sInt:
             datatype = 'i';
@@ -151,8 +159,10 @@ void _insert_return_type(tBSTNodePtr node){
         case sString:
             datatype = 's';
             break;
+        default:
+            exit(INTERNAL_ERROR);
     }
-    if (add_to_string(((tDataFunction*) node->Content)->returnType, datatype)){
+    if (add_to_string(&((tDataFunction*) node->Content)->returnType, datatype)){
         exit(INTERNAL_ERROR);
     }
 }
@@ -172,7 +182,7 @@ void _parse_return_type(tBSTNodePtr node){
         Content->list_initialized = TRUE;
     }
 
-    add_to_string((tDataFunction*) node->Content)->returnType, )
+    _insert_return_type(node);
     token = get_adjusted_token();
 
 }
@@ -190,19 +200,19 @@ void _parse_return_types(tBSTNodePtr node){
     }
 }
 
-int parse_func_header(){
+void parse_func_header(){
     token = get_adjusted_token();
     check_lex_error();
     if (token != tId){
-        return SYN_ERROR;
+        exit(SYN_ERROR);
     }
 
-    if (SymTableSearch(*GlobalRoot->root, &attr)){
-        return SEM_ERROR;
+    if (SymTableSearch(GlobalRoot, attr)){
+        exit(SEM_ERROR);
     }
-    tBSTNodePtr new_node = SymTableInsertFunction(*GlobalRoot->root, &attr);
-    ((tDataFunction *) new_node->Content)->declared = true;
-    ((tDataFunction *) new_node->Content)->defined = false;
+    tBSTNodePtr new_node = SymTableInsertFunction(GlobalRoot, attr);
+    ((tDataFunction *) new_node->Content)->declared = TRUE;
+    ((tDataFunction *) new_node->Content)->defined = FALSE;
 
     // Proceeding with parsing params
     _parse_params(new_node);
@@ -212,62 +222,54 @@ int parse_func_header(){
 
 }
 
-int func_declaration(){
-    int result;
+void func_declaration(){
     switch (token){
         case sFunc:
-            result = parse_func_header();
-
-
+            parse_func_header();
+            break;
+        default:
+            exit(0); // TODO
     }
 }
 
-int program(){
-    int result;
-    switch (token){
-        case EOL:
-            result = end_of_line();
-            if (result){
-                return result;
-            }
-        case tKeyword:
-            if (strcmp(attr.str, "package")){
-                return SYN_ERROR;
-            }
-            token = get_token(&attr);
-            if (strcmp(attr.str, "main")){
-                return SYN_ERROR;
-            }
-            result = func_definition();
-
-
-        default:
-            return SYN_ERROR;
+void program(){
+    if (token == EOL){
+        handle_EOL();
     }
+
+    if (token != tKeyword) {
+        exit(SYN_ERROR);
+    }
+    if (strcmp(attr->str, "package")){
+        exit(SYN_ERROR);
+    }
+    token = get_token(attr);
+    if (strcmp(attr->str, "main")){
+        exit(SYN_ERROR);
+    }
+    printf("lolololloolo\n");
 }
 
 // Init all strings
 // Return 0 if everything goes right
 int init_strings(){
     int result = 0;
-    result += init_string(&attr);
+    result += init_string(attr);
 
     return result;
 }
 
-int parse(tSymtable *RootPtr, tListOfInstr *Instr){
+void parse(tSymtable *RootPtr, tLinkedList *Instr){
     GlobalRoot = RootPtr;
     GlobalInstr = Instr;
-    int result;
 
     // Init all global strings, return INTERNAL_ERROR when fails
     if (init_strings()){
-        return INTERNAL_ERROR;
+        exit(INTERNAL_ERROR);
     }
-    if ((token = get_token(&attr)) == LEX_ERROR){
-        clear_str(&attr);
-        return LEX_ERROR;
+    if ((token = get_token(attr)) == LEX_ERROR){
+        clear_str(attr);
+        exit(LEX_ERROR);
     }
-    result = program();
-    return result;
+    program();
 }

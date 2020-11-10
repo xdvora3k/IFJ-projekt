@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 
-typedef struct{
+typedef struct string{
     char* str;
     int length;
     int allocSize;

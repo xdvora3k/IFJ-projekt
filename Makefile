@@ -20,4 +20,4 @@ build-test-scanner:
 
 .PHONY: build-test-ilist
 build-test-ilist:
-	$(CC) $(CFLAGS) -o test-ilist tests/test_ilist.c src/ilist.c
+	$(CC) $(CFLAGS) -o test-ilist tests/test_ilist.c src/ilist.c src/str.c

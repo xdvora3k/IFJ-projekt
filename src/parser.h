@@ -15,8 +15,8 @@
 #ifndef IFJ_PROJEKT_PARSER_H
 #define IFJ_PROJEKT_PARSER_H
 
-int end_of_line();
-int program();
-int parse(tBSTNodePtr *RootPtr, tListOfInstr *Instr);
+void handle_EOL();
+void program();
+void parse(tSymtable *RootPtr, tLinkedList *Instr);
 
 #endif

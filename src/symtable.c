@@ -18,16 +18,15 @@ tBSTNodePtr BSTSearch(tBSTNodePtr RootPtr, char *K){
     if (RootPtr->Key == K){
         return RootPtr;
     }
-
-    if (K > RootPtr->Key){
+    else if (K > RootPtr->Key){
         return BSTSearch(RootPtr->RPtr, K);
     }
-    else if (K < RootPtr->Key) {
+    else {
         return BSTSearch(RootPtr->LPtr, K);
     }
 }
 
-tBSTNodePtr BSTCreateNode(char* K, void* Data, tNodeDataType dataType){ //TODO: Fix
+tBSTNodePtr BSTCreateNode(char* K, void* Data){
     tBSTNodePtr new_node = (tBSTNodePtr) malloc(sizeof(struct tBSTNode));
     new_node->Content = Data;
     new_node->LPtr = NULL;
@@ -36,34 +35,35 @@ tBSTNodePtr BSTCreateNode(char* K, void* Data, tNodeDataType dataType){ //TODO: 
     return new_node;
 }
 
-tBSTNodePtr BSTInsert(tBSTNodePtr* RootPtr, char* K, void* Data, tNodeDataType dataType){
+tBSTNodePtr BSTInsert(tBSTNodePtr* RootPtr, char* K, void* Data){
     if (!(*RootPtr)){
-        *RootPtr = BSTCreateNode(L, Data, dataType); //TODO: Fix
+        *RootPtr = BSTCreateNode(K, Data);
         return *RootPtr;
     }
 
+    // If already exists, Semantic error
     if (K == (*RootPtr)->Key){
-        (*RootPtr)->Content = Data;
-        (*RootPtr)->Content.position = position; //TODO: Fix
+        exit(SEM_ERROR);
     }
     else if (K > (*RootPtr)->Key){
         if ((*RootPtr)->RPtr){
-            BSTInsert(&(*RootPtr)->RPtr, K, type, position); // TODO: Fix
+            BSTInsert(&(*RootPtr)->RPtr, K, Data);
         }
         else {
-            (*RootPtr)->RPtr = BSTCreateNode(L, Data, dataType);
+            (*RootPtr)->RPtr = BSTCreateNode(K, Data);
             return (*RootPtr)->RPtr;
         }
     }
-    else if (K < (*RootPtr)->Key){
+    else {
         if ((*RootPtr)->LPtr){
-            BSTInsert(&(*RootPtr)->LPtr, K, type, position);
+            BSTInsert(&(*RootPtr)->LPtr, K, Data);
         }
         else {
-            (*RootPtr)->LPtr = BSTCreateNode(L, Data, dataType);
+            (*RootPtr)->LPtr = BSTCreateNode(K, Data);
             return (*RootPtr)->LPtr;
         }
     }
+    return NULL;
 }
 
 void ReplaceByRightmost(tBSTNodePtr PtrReplaced, tBSTNodePtr *RootPtr){
@@ -156,31 +156,30 @@ void SymTableInit(tSymtable* SymTable){
     BSTInit(&(SymTable->root));
 }
 
-tBSTNodePtr SymTableInsertFunction(tSymtable* SymTable, string key){
+tBSTNodePtr SymTableInsertFunction(tSymtable* SymTable, string *key){
     tDataFunction* funcPtr = (tDataFunction*) malloc(sizeof(struct tDataFunction));
     string params;
     init_string(&params);
 
     funcPtr->params = params;
-    funcPtr->declared = false;
-    funcPtr->defined = false;
-    funcPtr->returnType = NULL;
+    funcPtr->declared = FALSE;
+    funcPtr->defined = FALSE;
 
-    return BSTInsert(SymTable, key.str, funcPtr, Function);
+    return BSTInsert(&(SymTable->root), key->str, funcPtr);
 }
 
 tBSTNodePtr SymTableInsertVariable(tSymtable* SymTable, string *key){
     tDataVariable* varPtr = (tDataVariable*) malloc(sizeof(struct tDataVariable));
     varPtr->dataType = -1;
-    return BSTInsert(SymTable, key.str, varPtr, Variable);
+    return BSTInsert(&(SymTable->root), key->str, varPtr);
 }
 
-tBSTNodePtr SymTableSearch(tSymtable* SymTable, string key){
-    return BSTSearch(SymTable->root, key.str);
+tBSTNodePtr SymTableSearch(tSymtable* SymTable, string *key){
+    return BSTSearch(SymTable->root, key->str);
 }
 
-void SymTableDelete(tSymtable* SymTable, string key){
-    BSTDelete(SymTable->root, key.str);
+void SymTableDelete(tSymtable* SymTable, string *key){
+    BSTDelete(&SymTable->root, key->str);
 }
 
 void SymTableDispose(tSymtable* Symtable){

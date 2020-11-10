@@ -5,7 +5,8 @@
 #include <string.h>
 
 int init_string(string *string){
-    if (!(string->str = (char*) malloc(BASE_STRING_LENGTH * sizeof(char)))){
+    string->str = (char*) malloc(BASE_STRING_LENGTH * sizeof(char));
+    if (!string->str){
         return INTERNAL_ERROR;
     }
     string->str[0] = '\0';
