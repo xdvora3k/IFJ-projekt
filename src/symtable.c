@@ -192,17 +192,55 @@ void InsertBuiltInFuncs(tSymtable* SymTable){
     tBSTNodePtr node;
     tDataFunction* func;
 
-    // Built-in inputi
+    // Built-in inputi  //
 
     string inputi;
     init_string(&inputi);
 
     adds_to_string(&inputi, "inputi");
-    tBSTNodePtr new_node = SymTableInsertFunction(SymTable, inputi);
-    func = (tDataFunction*)(new_node->Content);
+    tBSTNodePtr new_node_inputi = SymTableInsertFunction(SymTable, inputi);
+    func = (tDataFunction*)(new_node_inputi->Content);
     func->defined = true;
     func->declared = true;
     func->returnType[0] = 'i';
     func->returnType[1] = 'i';
-    #TODO
+
+    //func inputs
+    //func inputi
+    //func inputf
+    //func print
+    //func int2float
+    //func float2int
+
+    //func len
+    //---------------------------------
+    string len;
+    init_string(&len);
+
+    add_to_string(&len,"len");
+    tBSTNodePtr new_node_len = SymTableInsertFunction(SymTable,len);
+    func = (tDataFunction*)(new_node_len->Content);
+    func->declared = true;
+    func->defined = true;
+    func->returnType[0]='s';
+    //---------------------------------
+
+    //func substr
+    //---------------------------------
+    string substr;
+    init_string(&substr);
+
+    add_to_string(&substr,"substr");
+    tBSTNodePtr new_node_substr = SymTableInsertFunction(SymTable,substr);
+    func = (tDataFunction*)(new_node_substr->Content);
+    func->defined = true;
+    func->declared = true;
+    func->returnType[0]='s';
+    func->returnType[1]='i';
+    func->returnType[2]='n';
+    //---------------------------------
+
+    //func ord
+    //func chr
+
 }
