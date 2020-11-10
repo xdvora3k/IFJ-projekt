@@ -21,3 +21,7 @@ build-test-scanner:
 .PHONY: build-test-ilist
 build-test-ilist:
 	$(CC) $(CFLAGS) -o test-ilist tests/test_ilist.c src/ilist.c src/str.c
+
+.PHONY: build-test-symtable
+build-test-symtable:
+	$(CC) $(CFLAGS) -o test-symtable tests/test_symtable.c src/symtable.c src/str.c src/ilist.c

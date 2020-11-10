@@ -14,10 +14,10 @@ tBSTNodePtr BSTSearch(tBSTNodePtr RootPtr, char *K){
         return NULL;
     }
 
-    if (RootPtr->Key == K){
+    if (strcmp(K,(RootPtr)->Key) == 0){
         return RootPtr;
     }
-    else if (K > RootPtr->Key){
+    else if (strcmp(K, (RootPtr)->Key) > 0){
         return BSTSearch(RootPtr->RPtr, K);
     }
     else {
@@ -39,12 +39,11 @@ tBSTNodePtr BSTInsert(tBSTNodePtr* RootPtr, char* K, void* Data){
         *RootPtr = BSTCreateNode(K, Data);
         return *RootPtr;
     }
-
     // If already exists, Semantic error
-    if (K == (*RootPtr)->Key){
+    if (strcmp(K,(*RootPtr)->Key) == 0){  //K == (*RootPtr)->Key
         exit(SEM_ERROR);
     }
-    else if (K > (*RootPtr)->Key){
+    else if (strcmp(K, (*RootPtr)->Key) > 0){ //K > (*RootPtr)->Key
         if ((*RootPtr)->RPtr){
             BSTInsert(&(*RootPtr)->RPtr, K, Data);
         }
@@ -97,29 +96,29 @@ void BSTDelete(tBSTNodePtr *RootPtr, char *K){
         return;
     }
 
-    if (K > (*RootPtr)->Key){
+    if (strcmp(K, (*RootPtr)->Key) > 0){
         BSTDelete(&(*RootPtr)->RPtr, K);
     }
-    else if (K < (*RootPtr)->Key){
+    else if (strcmp(K, (*RootPtr)->Key) < 0){
         BSTDelete(&(*RootPtr)->LPtr, K);
     }
     else {
         if (!(*RootPtr)->LPtr && !(*RootPtr)->RPtr){
-            free(&(*RootPtr)->Content);
+            //free(&(*RootPtr)->Content);
             free(*RootPtr);
             *RootPtr = NULL;
             return;
         }
         else if (!(*RootPtr)->LPtr){
             tBSTNodePtr right = (*RootPtr)->RPtr;
-            free(&(*RootPtr)->Content);
+            //free(&(*RootPtr)->Content);
             free(*RootPtr);
             *RootPtr = right;
             return;
         }
         else if (!(*RootPtr)->RPtr){
             tBSTNodePtr left = (*RootPtr)->LPtr;
-            free(&(*RootPtr)->Content);
+            //free(&(*RootPtr)->Content);
             free(*RootPtr);
             *RootPtr = left;
             return;
@@ -141,6 +140,7 @@ void BSTDispose(tBSTNodePtr *RootPtr){
     if ((*RootPtr)->LPtr){
         BSTDispose(&(*RootPtr)->LPtr);
     }
+
     free((*RootPtr)->Content);
     free(*RootPtr);
     *RootPtr = NULL;
