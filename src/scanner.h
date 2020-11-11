@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include "str.h"
+#include "error_codes.h"
 
 void set_source_file(FILE *file);
 int get_token(string *attr);
@@ -61,8 +62,6 @@ typedef enum{
     end_of_file,
 
     EOL,
-
-    LEX_ERROR = 1000,
 
     // ------------------------- For parser
     sFunc,

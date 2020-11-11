@@ -5,7 +5,8 @@
 #include <string.h>
 
 int init_string(string *string){
-    if (!(string->str = (char*) malloc(BASE_STRING_LENGTH * sizeof(char)))){
+    string->str = (char*) malloc(BASE_STRING_LENGTH * sizeof(char));
+    if (!string->str){
         return INTERNAL_ERROR;
     }
     string->str[0] = '\0';
@@ -32,8 +33,8 @@ int adds_to_string(string *string, char* S){
         if (add_to_string(string, S[i]) == NO_ERROR){
             continue;
         }
-        return INTERNAL_ERROR;
     }
+    return INTERNAL_ERROR;
 }
 
 int is_whitespace(char c){

@@ -11,25 +11,28 @@
 #include <stdarg.h>
 #include <stdbool.h>
 #include "str.h"
+#include "ilist.h"
+#include "error_codes.h"
 
 #define TRUE 1
 #define FALSE 0
 
 typedef enum {
-    Variable,
-    Function,
-} tNodeDataType;
+    variable,
+    function
+} tAllocType;
 
 typedef struct tDataVariable {
     int dataType; // sInteger, sDouble, sString
 } tDataVariable;
 
 typedef struct tDataFunction {
-    char returnType[50];
+    string returnType;
     bool declared;
     bool defined;
     string params;
-    string paramName[50];
+    bool list_initialized;
+    tLinkedList paramNames;
 } tDataFunction;
 
 typedef struct tBSTNode {
@@ -45,16 +48,16 @@ typedef struct tSymtable {
 
 void BSTInit(tBSTNodePtr *RootPtr);
 tBSTNodePtr BSTSearch(tBSTNodePtr RootPtr, char *K);
-tBSTNodePtr BSTCreateNode(char* K, void* Data, tNodeDataType dataType);
-tBSTNodePtr BSTInsert(tBSTNodePtr* RootPtr, char* K, void* Data, tNodeDataType dataType);
+tBSTNodePtr BSTCreateNode(char* K, void* Data);
+tBSTNodePtr BSTInsert(tBSTNodePtr* RootPtr, char* K, void* Data);
 void BSTDelete(tBSTNodePtr *RootPtr, char* K);
 void BSTDispose(tBSTNodePtr *RootPtr);
 
 void SymTableInit(tSymtable* SymTable);
-tBSTNodePtr SymTableInsertFunction(tSymtable* SymTable, string key);
-tBSTNodePtr SymTableInsertVariable(tSymtable* SymTable, string key)
-tBSTNodePtr SymTableSearch(tSymtable* SymTable, string key);
-void SymTableDelete(tSymtable* SymTable, string key);
+tBSTNodePtr SymTableInsertFunction(tSymtable* SymTable, string *key);
+tBSTNodePtr SymTableInsertVariable(tSymtable* SymTable, string *key);
+tBSTNodePtr SymTableSearch(tSymtable* SymTable, string *key);
+void SymTableDelete(tSymtable* SymTable, string *key);
 void SymTableDispose(tSymtable* Symtable);
 void InsertBuiltInFuncs(tSymtable* SymTable);
 

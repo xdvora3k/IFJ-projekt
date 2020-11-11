@@ -4,7 +4,6 @@
  */
 
 #include "symtable.h"
-#include "ilist.h"
 
 void BSTInit(tBSTNodePtr *RootPtr){
     *RootPtr = NULL;
@@ -18,52 +17,52 @@ tBSTNodePtr BSTSearch(tBSTNodePtr RootPtr, char *K){
     if (RootPtr->Key == K){
         return RootPtr;
     }
-
-    if (K > RootPtr->Key){
-        return BSTSearch(RootPtr->RPtr, K, Content);
+    else if (K > RootPtr->Key){
+        return BSTSearch(RootPtr->RPtr, K);
     }
-    else if (K < RootPtr->Key) {
-        return BSTSearch(RootPtr->LPtr, K, Content);
+    else {
+        return BSTSearch(RootPtr->LPtr, K);
     }
 }
 
-tBSTNodePtr BSTCreateNode(char* K, void* Data, tNodeDataType dataType){
+tBSTNodePtr BSTCreateNode(char* K, void* Data){
     tBSTNodePtr new_node = (tBSTNodePtr) malloc(sizeof(struct tBSTNode));
-    new_node->Content = Data;
+    new_node->Content = *new_content;
+    new_node->Key = K;
     new_node->LPtr = NULL;
     new_node->RPtr = NULL;
-    new_node->Key = K;
     return new_node;
 }
 
-tBSTNodePtr BSTInsert(tBSTNodePtr* RootPtr, char* K, void* Data, tNodeDataType dataType){
+tBSTNodePtr BSTInsert(tBSTNodePtr* RootPtr, char* K, void* Data){
     if (!(*RootPtr)){
-        *RootPtr = BSTCreateNode(L, Data, dataType);
+        *RootPtr = BSTCreateNode(K, Data);
         return *RootPtr;
     }
 
+    // If already exists, Semantic error
     if (K == (*RootPtr)->Key){
-        (*RootPtr)->Content = Data;
-        (*RootPtr)->Content.position = position;
+        exit(SEM_ERROR);
     }
     else if (K > (*RootPtr)->Key){
         if ((*RootPtr)->RPtr){
-            BSTInsert(&(*RootPtr)->RPtr, K, type, position);
+            BSTInsert(&(*RootPtr)->RPtr, K, Data);
         }
         else {
-            (*RootPtr)->RPtr = BSTCreateNode(L, Data, dataType);
+            (*RootPtr)->RPtr = BSTCreateNode(K, Data);
             return (*RootPtr)->RPtr;
         }
     }
-    else if (K < (*RootPtr)->Key){
+    else {
         if ((*RootPtr)->LPtr){
-            BSTInsert(&(*RootPtr)->LPtr, K, type, position);
+            BSTInsert(&(*RootPtr)->LPtr, K, Data);
         }
         else {
-            (*RootPtr)->LPtr = BSTCreateNode(L, Data, dataType);
+            (*RootPtr)->LPtr = BSTCreateNode(K, Data);
             return (*RootPtr)->LPtr;
         }
     }
+    return NULL;
 }
 
 void ReplaceByRightmost(tBSTNodePtr PtrReplaced, tBSTNodePtr *RootPtr){

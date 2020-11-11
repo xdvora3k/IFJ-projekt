@@ -9,18 +9,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "str.h"
+#include <string.h>
 
-// TODO: Define types of instructions
-// Example:
-#define I_FUNC 0
-#define I_PLUS 1
-#define I_MINUS 2
-#define I_TIMES 3
-#define I_DIVIDE 4
-#define I_EQUAL 5
-#define I_ANOTHER 6
-// Once this is fixed, the test script needs to be fixed as well.
-
+// TODO: Fix Instr
 typedef struct {
     int instType;
     void *addr1;
@@ -39,12 +30,11 @@ typedef struct {
 
 void InstrLLInit(tLinkedList *L);
 void InstrLLDisposeAll(tLinkedList *L);
-void InstrLLInsertFirst(tLinkedList *L, tInstr Instruction);
-void InstrLLCopyFirst(tLinkedList *L, tInstr *Instruction);
+void InstrLLInsertFirst(tLinkedList *L, tInstr *Instruction);
 void InstrLLDeleteFirst(tLinkedList *L);
 
 void StrLLInit(tLinkedList *L);
-void StrLLInsertFirst(tLinkedList *L, string K);
+void StrLLInsert(tLinkedList *L, string *K);
 int StrLLStringAlreadyOccupied(tLinkedList *L, char *S);
 
 #endif

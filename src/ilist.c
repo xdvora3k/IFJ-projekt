@@ -22,25 +22,25 @@ void InstrLLDisposeAll(tLinkedList *L){
     L->first = NULL;
 }
 
-void InstrLLInsertFirst(tLinkedList *L, tInstr Instruction){
+void InstrLLInsertFirst(tLinkedList *L, tInstr* Instruction){
     tListItem *new_node = (tListItem*) malloc(sizeof(tListItem));
     new_node->nextItem = L->first;
-    ((tInstr*) new_node->Content) = Instruction;
+    new_node->Content = Instruction;
     L->first = new_node;
 }
 
-void StrLLInsertFirst(tLinkedList *L, string K){
+void StrLLInsert(tLinkedList *L, string *K){
     tListItem *new_node = (tListItem*) malloc(sizeof(tListItem));
-    ((string*) new_node->Content) = K;
-    new_node->nextItem = L->first;
-    L->first = new_node;
-}
-
-void InstrLLCopyFirst(tLinkedList *L, tInstr *Instruction){
+    new_node->Content = K;
     if (!L->first){
+        L->first = new_node;
         return;
     }
-    *Instruction = ((tInstr*) L->first->Content);
+    tListItem *curr = L->first;
+    while (curr->nextItem){
+        curr = curr->nextItem;
+    }
+    curr->nextItem = new_node;
 }
 
 void InstrLLDeleteFirst(tLinkedList *L){
@@ -55,7 +55,7 @@ void InstrLLDeleteFirst(tLinkedList *L){
 int StrLLStringAlreadyOccupied(tLinkedList *L, char *S){
     tListItem *node = L->first;
     while (node){
-        if (((string*) node->Content)->str == S){
+        if (!strcmp(((string*) node->Content)->str, S)){
             return TRUE;
         }
         node = node->nextItem;
