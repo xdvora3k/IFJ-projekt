@@ -265,8 +265,8 @@ void InsertBuiltInFuncs(tSymtable* SymTable){
     func->declared = true;
     func->list_initialized = false;
 
-    init_string(&(func->paramName[0]));
-    add_to_string(&(func->paramName[0]),'i')
+    init_string(&(func->paramNames[0]));
+    add_to_string(&(func->paramNames[0]),'i')
     init_string(&(func->params));
     add_to_string(&(func->params),'i');
     init_string(&(func->returnType));
@@ -285,8 +285,8 @@ void InsertBuiltInFuncs(tSymtable* SymTable){
     func->declared = true;
     func->list_initialized = false;
 
-    init_string(&(func->paramName[0]));
-    add_to_string(&(func->paramName[0]),'f')
+    init_string(&(func->paramNames[0]));
+    add_to_string(&(func->paramNames[0]),'f')
     init_string(&(func->params));
     add_to_string(&(func->params),'f');
     init_string(&(func->returnType));
@@ -305,8 +305,8 @@ void InsertBuiltInFuncs(tSymtable* SymTable){
     func->defined = true;
     func->list_initialized = false;
 
-    init_string(&(func->paramName[0]));
-    add_to_string(&(func->paramName[0]),'s');
+    init_string(&(func->paramNames[0]));
+    add_to_string(&(func->paramNames[0]),'s');
     init_string(&(func->params));
     add_to_string(&(func->params),'s');
     init_string(&(func->returnType));
@@ -325,12 +325,12 @@ void InsertBuiltInFuncs(tSymtable* SymTable){
     func->declared = true;
     func->list_initialized = false;
 
-    init_string(&(func->paramName[0]));
-    init_string(&(func->paramName[1]));
-    init_string(&(func->paramName[2]));
-    add_to_string(&(func->paramName[0]),'s');
-    add_to_string(&(func->paramName[1]),'i');
-    add_to_string(&(func->paramName[2]),'n');
+    init_string(&(func->paramNames[0]));
+    init_string(&(func->paramNames[1]));
+    init_string(&(func->paramNames[2]));
+    add_to_string(&(func->paramNames[0]),'s');
+    add_to_string(&(func->paramNames[1]),'i');
+    add_to_string(&(func->paramNames[2]),'n');
     init_string(&(func->params));
     adds_to_string(&(func->params),"sii");
     init_string(&(func->returnType));
@@ -349,10 +349,10 @@ void InsertBuiltInFuncs(tSymtable* SymTable){
     func->defined = true;
     func->list_initialized = false;
 
-    init_string(&(func->paramName[0]));
-    init_string(&(func->paramName[1]));
-    add_to_string(&(func->paramName[0]),'s');
-    add_to_string(&(func->paramName[1]),'i');
+    init_string(&(func->paramNamess[0]));
+    init_string(&(func->paramNames[1]));
+    add_to_string(&(func->paramNames[0]),'s');
+    add_to_string(&(func->paramNames[1]),'i');
     init_string(&(func->params));
     adds_to_string(&(func->params),"si");
     init_string(&(func->returnType));
@@ -371,8 +371,8 @@ void InsertBuiltInFuncs(tSymtable* SymTable){
     func->defined = true;
     func->list_initialized = false;
 
-    init_string(&(func->paramName[0]));
-    add_to_string(&(func->paramName[0]),'i')
+    init_string(&(func->paramNames[0]));
+    add_to_string(&(func->paramNames[0]),'i')
     init_string(&(func->params));
     add_to_string(&(func->params),'i');
     init_string(&(func->returnType));
