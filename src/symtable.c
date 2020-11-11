@@ -184,6 +184,7 @@ void SymTableDelete(tSymtable* SymTable, string *key){
 void SymTableDispose(tSymtable* Symtable){
     BSTDispose(&(Symtable->root));
 }
+
 void InsertBuiltInFuncs(tSymtable* SymTable){
     tDataFunction* func;
 
