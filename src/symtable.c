@@ -198,7 +198,7 @@ void InsertBuiltInFuncs(tSymtable* SymTable){
     init_string(&inputi);
 
     adds_to_string(&inputi, "inputi");
-    tBSTNodePtr new_node_inputi = SymTableInsertFunction(SymTable, &inputi);
+    tBSTNodePtr new_node_inputi = SymTableInsertFunction(SymTable, inputi);
     func = (tDataFunction*)(new_node_inputi->Content);
     func->defined = true;
     func->declared = true;
@@ -214,7 +214,7 @@ void InsertBuiltInFuncs(tSymtable* SymTable){
     init_string(&inputs);
 
     adds_to_string(&inputs,"inputs");
-    tBSTNodePtr new_node_inputs = SymTableInsertFunction(SymTable, &inputs);
+    tBSTNodePtr new_node_inputs = SymTableInsertFunction(SymTable, inputs);
     func = (tDataFunction*)(new_node_inputs->Content);
     func->declared = true;
     func->defined = true;
@@ -230,7 +230,7 @@ void InsertBuiltInFuncs(tSymtable* SymTable){
     init_string(&inputf);
 
     adds_to_string(&inputf,"inputf");
-    tBSTNodePtr new_node_inputf = SymTableInsertFunction(SymTable, &inputf);
+    tBSTNodePtr new_node_inputf = SymTableInsertFunction(SymTable, inputf);
     func = (tDataFunction*)(new_node_inputf->Content);
     func->defined = true;
     func->declared = true;
@@ -246,7 +246,7 @@ void InsertBuiltInFuncs(tSymtable* SymTable){
     init_string(&print);
 
     adds_to_string(&print,"print");
-    tBSTNodePtr new_node_print = SymTableInsertFunction(SymTable, &print);
+    tBSTNodePtr new_node_print = SymTableInsertFunction(SymTable, print);
     func = (tDataFunction*)(new_node_print->Content);
     func->defined = true;
     func->declared = true;
@@ -259,14 +259,17 @@ void InsertBuiltInFuncs(tSymtable* SymTable){
     init_string(&int2float);
 
     adds_to_string(&int2float,"int2float");
-    tBSTNodePtr new_node_int2float = SymTableInsertFunction(SymTable, &int2float);
+    tBSTNodePtr new_node_int2float = SymTableInsertFunction(SymTable, int2float);
     func = (tDataFunction*)(new_node_int2float->Content);
     func->defined = true;
     func->declared = true;
-    func->list_initialized = false;
+    func->list_initialized = true;
 
-    init_string(&(func->paramNames[0]));
-    add_to_string(&(func->paramNames[0]),'i')
+    string int2float_i;
+    init_string(&int2float_i);
+    add_to_string(&(int2float_i),'i');
+    StrLLInit(&(func->paramNames));
+    StrLLInsert(&(func->paramNames),&(int2float_i));
     init_string(&(func->params));
     add_to_string(&(func->params),'i');
     init_string(&(func->returnType));
@@ -279,14 +282,17 @@ void InsertBuiltInFuncs(tSymtable* SymTable){
     init_string(&int2float);
 
     adds_to_string(&float2int,"float2int");
-    tBSTNodePtr new_node_float2int = SymTableInsertFunction(SymTable, &float2int);
+    tBSTNodePtr new_node_float2int = SymTableInsertFunction(SymTable, float2int);
     func = (tDataFunction*)(new_node_float2int->Content);
     func->defined = true;
     func->declared = true;
-    func->list_initialized = false;
+    func->list_initialized = true;
 
-    init_string(&(func->paramNames[0]));
-    add_to_string(&(func->paramNames[0]),'f')
+    string float2int_f;
+    init_string(&(float2int_f));
+    add_to_string(&(float2int_f),'f');
+    StrLLInit(&(func->paramNames));
+    StrLLInsert(&(func->paramNames),&(float2int_f));
     init_string(&(func->params));
     add_to_string(&(func->params),'f');
     init_string(&(func->returnType));
@@ -299,14 +305,17 @@ void InsertBuiltInFuncs(tSymtable* SymTable){
     init_string(&len);
 
     adds_to_string(&len,"len");
-    tBSTNodePtr new_node_len = SymTableInsertFunction(SymTable, &len);
+    tBSTNodePtr new_node_len = SymTableInsertFunction(SymTable, len);
     func = (tDataFunction*)(new_node_len->Content);
     func->declared = true;
     func->defined = true;
-    func->list_initialized = false;
+    func->list_initialized = true;
 
-    init_string(&(func->paramNames[0]));
-    add_to_string(&(func->paramNames[0]),'s');
+    string len_s;
+    init_string(&(len_s));
+    add_to_string(&(len_s),'s');
+    StrLLInit(&(func->paramNames));
+    StrLLInsert(&(func->paramNames),&(len_s));
     init_string(&(func->params));
     add_to_string(&(func->params),'s');
     init_string(&(func->returnType));
@@ -319,18 +328,19 @@ void InsertBuiltInFuncs(tSymtable* SymTable){
     init_string(&substr);
 
     adds_to_string(&substr,"substr");
-    tBSTNodePtr new_node_substr = SymTableInsertFunction(SymTable, &substr);
+    tBSTNodePtr new_node_substr = SymTableInsertFunction(SymTable, substr);
     func = (tDataFunction*)(new_node_substr->Content);
     func->defined = true;
     func->declared = true;
-    func->list_initialized = false;
+    func->list_initialized = true;
 
-    init_string(&(func->paramNames[0]));
-    init_string(&(func->paramNames[1]));
-    init_string(&(func->paramNames[2]));
-    add_to_string(&(func->paramNames[0]),'s');
-    add_to_string(&(func->paramNames[1]),'i');
-    add_to_string(&(func->paramNames[2]),'n');
+    string substr_s;                  string substr_i;                   string substr_n;
+    init_string(&(substr_s));         init_string(&(substr_i));          init_string(&(substr_n));
+    add_to_string(&(substr_s),'s'); add_to_string(&(substr_i),'i'); add_to_string(&(substr_n),'n');
+    StrLLInit(&(func->paramNames));
+    StrLLInsert(&(func->paramNames),&(substr_s));
+    StrLLInsert(&(func->paramNames),&(substr_i));
+    StrLLInsert(&(func->paramNames),&(substr_n));
     init_string(&(func->params));
     adds_to_string(&(func->params),"sii");
     init_string(&(func->returnType));
@@ -343,16 +353,18 @@ void InsertBuiltInFuncs(tSymtable* SymTable){
     init_string(&ord);
 
     adds_to_string(&ord,"ord");
-    tBSTNodePtr new_node_ord = SymTableInsertFunction(SymTable, &ord);
+    tBSTNodePtr new_node_ord = SymTableInsertFunction(SymTable, ord);
     func = (tDataFunction*)(new_node_ord->Content);
     func->declared = true;
     func->defined = true;
-    func->list_initialized = false;
+    func->list_initialized = true;
 
-    init_string(&(func->paramNamess[0]));
-    init_string(&(func->paramNames[1]));
-    add_to_string(&(func->paramNames[0]),'s');
-    add_to_string(&(func->paramNames[1]),'i');
+    string ord_s;                       string ord_i;
+    init_string(&(ord_s));              init_string(&(ord_i));
+    add_to_string(&(ord_s),'s');      add_to_string(&(ord_i),'i');
+    StrLLInit(&(func->paramNames));
+    StrLLInsert(&(func->paramNames),&(ord_s));
+    StrLLInsert(&(func->paramNames),&(ord_i));
     init_string(&(func->params));
     adds_to_string(&(func->params),"si");
     init_string(&(func->returnType));
@@ -365,14 +377,17 @@ void InsertBuiltInFuncs(tSymtable* SymTable){
     init_string(&chr);
 
     adds_to_string(&chr,"chr");
-    tBSTNodePtr new_node_chr = SymTableInsertFunction(SymTable, &chr);
+    tBSTNodePtr new_node_chr = SymTableInsertFunction(SymTable, chr);
     func = (tDataFunction*)(new_node_chr->Content);
     func->declared = true;
     func->defined = true;
-    func->list_initialized = false;
+    func->list_initialized = true;
 
-    init_string(&(func->paramNames[0]));
-    add_to_string(&(func->paramNames[0]),'i')
+    string chr_i;
+    init_string(&(chr_i));
+    add_to_string(&(chr_i),'i');
+    StrLLInit(&(func->paramNames));
+    StrLLInsert(&(func->paramNames),&(chr_i));
     init_string(&(func->params));
     add_to_string(&(func->params),'i');
     init_string(&(func->returnType));
