@@ -191,6 +191,7 @@ void SymTableDispose(tSymtable* Symtable){
 void InsertBuiltInFuncs(tSymtable* SymTable){
     tDataFunction* func;
 
+
     // Built-in  //
     //func inputi
     //---------------------------------
