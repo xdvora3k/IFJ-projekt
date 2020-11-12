@@ -14,57 +14,59 @@ typedef enum{
     unknown_identifier,
     tId,
     tKeyword,
-    tBuiltIn,
+    tBuiltIn, //4
 
     tInteger,
 
     float_point,
     float_point_number,
     float_exponent,
-    float_exponent_number,
+    float_exponent_number, //9
     float_singed_exponent,
     tFloat,
 
     string_start,
     string_special,
-    string_hex1,
+    string_hex1, //14
     string_hex2,
     tString,
 
     tPlus,
     tMinus,
-    tMultiply,
+    tMultiply, //19
     tDivide,
 
     tDeclaration,
     tAssignment,
 
     tEqual,
-    tNotEqual,
+    tNotEqual, //24
     tBiggerThan,
     tSmallerThan,
     tBiggerOrEqual,
     tSmallerOrEqual,
 
-    tComma,
+    tComma, //29
     tSemicolon,
     tOpeningSimpleBrace,
     tClosingSimpleBrace,
     tOpeningCurlyBrace,
-    tClosingCurlyBrace,
+    tClosingCurlyBrace, //34
 
     line_comment,
     line_or_block_comment,
     block_comment,
     block_comment_ending,
 
-    end_of_line,
+    end_of_line, //39
     end_of_file,
 
     EOL,
+    tEOF,
+    tLEX_ERROR,
 
     // ------------------------- For parser
-    sFunc,
+    sFunc, //45
 
     sFor,
 
@@ -73,7 +75,7 @@ typedef enum{
 
     sReturn,
 
-    sDeclare,
+    sDeclare, //40
     sAssign,
 
     sEnd,

@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 #include "scanner.h"
+#include "parser.h"
 
 #define FILE_ERROR 5
 
@@ -19,6 +20,13 @@ int main(int argc, char *argv[]){
         return FILE_ERROR;
     }
     set_source_file(f);
+
+    tSymtable SymTable;
+    tLinkedList InstrList;
+    SymTableInit(&SymTable);
+    InstrLLInit(&InstrList);
+
+    parse(&SymTable, &InstrList);
 
     // TODO: add other functions
 }

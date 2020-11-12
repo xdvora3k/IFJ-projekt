@@ -27,10 +27,10 @@ tBSTNodePtr BSTSearch(tBSTNodePtr RootPtr, char *K){
 
 tBSTNodePtr BSTCreateNode(char* K, void* Data){
     tBSTNodePtr new_node = (tBSTNodePtr) malloc(sizeof(struct tBSTNode));
-    new_node->Content = *new_content;
-    new_node->Key = K;
+    new_node->Content = Data;
     new_node->LPtr = NULL;
     new_node->RPtr = NULL;
+    new_node->Key = K;
     return new_node;
 }
 
@@ -155,38 +155,37 @@ void SymTableInit(tSymtable* SymTable){
     BSTInit(&(SymTable->root));
 }
 
-tBSTNodePtr SymTableInsertFunction(tSymtable* SymTable, string key){
+tBSTNodePtr SymTableInsertFunction(tSymtable* SymTable, string *key){
     tDataFunction* funcPtr = (tDataFunction*) malloc(sizeof(struct tDataFunction));
     string params;
     init_string(&params);
 
     funcPtr->params = params;
-    funcPtr->declared = false;
-    funcPtr->defined = false;
-    funcPtr->returnType = NULL;
+    funcPtr->declared = FALSE;
+    funcPtr->defined = FALSE;
 
-    return BSTInsert(SymTable, key.str, funcPtr, Function);
+    return BSTInsert(&(SymTable->root), key->str, funcPtr);
 }
 
-tBSTNodePtr SymTableInsertVariable(tSymtable* SymTable, string key){
+tBSTNodePtr SymTableInsertVariable(tSymtable* SymTable, string *key){
     tDataVariable* varPtr = (tDataVariable*) malloc(sizeof(struct tDataVariable));
-
     varPtr->dataType = -1;
-
-    return BSTInsert(SymTable, key.str, varPtr, Variable);
+    return BSTInsert(&(SymTable->root), key->str, varPtr);
 }
 
-tBSTNodePtr SymTableSearch(tSymtable* SymTable, string key){
-    return BSTSearch(SymTable->root, key.str);
+tBSTNodePtr SymTableSearch(tSymtable* SymTable, char* key){
+    return BSTSearch(SymTable->root, key);
 }
 
-void SymTableDelete(tSymtable* SymTable, string key){
-    BSTDelete(SymTable->root, key.str);
+void SymTableDelete(tSymtable* SymTable, string *key){
+    BSTDelete(&SymTable->root, key->str);
 }
 
 void SymTableDispose(tSymtable* Symtable){
     BSTDispose(&(Symtable->root));
 }
+
+
 
 void InsertBuiltInFuncs(tSymtable* SymTable){
     tDataFunction* func;
