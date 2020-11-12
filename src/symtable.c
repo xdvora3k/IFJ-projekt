@@ -394,4 +394,5 @@ void InsertBuiltInFuncs(tSymtable* SymTable){
     adds_to_string(&(func->returnType),"si");
     //---------------------------------
 
+
 }
