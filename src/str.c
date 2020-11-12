@@ -94,8 +94,7 @@ int is_built_in_func(string *string){
 
 int is_keyword(string *string){
     char *keywords[] = {"else\0", "float64\0", "for\0", "func\0", "if\0",
-                        "int\0", "return\0", "string\0",
-                        "main\0", "package\0"};
+                        "int\0", "return\0", "string\0", "package\0"};
     int kw_size = sizeof(keywords) / sizeof(keywords[0]);
     for (int i = 0; i < kw_size; i++){
         if (!strcmp(string->str, keywords[i])){

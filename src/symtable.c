@@ -141,8 +141,7 @@ void BSTDispose(tBSTNodePtr *RootPtr){
     if ((*RootPtr)->LPtr){
         BSTDispose(&(*RootPtr)->LPtr);
     }
-
-    free(&(*RootPtr)->Content);
+    free((*RootPtr)->Content);
     free(*RootPtr);
     *RootPtr = NULL;
 }
@@ -173,8 +172,8 @@ tBSTNodePtr SymTableInsertVariable(tSymtable* SymTable, string *key){
     return BSTInsert(&(SymTable->root), key->str, varPtr);
 }
 
-tBSTNodePtr SymTableSearch(tSymtable* SymTable, string *key){
-    return BSTSearch(SymTable->root, key->str);
+tBSTNodePtr SymTableSearch(tSymtable* SymTable, char* key){
+    return BSTSearch(SymTable->root, key);
 }
 
 void SymTableDelete(tSymtable* SymTable, string *key){

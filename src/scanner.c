@@ -17,7 +17,7 @@ void set_source_file(FILE *file) {
 int get_token(string *attr){
 	tState state = start;
 	char c;
-	init_string(attr);
+	clear_str(attr);
 
 	while (TRUE) {
 		c = getc(source);
@@ -105,7 +105,7 @@ int get_token(string *attr){
 				return tClosingCurlyBrace;
 			}
 			else if (c == EOF) {
-				return EOF;
+				return tEOF;
 			}
 			break;
 		case tBiggerThan:
@@ -114,7 +114,7 @@ int get_token(string *attr){
 				return tBiggerOrEqual;
 			}
 			else if (!comparison_assumption(c)) {
-				return LEX_ERROR;
+				return tLEX_ERROR;
 			}
 			ungetc(c, source);
 			return tBiggerThan;
@@ -124,7 +124,7 @@ int get_token(string *attr){
 				return tSmallerOrEqual;
 			}
 			else if (!comparison_assumption(c)) {
-				return LEX_ERROR;
+				return tLEX_ERROR;
 			}
 			return tSmallerThan;
 		case tAssignment:
@@ -141,13 +141,13 @@ int get_token(string *attr){
 				add_to_string(attr, c);
 				return tNotEqual;
 			}
-			return LEX_ERROR;
+			return tLEX_ERROR;
 		case tDeclaration:
 			if (c == '=') {
 				add_to_string(attr, c);
 				return tDeclaration;
 			}
-			return LEX_ERROR;
+			return tLEX_ERROR;
 		case string_start:
 			if (c == '"') {
 				return tString;
@@ -173,7 +173,7 @@ int get_token(string *attr){
 				state = string_start;
 			}
 			else {
-				return LEX_ERROR;
+				return tLEX_ERROR;
 			}
 			break;
 		case string_hex1:
@@ -182,7 +182,7 @@ int get_token(string *attr){
 				state = string_hex2;
 			}
 			else {
-				return LEX_ERROR;
+				return tLEX_ERROR;
 			}
 			break;
 		case string_hex2:
@@ -191,7 +191,7 @@ int get_token(string *attr){
 				state = string_start;
 			}
 			else {
-				return LEX_ERROR;
+				return tLEX_ERROR;
 			}
 			break;
 		case tInteger:
@@ -207,7 +207,7 @@ int get_token(string *attr){
 				state = float_exponent;
 			}
 			else if (is_alpha(c)) {
-				return LEX_ERROR;
+				return tLEX_ERROR;
 			}
 			else {
 				ungetc(c, source);
@@ -222,7 +222,7 @@ int get_token(string *attr){
 			}
 			else {
 				ungetc(c, source);
-				return LEX_ERROR;
+				return tLEX_ERROR;
 			}
 			break;
 		case float_point_number:
@@ -250,7 +250,7 @@ int get_token(string *attr){
 				state = float_singed_exponent;
 			}
 			else if (!number_ending(c)) {
-				return LEX_ERROR;
+				return tLEX_ERROR;
 			}
 			else {
 				return tFloat;
@@ -262,7 +262,7 @@ int get_token(string *attr){
 				add_to_string(attr, c);
 			}
 			else if (!number_ending(c)) {
-				return LEX_ERROR;
+				return tLEX_ERROR;
 			}
 			else {
 				return tFloat;
@@ -275,7 +275,7 @@ int get_token(string *attr){
 			}
 			else {
 				ungetc(c, source);
-				return LEX_ERROR;
+				return tLEX_ERROR;
 			}
 			break;
 		case tFloat:
@@ -348,7 +348,7 @@ int get_token(string *attr){
 			break;
 		case tEqual:
 			if (!comparison_assumption(c)) {
-				return LEX_ERROR;
+				return tLEX_ERROR;
 			}
 			ungetc(c, source);
 			return tEqual;

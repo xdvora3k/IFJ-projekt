@@ -62,3 +62,21 @@ int StrLLStringAlreadyOccupied(tLinkedList *L, char *S){
     }
     return FALSE;
 }
+
+void StrLLDeleteLast(tLinkedList *L){
+    tListItem **to_delete = &L->first;
+    if (!to_delete){
+        return;
+    }
+    while ((*to_delete)->nextItem){
+        to_delete = &(*to_delete)->nextItem;
+    }
+    (*to_delete)->nextItem = NULL;
+    free(*to_delete);
+}
+
+void StrLLDispose(tLinkedList *L){
+    while (L->first){
+
+    }
+}
