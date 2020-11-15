@@ -141,8 +141,7 @@ void BSTDispose(tBSTNodePtr *RootPtr){
     if ((*RootPtr)->LPtr){
         BSTDispose(&(*RootPtr)->LPtr);
     }
-
-    free(&(*RootPtr)->Content);
+    free((*RootPtr)->Content);
     free(*RootPtr);
     *RootPtr = NULL;
 }
