@@ -2,7 +2,7 @@ PROJ=proj
 BINARY_FILES=$(PROJ) test-scanner
 CC=gcc
 CFLAGS=-std=c11 -Wall -Wextra -Werror -pedantic -pthread
-FILES=src/str.c src/scanner.c src/symtable.c src/ilist.c
+FILES=src/str.c src/scanner.c src/symtable.c src/ilist.c src/instr.c src/stack.c
 
 .PHONY: all
 all: $(PROJ)
@@ -16,8 +16,8 @@ clean:
 
 .PHONY: build-test-scanner
 build-test-scanner:
-	$(CC) $(CFLAGS) -o test-scanner tests/test_scanner.c src/scanner.c src/str.c
+	$(CC) $(CFLAGS) -o test-scanner tests/test_scanner.c src/scanner.c src/str.c src/instr.c src/stack
 
 .PHONY: build-test-ilist
 build-test-ilist:
-	$(CC) $(CFLAGS) -o test-ilist tests/test_ilist.c src/ilist.c
+	$(CC) $(CFLAGS) -o test-ilist tests/test_ilist.c src/ilist.c src/instr.c src/stack
