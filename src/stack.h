@@ -31,8 +31,6 @@ void StackPush  (ptrStack* s, void* value);
 void StackPop   (ptrStack* s);
 bool StackIsEmpty (ptrStack* s);
 void StackDispose (ptrStack* s);
-//void* StackReadTop (ptrStack* s);
-//void* StackReadIndexValue (ptrStack* s, int index);
 
 
 #endif //IFJ_PROJEKT_STACK_H

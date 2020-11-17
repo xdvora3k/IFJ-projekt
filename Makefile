@@ -16,8 +16,8 @@ clean:
 
 .PHONY: build-test-scanner
 build-test-scanner:
-	$(CC) $(CFLAGS) -o test-scanner tests/test_scanner.c src/scanner.c src/str.c src/instr.c src/stack.c
+	$(CC) $(CFLAGS) -o test-scanner tests/test_scanner.c src/scanner.c src/str.c
 
 .PHONY: build-test-ilist
 build-test-ilist:
-	$(CC) $(CFLAGS) -o test-ilist tests/test_ilist.c src/ilist.c src/instr.c src/stack.c
+	$(CC) $(CFLAGS) -o test-ilist tests/test_ilist.c src/ilist.c

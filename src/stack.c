@@ -5,8 +5,6 @@
 #include "stack.h"
 #include "instr.h"
 
-int StackSize;
-
 void StackInit(ptrStack * s)
 {
     s->top_stack = NULL;
@@ -26,7 +24,6 @@ void StackPush  (ptrStack* s, void* value)
     new_item->value = value;
     new_item->next_value = s->top_stack;
     s->top_stack = new_item;
-    StackSize++;
 }
 
 void StackPop   (ptrStack* s)
@@ -35,7 +32,6 @@ void StackPop   (ptrStack* s)
     tmp = s->top_stack;
     s->top_stack = s->top_stack->next_value;
     free(tmp);
-    StackSize--;
 }
 
 bool StackIsEmpty (ptrStack* s)
@@ -51,21 +47,5 @@ void StackDispose (ptrStack* s)
         tmp = s->top_stack;
         s->top_stack = s->top_stack->next_value;
         free(tmp);
-        StackSize--;
     }
 }
-/*void* StackReadTop (ptrStack* s)
-{
-    return s->top_stack->value;
-}*/
-
-/*void* StackReadIndexValue (ptrStack* s,int index)
-{
-    if(StackSize >= index)
-        return NULL;
-    for(int i = 0; i < index; i++)
-    {
-        s->top_stack = s->top_stack->next_value;
-    }
-    return s->top_stack->value;
-}*/
