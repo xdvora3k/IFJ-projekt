@@ -90,6 +90,8 @@ typedef enum{
 
 
 
+
+
 typedef struct {
     int instType;
     void *addr1;
@@ -116,5 +118,11 @@ void StrLLInsert(tLinkedList *L, string *K);
 int StrLLStringAlreadyOccupied(tLinkedList *L, char *S);
 tListItem* StrLLLocateNthElem(tLinkedList *L, int index);
 int StrLLLen(tLinkedList *L);
+
+void CreateInstruction (tLinkedList *L, int InstrType, void *addr1, void *addr2, void *addr3);
+void InstructionWithNoOperand(tLinkedList *L, int InstrType);
+void InstructionWithOneOperand(tLinkedList *L, int InstrType);
+void InstructionWithTwoOperand(tLinkedList *L, int InstrType);
+void InstructionWithThreeOperand(tLinkedList *L, int InstrType);
 
 #endif

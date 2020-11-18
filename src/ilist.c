@@ -5,6 +5,58 @@
 
 #include "ilist.h"
 
+#define TYPE_INT    "int@"
+#define TYPE_FLOAT  "float@"
+#define TYPE_BOOL   "bool@"
+#define TYPE_STRING "string@"
+#define TYPE_NIL    "nil@"
+#define FRAMEGF     "GF@"
+#define FRAMELF     "LF@"
+#define FRAMETF     "TF@"
+
+
+void CreateInstruction (tLinkedList *L, int InstrType, void *addr1, void *addr2, void *addr3)
+{
+    tInstr  Instruciton;
+    Instruciton.instType = InstrType;
+    Instruciton.addr1 = addr1;
+    Instruciton.addr2 = addr2;
+    Instruciton.addr3 = addr3;
+    InstrLLInsertFirst(L,&Instruciton);
+}
+
+void InstructionWithNoOperand(tLinkedList *L, int InstrType)
+{
+    CreateInstruction(L,InstrType,NULL,NULL,NULL);
+}
+
+void InstructionWithOneOperand(tLinkedList *L, int InstrType)
+{
+    CreateInstruction(L,InstrType);
+}
+
+void InstructionWithTwoOperand(tLinkedList *L, int InstrType)
+{
+    CreateInstruction(L,InstrType);
+}
+
+void InstructionWithThreeOperand(tLinkedList *L, int InstrType)
+{
+    CreateInstruction(L,InstrType);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 void InstrLLInit(tLinkedList *L){
     L->first = NULL;
 }
