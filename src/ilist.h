@@ -8,17 +8,87 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include "str.h"
+#include <string.h>
+//#include "instr.h"
 
-// TODO: Define types of instructions
-// Example:
-#define I_FUNC 0
-#define I_PLUS 1
-#define I_MINUS 2
-#define I_TIMES 3
-#define I_DIVIDE 4
-#define I_EQUAL 5
-#define I_ANOTHER 6
-// Once this is fixed, the test script needs to be fixed as well.
+typedef enum{
+    Frame_GF,
+    Frame_LF,
+    Frame_TF,
+    Frame_Default
+}FRAME;
+
+typedef enum{
+    I_MOVE,
+    I_CREATEFRAME,
+    I_PUSHFRAME,
+    I_POPFRAME,
+    I_DEFVAR,
+    I_CALL,
+    I_RETURN,
+
+    I_PUSHS,
+    I_POPS,
+    I_CLEARS,
+
+    I_ADD,
+    I_SUB,
+    I_MUL,
+    I_DIV,
+    I_IDIV,
+    I_ADDS,
+    I_SUBS,
+    I_MULS,
+    I_DISV,
+    I_IDIVS,
+    I_LT,
+    I_GT,
+    I_EQ,
+    I_LTS,
+    I_GTS,
+    I_EQS,
+    I_AND,
+    I_OR,
+    I_NOT,
+    I_ANDS,
+    I_ORS,
+    I_NOTS,
+    I_FLOAT2INT,
+    I_INT2FLOAT,
+    I_INT2CHAR,
+    I_STRI2INT,
+    I_INT2FLOATS,
+    I_FLOAT2INTS,
+    I_INT2CHARS,
+    I_STRI2INTS,
+
+    I_READ,
+    I_WRITE,
+
+    I_CONCAT,
+    I_STRLEN,
+    I_GETCHAR,
+    I_SETCHAR,
+
+    I_TYPE,
+
+    I_LABEL,
+    I_JUMP,
+    I_JUMPIFEQ,
+    I_JUMPIFNEQ,
+    I_JUMPIFEQS,
+    I_JUMPIFNEQS,
+    I_EXIT,
+
+    I_BREAK,
+    I_DPRINT
+}INSTRUCTION;
+
+
+
+
+
 
 typedef struct {
     int instType;
@@ -28,28 +98,23 @@ typedef struct {
 } tInstr;
 
 typedef struct listItem{
-    tInstr Instruction;
+    void* Content;
     struct listItem *nextItem;
 } tListItem;
 
 typedef struct {
     struct listItem *first;
-    struct listItem *last;
-    struct listItem *active;
-} tListOfInstr;
+} tLinkedList;
 
-void LLInit(tListOfInstr *L);
-void LLDisposeAll(tListOfInstr *L);
-void LLInsertFirst(tListOfInstr *L, tInstr Instruction);
-void LLSetActiveToFirst(tListOfInstr *L);
-void LLSetActiveToLast(tListOfInstr *L);
-void LLCopyFirst(tListOfInstr *L, tInstr *Instruction);
-void LLDeleteFirst(tListOfInstr *L);
-void LLPostDelete(tListOfInstr *L);
-void LLPostInsert(tListOfInstr *L, tInstr Instruction);
-void LLInsertLast(tListOfInstr *L, tInstr Instruction);
-void LLCopyActive(tListOfInstr *L, tInstr *Instruction);
-void LLActualize(tListOfInstr *L, tInstr Instruction);
-void LLActiveNext(tListOfInstr *L);
+void InstrLLInit(tLinkedList *L);
+void InstrLLDisposeAll(tLinkedList *L);
+void InstrLLInsertFirst(tLinkedList *L, tInstr *Instruction);
+void InstrLLDeleteFirst(tLinkedList *L);
+
+void StrLLInit(tLinkedList *L);
+void StrLLInsert(tLinkedList *L, string *K);
+int StrLLStringAlreadyOccupied(tLinkedList *L, char *S);
+tListItem* StrLLLocateNthElem(tLinkedList *L, int index);
+int StrLLLen(tLinkedList *L);
 
 #endif
