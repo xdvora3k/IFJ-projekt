@@ -5,7 +5,8 @@
 #include <string.h>
 
 int init_string(string *string){
-    if (!(string->str = (char*) malloc(BASE_STRING_LENGTH * sizeof(char)))){
+    string->str = (char*) malloc(BASE_STRING_LENGTH * sizeof(char));
+    if (!string->str){
         return INTERNAL_ERROR;
     }
     string->str[0] = '\0';
@@ -25,6 +26,15 @@ int add_to_string(string *string, char c){
     string->length += 1;
 
     return NO_ERROR;
+}
+
+int adds_to_string(string *string, char* S){
+    for (int i = 0; S[i] ; i++){
+        if (add_to_string(string, S[i]) == NO_ERROR){
+            continue;
+        }
+    }
+    return INTERNAL_ERROR;
 }
 
 int is_whitespace(char c){
@@ -70,7 +80,7 @@ int is_hex_char(char c){
 }
 
 int is_built_in_func(string *string){
-    char *build_in_funcs[] = {"inputs\0", "inputi\0", "inputs\0",
+    char *build_in_funcs[] = {"inputs\0", "inputi\0", "inputf\0",
                               "print\0", "int2float\0", "float2int\0",
                               "len\0", "substr\0", "ord\0", "chr\0"};
     int bi_size = sizeof(build_in_funcs) / sizeof(build_in_funcs[0]);
@@ -84,11 +94,21 @@ int is_built_in_func(string *string){
 
 int is_keyword(string *string){
     char *keywords[] = {"else\0", "float64\0", "for\0", "func\0", "if\0",
-                        "int\0", "return\0", "string\0",
-                        "main\0", "package\0"};
+                        "int\0", "return\0", "string\0", "package\0"};
     int kw_size = sizeof(keywords) / sizeof(keywords[0]);
     for (int i = 0; i < kw_size; i++){
         if (!strcmp(string->str, keywords[i])){
+            return TRUE;
+        }
+    }
+    return FALSE;
+}
+
+int is_datatype(string *string){
+    char *datatypes[] = {"int\0", "float64\0", "string\0"};
+    int datasize = sizeof(datatypes) / sizeof(datatypes[0]);
+    for (int i = 0; i < datasize; i++){
+        if (!strcmp(string->str, datatypes[i])){
             return TRUE;
         }
     }
