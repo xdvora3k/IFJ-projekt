@@ -13,6 +13,8 @@
 #define FRAMEGF     "GF@"
 #define FRAMELF     "LF@"
 #define FRAMETF     "TF@"
+#define LABEL_S     "$"
+#define MAIN        "$$main"
 
 
 void CreateInstruction (tLinkedList *L, int InstrType, void *addr1, void *addr2, void *addr3)
@@ -25,11 +27,22 @@ void CreateInstruction (tLinkedList *L, int InstrType, void *addr1, void *addr2,
     InstrLLInsertFirst(L,&Instruciton);
 }
 
+tInstructionOperand CreateOperand (string value,int type,FRAME frame,bool isItLabel, bool isItVar)
+{
+    tInstructionOperand o;
+    add_to_string(o.value,value);
+    o.type = type;
+    o.frame = frame;
+    o.isLabel = isItLabel;
+    o.isVariable = isItVar;
+    return o;
+}
+
 void InstructionWithNoOperand(tLinkedList *L, int InstrType)
 {
     CreateInstruction(L,InstrType,NULL,NULL,NULL);
 }
-
+/*
 void InstructionWithOneOperand(tLinkedList *L, int InstrType)
 {
     CreateInstruction(L,InstrType);
@@ -44,7 +57,8 @@ void InstructionWithThreeOperand(tLinkedList *L, int InstrType)
 {
     CreateInstruction(L,InstrType);
 }
-
+ ????
+*/
 
 
 

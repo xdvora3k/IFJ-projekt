@@ -86,7 +86,13 @@ typedef enum{
 }INSTRUCTION;
 
 
-
+typedef struct operands{
+    string value;
+    int type;
+    FRAME frame;
+    bool isVariable;
+    bool isLabel;  // Label == Navesti
+}tInstructionOperand;
 
 
 
