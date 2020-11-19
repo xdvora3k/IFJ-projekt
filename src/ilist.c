@@ -111,6 +111,7 @@ void StrLLInsert(tLinkedList *L, string *K){
 
 void InstrLLDeleteFirst(tLinkedList *L){
     if (!L->first){
+        L->first = new_node;
         return;
     }
     tListItem *to_delete = L->first;
