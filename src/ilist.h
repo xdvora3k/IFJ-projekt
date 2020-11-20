@@ -32,7 +32,9 @@ typedef struct {
 typedef enum {
     IntType,
     Float64Type,
-    StringType
+    StringType,
+
+    UnderscoreType = -1
 } tVarDataType;
 
 typedef struct tDataVariable {
@@ -63,6 +65,5 @@ void TableLLInit(tLinkedList *L);
 void TableLLInsertFirst(tLinkedList *L, tSymtable *local_var_table);
 tListItem* TableLLLocateNthElem(tLinkedList *L, int index);
 int TableLLLen(tLinkedList *L);
-tSymtable* TableLLGetLastElem(tLinkedList *L);
 
 #endif

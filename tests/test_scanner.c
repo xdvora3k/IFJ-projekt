@@ -35,26 +35,21 @@ char* get_name(int i){
     return "Unknown";
 }
 
-int main(int argc, char* argv[]){
-    if (argc == 1){
-        return 500;
-    }
-    FILE *file = fopen(argv[1], "r");
-    set_source_file(file);
+int main(){
+    //FILE *file = fopen(argv[1], "r");
+    set_source_file(stdin);
 
     string token;
+    init_string(&token);
     int token_type;
     while (1){
         token_type = get_token(&token);
-        if (token_type == EOF){
+        if (token_type == tEOF){
             return 0;
         }
-        else if (token_type == LEX_ERROR){
+        else if (token_type == tLEX_ERROR){
             printf("%s\n", token.str);
             return 1;
-        }
-        else if (token_type == INTERNAL_ERROR){
-            return 100;
         }
         printf("%s\n", get_name(token_type));
     }
