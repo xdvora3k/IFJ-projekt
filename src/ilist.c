@@ -84,8 +84,10 @@ void TableLLDeleteFirst(tLinkedList *L){
     if (!L->first){
         return;
     }
-    SymTableDispose(L->first->Content);
+    tListItem *to_delete = L->first;
     L->first = L->first->nextItem;
+    SymTableDispose(to_delete->Content);
+    free(to_delete);
 }
 
 void TableLLInsertFirst(tLinkedList *L, tSymtable *local_var_table){
@@ -118,14 +120,6 @@ int TableLLLen(tLinkedList *L){
         item = item->nextItem;
     }
     return i;
-}
-
-tSymtable* TableLLGetLastElem(tLinkedList *L){
-    tListItem *node = L->first;
-    while (node->nextItem){
-        node = node->nextItem;
-    }
-    return (tSymtable*) node->Content;
 }
 
 // Instruction List
