@@ -105,7 +105,7 @@ typedef struct operands{
     string value;
     tVarDataType type;
     FRAME frame;
-    bool isVariable;
+    bool isHelpVariable;  //Pomocna promenna
     bool isLabel;  // Label == Navesti
 }tInstructionOperand;
 
@@ -113,7 +113,7 @@ typedef struct operands{
 
 
 typedef struct {
-    int instType;
+    INSTRUCTION instType;
     void *addr1;
     void *addr2;
     void *addr3;

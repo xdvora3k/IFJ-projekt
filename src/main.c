@@ -4,8 +4,11 @@
 
 #include <stdio.h>
 #include "scanner.h"
+#include "ilist.h"
 
 #define FILE_ERROR 5
+tLinkedList *L;
+
 
 int main(int argc, char *argv[]){
     if (argc == 1){

@@ -20,8 +20,10 @@
 #define LABEL_S     "$"
 #define MAIN        "$$main"*/
 
+extern tLinkedList *L;
 
-void CreateInstruction (tLinkedList *L, int InstrType, void *addr1, void *addr2, void *addr3)
+
+void CreateInstruction (tLinkedList *L, INSTRUCTION InstrType, void *addr1, void *addr2, void *addr3)
 {
     tInstr  Instruciton;
     Instruciton.instType = InstrType;
@@ -31,23 +33,22 @@ void CreateInstruction (tLinkedList *L, int InstrType, void *addr1, void *addr2,
     InstrLLInsertFirst(L,&Instruciton);
 }
 
-tInstructionOperand CreateOperand (char* value,tVarDataType type,FRAME frame,bool isItLabel, bool isItVar)
+tInstructionOperand CreateOperand (tInstructionOperand o,char* value,tVarDataType type,FRAME frame,bool isItLabel, bool isItVar)
 {
-    tInstructionOperand o;
     adds_to_string(&(o.value),value);
     o.type = type;
     o.frame = frame;
     o.isLabel = isItLabel;
-    o.isVariable = isItVar;
+    o.isHelpVariable = isItVar;
     return o;
 }
 
-void InstructionWithNoOperand(tLinkedList *L, tVarDataType InstrType)
+void InstructionWithNoOperand(tLinkedList *L, INSTRUCTION InstrType)
 {
     CreateInstruction(L,InstrType,NULL,NULL,NULL);
 }
 
-void InstructionWith1operand(tLinkedList *L, tVarDataType InstrType, tInstructionOperand op1)
+void InstructionWith1operand(tLinkedList *L, INSTRUCTION InstrType, tInstructionOperand op1)
 {
     string operand;
     init_string(&operand);
@@ -118,7 +119,7 @@ void InstructionWith1operand(tLinkedList *L, tVarDataType InstrType, tInstructio
     CreateInstruction(L,InstrType,operand.str,NULL,NULL);
 }
 
-void InstructionWith2operand(tLinkedList *L, tVarDataType InstrType, tInstructionOperand op1, tInstructionOperand op2)
+void InstructionWith2operand(tLinkedList *L, INSTRUCTION InstrType, tInstructionOperand op1, tInstructionOperand op2)
 {
     string operand1;
     string operand2;
@@ -257,7 +258,7 @@ void InstructionWith2operand(tLinkedList *L, tVarDataType InstrType, tInstructio
     CreateInstruction(L,InstrType,operand1.str,operand2.str,NULL);
 }
 
-void InstructionWith3operand(tLinkedList *L, tVarDataType InstrType, tInstructionOperand op1, tInstructionOperand op2, tInstructionOperand op3)
+void InstructionWith3operand(tLinkedList *L, INSTRUCTION InstrType, tInstructionOperand op1, tInstructionOperand op2, tInstructionOperand op3)
 {
     string operand1;
     string operand2;
@@ -618,3 +619,22 @@ void InstrLLDeleteFirst(tLinkedList *L){
     L->first = L->first->nextItem;
     free(to_delete);
 }
+
+
+
+
+/* Built-in functions */
+
+void len()
+{   tInstructionOperand operand1;tInstructionOperand operand2;
+    operand1 = CreateOperand(operand1,"len",Unknown_type,Frame_GF,true,false);
+    InstructionWith1operand(L,I_LABEL,operand1);
+    InstructionWithNoOperand(L,I_PUSHFRAME);
+    operand1 = CreateOperand(operand1,"",IntType,Frame_GF,false,true);
+    operand2 = CreateOperand(operand2,"s",StringType,Frame_LF,false,false);
+    InstructionWith2operand(L,I_STRLEN,operand1,operand2);
+    InstructionWithNoOperand(L,I_RETURN);
+}
+
+
+
