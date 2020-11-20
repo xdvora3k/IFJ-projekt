@@ -62,7 +62,8 @@ typedef enum{
 
     EOL,
 
-    LEX_ERROR = 1000
+
+
 
 }tState;
 

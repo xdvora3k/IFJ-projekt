@@ -11,14 +11,14 @@
 #include "str.h"
 #include <string.h>
 #include "symtable.h"
+#include "scanner.h"
 
 
 
 typedef enum{
     Frame_GF,
     Frame_LF,
-    Frame_TF,
-    Frame_Default
+    Frame_TF
 }FRAME;
 
 typedef enum{
@@ -88,9 +88,22 @@ typedef enum{
 }INSTRUCTION;
 
 
+typedef enum {
+    IntType,
+    Float64Type,
+    StringType,
+    Unknown_type,
+    UnderscoreType = -1
+} tVarDataType;
+
+typedef struct tDataVariable {
+    tVarDataType dataType;
+} tDataVariable;
+
+
 typedef struct operands{
     string value;
-    int type;
+    tVarDataType type;
     FRAME frame;
     bool isVariable;
     bool isLabel;  // Label == Navesti
@@ -115,15 +128,6 @@ typedef struct {
     struct listItem *first;
 } tLinkedList;
 
-typedef enum {
-    IntType,
-    Float64Type,
-    StringType
-} tVarDataType;
-
-typedef struct tDataVariable {
-    tVarDataType dataType;
-} tDataVariable;
 
 typedef struct tDataFunction {
     string returnType;
