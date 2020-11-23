@@ -12,7 +12,10 @@ void StrLLInit(tLinkedList *L){
 
 void StrLLInsert(tLinkedList *L, string *K){
     tListItem *new_node = (tListItem*) malloc(sizeof(tListItem));
-    new_node->Content = K;
+    string new;
+    init_string(&new);
+    adds_to_string(&new, K->str);
+    new_node->Content = &new;
     if (!L->first){
         L->first = new_node;
         return;
@@ -120,6 +123,55 @@ int TableLLLen(tLinkedList *L){
         item = item->nextItem;
     }
     return i;
+}
+
+int TableLLFindAllVariables(tLinkedList *func_variable_list, tLinkedList *variables){
+    if (!func_variable_list || !func_variable_list->first){
+        return 100;
+    }
+    if (!variables || !variables->first){
+        return 1000;
+    }
+    int not_found = 0;
+    for (int i = 0; i < StrLLLen(variables); i++){
+        for (int j = 0; j < TableLLLen(func_variable_list); j++){
+            tSymtable *curr_table = (tSymtable*) TableLLLocateNthElem(func_variable_list, j)->Content;
+            tListItem *var_node = StrLLLocateNthElem(variables, i);
+            if (SymTableSearch(curr_table, ((string*) var_node->Content)->str)){
+                continue;
+            }
+        }
+        not_found++;
+    }
+    return not_found;
+}
+
+int TableLLGetNumOfNests(tLinkedList *func_variable_list, char* var){
+    if (!func_variable_list || !func_variable_list->first){
+        return -1;
+    }
+    int table_len = TableLLLen(func_variable_list);
+    for (int i = 0; i < table_len; i++){
+        tSymtable *curr_table = (tSymtable*) TableLLLocateNthElem(func_variable_list, i)->Content;
+        if (SymTableSearch(curr_table, var)){
+            return table_len - i;
+        }
+    }
+    return -1;
+}
+
+tDataVariable* TableLLGetSingleVariable(tLinkedList *func_variable_list, char* var){
+    if (!func_variable_list || !func_variable_list->first){
+        return NULL;
+    }
+    for (int i = 0; i < TableLLLen(func_variable_list); i++){
+        tSymtable *curr_table = (tSymtable*) TableLLLocateNthElem(func_variable_list, i)->Content;
+        tDataVariable *var_node = (tDataVariable*) SymTableSearch(curr_table, var)->Content;
+        if (var_node){
+            return var_node;
+        }
+    }
+    return NULL;
 }
 
 // Instruction List

@@ -60,10 +60,15 @@ void StrLLInsert(tLinkedList *L, string *K);
 int StrLLStringAlreadyOccupied(tLinkedList *L, char *S);
 tListItem* StrLLLocateNthElem(tLinkedList *L, int index);
 int StrLLLen(tLinkedList *L);
+void StrLLDispose(tLinkedList *L);
 
 void TableLLInit(tLinkedList *L);
 void TableLLInsertFirst(tLinkedList *L, tSymtable *local_var_table);
+void TableLLDeleteFirst(tLinkedList *L);
 tListItem* TableLLLocateNthElem(tLinkedList *L, int index);
 int TableLLLen(tLinkedList *L);
+int TableLLFindAllVariables(tLinkedList *func_variable_list, tLinkedList *variables);
+int TableLLGetNumOfNests(tLinkedList *func_variable_list, char* var);
+tDataVariable* TableLLGetSingleVariable(tLinkedList *func_variable_list, char* var);
 
 #endif
