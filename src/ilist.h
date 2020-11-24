@@ -155,4 +155,6 @@ tListItem* TableLLLocateNthElem(tLinkedList *L, int index);
 int TableLLLen(tLinkedList *L);
 tSymtable* TableLLGetLastElem(tLinkedList *L);
 
+//Add names of the Functions InstructionCreateOneTwoThree OPERANDS
+
 #endif
