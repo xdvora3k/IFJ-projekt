@@ -12,7 +12,7 @@ int precedentTable[8][8] =      //> za | < pred
     { '>' , '<' , '<' , '>' , '<' , '>' , '<' , '>' }, // +-
 	{ '>' , '>' , '>' , '>' , '<' , '>' , '<' , '>' }, // */
 	{ '>' , '<' , '>' , '>' , '<' , '>' , '<' , '>' }, /* \ */
-	{ '<' , '<' , '<' , 'E' , '<' , '>' , '<' , '>' }, // o (operators) = <> <= < > >=     -> vrchol zasobniku
+	{ '<' , '<' , '<' , 'E' , '<' , '>' , '<' , '>' }, // o (operators) (=) <> <= < > >= == !=    -> vrchol zasobniku
 	{ '<' , '<' , '<' , '<' , '<' , '=' , '<' , 'E' }, // (
 	{ '>' , '>' , '>' , '>' , 'E' , '>' , 'E' , '>' }, // )
 	{ '>' , '>' , '>' , '>' , 'E' , '>' , 'E' , '>' }, // i 
@@ -37,6 +37,7 @@ int getTokenTableIndex(tState token)
         return rightBrackedIndex;
     
     case tAssignment:
+    case tEqual:
     case tNotEqual:
     case tBiggerThan:
     case tSmallerThan:
@@ -74,7 +75,9 @@ int instructionSwap (INSTRUCTION instr){
     /*case tAssignment:
         return */
     /*case tNotEqual:
-        return ;*/
+        return ;
+      case tEqual:
+      */
     case tBiggerThan:
         return I_GT;
     case tSmallerThan:
