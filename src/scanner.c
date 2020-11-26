@@ -17,7 +17,6 @@ void set_source_file(FILE *file) {
 int get_token(string *attr){
     tState state = start;
     char c;
-
     clear_str(attr);
 
     while (TRUE) {
@@ -362,4 +361,3 @@ int get_token(string *attr){
 void reset_file_pointer(){
     fseek(source, 0, SEEK_SET);
 }
-

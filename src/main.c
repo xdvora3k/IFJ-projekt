@@ -7,10 +7,6 @@
 #include "ilist.h"
 #include "symtable.h"
 
-
-#define FILE_ERROR 5
-
-
 int main() {
     set_source_file(stdin);
 

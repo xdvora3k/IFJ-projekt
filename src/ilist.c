@@ -1,31 +1,22 @@
 /*
  * IFJ project 2020
  * Author: xdvora3k, Jakub Dvorak
+ *         xkvasn14, Jaroslav Kvasnicka
  */
 
 #include "ilist.h"
 
-
-
-
-
-/*
-#define LABEL_S     "$"
-#define MAIN        "$$main"*/
-
-
-
-void CreateInstruction (INSTRUCTION InstrType, void *addr1, void *addr2, void *addr3)
+void CreateInstruction(INSTRUCTION InstrType, char *addr1, char *addr2, char *addr3)
 {
-    tInstr  Instruciton;
-    Instruciton.instType = InstrType;
-    Instruciton.addr1 = addr1;
-    Instruciton.addr2 = addr2;
-    Instruciton.addr3 = addr3;
-    InstructionPrint(Instruciton);
+    tInstr Instruction;
+    Instruction.instType = InstrType;
+    Instruction.addr1 = addr1;
+    Instruction.addr2 = addr2;
+    Instruction.addr3 = addr3;
+    InstructionPrint(Instruction);
 }
 
-tInstructionOperand CreateOperand (char* name, char* value, tVarDataType type, FRAME f)
+tInstructionOperand CreateOperand(char* name, char* value, tVarDataType type, FRAME f)
 {
     tInstructionOperand o;
     o.name = name;
@@ -480,9 +471,6 @@ void Instruction3(INSTRUCTION InstrType, tInstructionOperand op, tInstructionOpe
     CreateInstruction(InstrType,tmp,tmp2,tmp3);
 }
 
-
-
-
 void StrLLInit(tLinkedList *L){
     L->first = NULL;
 }
@@ -696,34 +684,6 @@ void InstrLLDeleteFirst(tLinkedList *L){
     free(to_delete);
 }
 
-
-
-
-void len(char* s, tInstructionOperand *out)
-{
-    tInstructionOperand counter;
-    tInstructionOperand navesti_begin;
-    navesti_begin = CreateOperand("$len","",Unknown_type,Frame_NaN);
-    Instruction1(I_LABEL,navesti_begin);
-    Instruction0(I_PUSHFRAME);
-    counter = CreateOperand("",s,StringType,Frame_NaN);
-    Instruction2(I_STRLEN,*out,counter);
-    Instruction0(I_POPFRAME);
-    Instruction0(I_RETURN);
-
-}
-
-void chr()
-{
-    tInstructionOperand navesti_begin;
-    navesti_begin = CreateOperand("$chr","",Unknown_type,Frame_NaN);
-    Instruction1(I_LABEL,navesti_begin);
-    Instruction0(I_PUSHFRAME);
-
-
-}
-
-
 void inputi(tInstructionOperand o)
 {
     char* frame;
@@ -763,60 +723,6 @@ void inputf(tInstructionOperand o)
         frame = "";
     printf("READ %s@%s float\n",frame,o.name);
 }
-
-/* Built-in functions */
-/*
-void len()
-{   tInstructionOperand operand1;tInstructionOperand operand2;
-    operand1 = CreateOperand(operand1,"len",Unknown_type,Frame_GF,true,false);
-    InstructionWith1operand(L,I_LABEL,operand1);
-    InstructionWithNoOperand(L,I_PUSHFRAME);
-    operand1 = CreateOperand(operand1,"retval",IntType,Frame_GF,false,true);
-    operand2 = CreateOperand(operand2,"s",StringType,Frame_LF,false,false);
-    InstructionWith2operand(L,I_STRLEN,operand1,operand2);
-    InstructionWithNoOperand(L,I_RETURN);
-}
-*/
-
-
-/*
-int len (char* s)
-{
-    tInstructionOperand operandS;
-    tInstructionOperand operandI;
-    operandS = CreateOperand(operandS,s,StringType,Frame_GF,false,false);
-    operandI = CreateOperand(operandI,"0",IntType,Frame_GF,false,false);
-    InstructionWith2operand(L,I_STRLEN,operandI,operandS);
-    return *(operandI.value.str);
-}*/
-
-
-/*
-void for_function()
-{
-    tInstructionOperand iterator,for_begin,for_end;
-    iterator = CreateOperand(iterator,"0",IntType,Frame_TF,false,true);
-    InstructionWith1operand(L,I_DEFVAR,iterator);
-    InstructionWithNoOperand(L,I_PUSHFRAME);
-    for_begin = CreateOperand(for_begin,"for_begin",Unknown_type,Frame_TF,true,)
-
-}
-*/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 void InstructionPrint(tInstr i)
 {
@@ -994,8 +900,6 @@ void InstructionPrint(tInstr i)
     }
 }
 
-
-
 void Instr_I_MOVE(tInstr i){            printf("MOVE %s %s\n",i.addr1,i.addr2);}
 void Instr_I_CREATEFRAME(){             printf("CREATEFRAME\n");}
 void Instr_I_PUSHFRAME(){               printf("PUSHFRAME\n");}
@@ -1052,7 +956,6 @@ void Instr_I_JUMPIFNEQS(tInstr i){      printf("JUMPIFNEQS %s\n",i.addr1);}
 void Instr_I_EXIT(tInstr i){            printf("EXIT %s\n",i.addr1);}
 void Instr_I_BREAK(){                   printf("BREAK\n");}
 void Instr_I_DPRINT(tInstr i){          printf("DPRINT %s\n",i.addr1);}
-
 
 void Print_BuiltIn_Functions()
 {
@@ -1197,7 +1100,6 @@ void Print_BuiltIn_Functions()
            "LABEL $ord$return\n"
            "POPFRAME\n"
            "RETURN\n");
-
 
     //printf begin of main
     printf("LABEL $$main\n");

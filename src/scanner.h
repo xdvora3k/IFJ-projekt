@@ -66,7 +66,6 @@ typedef enum{
     tEOF,
     tLEX_ERROR,
 
-
     // ------------------------- For parser
     sFunc, //44
 
@@ -86,7 +85,6 @@ typedef enum{
     sString,
     sInt,
     sFloat64
-
 
 }tState;
 

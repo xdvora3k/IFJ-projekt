@@ -1,6 +1,7 @@
 /*
  * IFJ project 2020
  * Author: xdvora3k, Jakub Dvorak
+ *         xkvasn14, Jaroslav Kvasnicka
  */
 
 #ifndef IFJ_PROJEKT_ILIST_H
@@ -8,12 +9,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "str.h"
 #include <string.h>
 #include "symtable.h"
-#include "scanner.h"
-
-
+#include "str.h"
 
 typedef enum{
     Frame_GF,
@@ -88,7 +86,6 @@ typedef enum{
     I_DPRINT
 }INSTRUCTION;
 
-
 typedef enum {
     IntType,
     Float64Type,
@@ -101,16 +98,12 @@ typedef struct tDataVariable {
     tVarDataType dataType;
 } tDataVariable;
 
-
 typedef struct operands{
     char* name;
     char* value;
     tVarDataType type;
     FRAME frame;
 }tInstructionOperand;
-
-
-
 
 typedef struct {
     INSTRUCTION instType;
@@ -127,7 +120,6 @@ typedef struct listItem{
 typedef struct {
     tListItem *first;
 } tLinkedList;
-
 
 typedef struct tDataFunction {
     string returnType;
@@ -160,17 +152,13 @@ int TableLLFindAllVariables(tLinkedList *func_variable_list, tLinkedList *variab
 int TableLLGetNumOfNests(tLinkedList *func_variable_list, char* var);
 tDataVariable* TableLLGetSingleVariable(tLinkedList *func_variable_list, char* var);
 
-
-void CreateInstruction (INSTRUCTION InstrType, void *addr1, void *addr2, void *addr3);
+void CreateInstruction (INSTRUCTION InstrType, char *addr1, char *addr2, char *addr3);
 tInstructionOperand CreateOperand (char* name,char* value, tVarDataType type,FRAME f);
 void Instruction0(INSTRUCTION InstrType);
 void Instruction1(INSTRUCTION InstrType, tInstructionOperand op);
 void Instruction2(INSTRUCTION InstrType, tInstructionOperand op, tInstructionOperand op2);
 void Instruction3(INSTRUCTION InstrType, tInstructionOperand op, tInstructionOperand op2, tInstructionOperand op3);
-void len(char* s, tInstructionOperand *out);
 void InstructionPrint(tInstr i);
-
-
 
 void Instr_I_MOVE(tInstr i);
 void Instr_I_CREATEFRAME();
