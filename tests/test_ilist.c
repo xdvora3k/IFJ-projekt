@@ -4,30 +4,22 @@
  */
 
 #include "../src/ilist.h"
-#define I_ANOTHER 1
-#define I_FUNC 2
-
 
 int main(){
-    tLinkedList List;
-    InstrLLInit(&List);
-    printf("Starting test.\n");
-    tInstr Instr;
-    Instr.addr1 = NULL;
-    Instr.addr2 = NULL;
-    Instr.addr3 = NULL;
-    Instr.instType = I_ANOTHER;
-    InstrLLInsertFirst(&List, &Instr);
-    printf("1.Expecting: %d, Actual: %d\n\n", I_ANOTHER, ((tInstr*) List.first->Content)->instType);
-    if (I_ANOTHER != ((tInstr*) List.first->Content)->instType){
-        return 1;
-    }
+    tLinkedList *list = malloc(sizeof(tListItem));
+    StrLLInit(list);
+    StrLLInsert(list, "a");
+    printf("2-- %s\n", (char*) list->first->Content);
+    StrLLInsert(list, "aaaaaaaaaaaaaaaaaa");
+    printf("3-- %s\n", (char*) list->first->nextItem->Content);
+    StrLLDeleteLast(list);
+    printf("4-- %s\n", (char*) list->first->Content);
+    fflush(stdout);
+    StrLLDeleteLast(list);
+    printf("5-- %p\n", (void*) list->first);
 
-    Instr.instType = I_FUNC;
-    InstrLLInsertFirst(&List, &Instr);
-    printf("2.Expecting: %d, Actual: %d\n", I_FUNC, ((tInstr*) List.first->Content)->instType);
-    if (I_FUNC != ((tInstr*) List.first->Content)->instType){
-        return 1;
-    }
-    // TODO
+    StrLLInsert(list, "bbbb");
+    StrLLInsert(list, "dddddddddddddddddd");
+    StrLLDispose(list);
+    printf("6-- %p\n", (void*) list->first);
 }

@@ -22,6 +22,7 @@ int add_to_string(string *string, char c){
         }
         string->allocSize += BASE_STRING_LENGTH;
     }
+    string->str[string->length + 1] = '\0';
     string->str[string->length] = c;
     string->length += 1;
 
@@ -123,10 +124,8 @@ int is_reserved(string *string){
 }
 
 void clear_str(string *string){
-    for (int i = 0; i < string->length; i++){
-        string->str[i] = '\0';
-    }
-    string->length = 0;
+    free(string->str);
+    init_string(string);
 }
 
 int comparison_assumption(char c){
