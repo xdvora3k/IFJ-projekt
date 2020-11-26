@@ -26,7 +26,7 @@ typedef struct listItem{
 } tListItem;
 
 typedef struct {
-    struct listItem *first;
+    tListItem *first;
 } tLinkedList;
 
 typedef enum {
@@ -56,10 +56,11 @@ void InstrLLInsertFirst(tLinkedList *L, tInstr *Instruction);
 void InstrLLDeleteFirst(tLinkedList *L);
 
 void StrLLInit(tLinkedList *L);
-void StrLLInsert(tLinkedList *L, string *K);
+void StrLLInsert(tLinkedList *L, char *K);
 int StrLLStringAlreadyOccupied(tLinkedList *L, char *S);
 tListItem* StrLLLocateNthElem(tLinkedList *L, int index);
 int StrLLLen(tLinkedList *L);
+void StrLLDeleteLast(tLinkedList *L);
 void StrLLDispose(tLinkedList *L);
 
 void TableLLInit(tLinkedList *L);
