@@ -126,6 +126,7 @@ int get_token(string *attr){
                 else if (!comparison_assumption(c)) {
                     return tLEX_ERROR;
                 }
+                ungetc(c, source);
                 return tSmallerThan;
             case tAssignment:
                 if (c == '=') {

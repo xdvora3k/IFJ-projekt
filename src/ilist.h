@@ -12,7 +12,23 @@
 #include <string.h>
 #include "symtable.h"
 #include "str.h"
-#include "expression.h"
+#include "scanner.h"
+
+typedef enum{
+    expPLUSepx,//E -> E + E;
+    expMINUSepx,//E -> E - E;
+    expMULepx,//E -> E * E;
+    expDIVepx, //E -> E / E;
+    expOPepx, //E -> E o E;
+    expBrackets, //E -> (E);
+    expIdentity //E -> i;
+}ruleType;
+
+typedef struct{
+    string *text;
+    tState type;
+    int endIndex;   //abc + tr = tState string
+} tToken;
 
 typedef enum{
     Frame_GF,
