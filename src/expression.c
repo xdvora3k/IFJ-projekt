@@ -3,6 +3,10 @@
 #include "scanner.h"
 #include "expression.h"
 #include "ilist.h"
+#include "stack.h"
+
+int counter = 0;
+
 
 int precedentTable[8][8] =      //> za | < pred
 {   //asociativita -- Leva -> zasobnikovy operand > vstupni operand
@@ -21,7 +25,7 @@ int precedentTable[8][8] =      //> za | < pred
     //'E' -> error/nepovolena kombinace
 }; 
 
-int getTokenTableIndex(tState token)
+int getTokenTableIndex(int token)
 { 
     switch (token)
     {
@@ -103,7 +107,7 @@ bool chceckBracket(string *toCheck){
     if(get_token(toCheck) == tClosingSimpleBrace){
         isLeftBracketToo = true;     
     }
-        //chceckBracket(toCheck);
+        //chceckBracket(toCheck);       
     }
         chceckBracket(toCheck);
     }
@@ -136,7 +140,7 @@ tExpression generateInstruction(string *exp){
    }
 
 }
-
+/*
 tExpression switchStruct(string *exp, tExpressionNode node){ //change this name
     tExpression expStruct;
     switch (get_token(exp))
@@ -167,9 +171,102 @@ tExpression switchStruct(string *exp, tExpressionNode node){ //change this name
        }
        return expStruct;
 
-}  
+} */ 
 
-void rulesFunction(){
-    //stacInit
-    //getToken -> stack
+void precedencSA(string* token){
+    ptrStack* topOfStack;
+    StackInit(topOfStack);
+    StackTop(topOfStack);
+    topOfStack->top_stack->value = DollarIndex;
+    int actualToken = get_token(token);
+    expressionRule expression;
+    tExpressionList L;
+    tLinkedList linkedList;
+    tLinkedList *list = malloc(sizeof(tListItem));
+    StrLLInit(list);
+    StrLLInsert(list, "a");
+    
+    do{
+        int firstIndex = getTokenTableIndex(topOfStack->top_stack->value);
+        int secondIndex = getTokenTableIndex(token);
+        switch (precedentTable[firstIndex][secondIndex])
+        {
+        case '>': //zamen <y          
+           expression = applyrule(topOfStack ,extractexpression(topOfStack));
+           if (expression.placeHolder->length != 0)
+           {
+               StrLLInsert(list, &expression);
+           }
+        case '<':
+        //zamen a za a<
+        StackPush(topOfStack, '<');
+        StackPush(topOfStack, actualToken);
+        actualToken = get_token(token);
+        break;
+        case '=':
+        StackPush(topOfStack, secondIndex);    //actualToken
+        secondIndex = get_token(token);
+        //actualToken = get_token(token);
+
+        }
+        
+    }while(actualToken == DollarIndex && topOfStack == DollarIndex);
+    
+}
+
+expressionRule extractexpression(ptrStack *stack)
+{
+    ptrStack *stackTop;
+    stackTop = StackTop(stack);
+    expressionRule exp; 
+    if (stackTop != '<'){ 
+        exp.rightOperand = stackTop;
+        StackPop(stackTop);
+        stackTop = StackTop(stack);
+
+    } 
+     
+    if (stackTop != '<'){ 
+        exp.operator = stackTop;
+        StackPop(stackTop);
+        stackTop = StackTop(stack);
+    } 
+    
+    if (stackTop != '<'){ 
+        exp.leftOperand = stackTop;
+        StackPop(stackTop);
+        stackTop = StackTop(stack);
+    } 
+
+    if(stackTop != '<'){
+        SYN_ERROR;
+    }
+    StackPop(stackTop); //removing '<' from stack
+    return exp;
+}
+
+expressionRule applyrule(ptrStack *stack, expressionRule rule){
+    if(rule.operator->length == 0)
+    { 
+        if(rule.rightOperand->length == 0){
+        SYN_ERROR;
+        }
+        StackPush(stack, rule.rightOperand);
+        
+    }
+    else
+    {
+        if(rule.rightOperand->length == 0 || rule.leftOperand->length == 0){
+        SYN_ERROR;
+        }
+        if(rule.rightOperand->str == ')' && rule.leftOperand->str == '('){ 
+            StackPush(stack, rule.operator); //nahrada (i) za i
+
+        }
+        else{
+        rule.placeHolder = '{' + counter + '}';
+        StackPush(stack, rule.placeHolder);
+        }
+    }
+    return rule;
 }

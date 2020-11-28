@@ -49,3 +49,7 @@ void StackDispose (ptrStack* s)
         free(tmp);
     }
 }
+
+ptrStack* StackTop(ptrStack* s){
+    return (s->top_stack);
+}

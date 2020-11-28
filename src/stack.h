@@ -14,7 +14,7 @@
 
 typedef struct stack_struct{
     struct stack_struct* next_value;
-    void* value;
+    int value;
 }tStack;
 
 typedef struct {
@@ -31,6 +31,6 @@ void StackPush  (ptrStack* s, void* value);
 void StackPop   (ptrStack* s);
 bool StackIsEmpty (ptrStack* s);
 void StackDispose (ptrStack* s);
-
+ptrStack* StackTop(ptrStack* s);
 
 #endif //IFJ_PROJEKT_STACK_H

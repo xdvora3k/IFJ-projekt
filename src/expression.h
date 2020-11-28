@@ -2,7 +2,7 @@
 #include "scanner.h"
 #include "ilist.h"
 
-int getTokenTableIndex(tState state);
+int getTokenTableIndex(int token);
 //int instructionSwap (INSTRUCTION instr);
 
 typedef enum 
@@ -29,7 +29,16 @@ typedef enum
 
 }rules;
 
-typedef struct tExpression {
+typedef struct 
+{
+    string* leftOperand;
+    string* rightOperand;
+    string* operator;
+    string* placeHolder;
+}expressionRule;
+
+
+typedef struct tExpression {    //(a+b)*(c-d)
     char* left_value;
     int is_left_variable;
     char* right_value;
@@ -43,7 +52,8 @@ typedef struct tExpressionNode {
 } tExpressionNode;
 
 typedef struct tExpressionList {
-    tExpressionNode *first;
+    expressionRule *first;
+    expressionRule *act;
 } tExpressionList;
 tExpression generateInstruction(string *exp);
 bool chceckBracket(string *toCheck);
