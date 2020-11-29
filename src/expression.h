@@ -1,15 +1,18 @@
 #include <stdio.h>
 #include "scanner.h"
-#include "ilist.h"
+#include "stack.h"
+#include "expressionParser.h"
 
-int getTokenTableIndex(int token);
+int getTokenTableIndex(tState type);
+void precedencSA(string* input);
 //int instructionSwap (INSTRUCTION instr);
 
 typedef enum 
 {
-    //  | +- |  */ | o |   ( |   ) |   i |   $ |
+    //  | +- |  */ | \ | o |   ( |   ) |   i |   $ |
     plusMinusIndex, //0
     mulDivIndex,    //1
+    backslashIndex,
     operatorsIndex,
     leftBracketIndex,
     rightBracketIndex,
@@ -17,28 +20,49 @@ typedef enum
     DollarIndex
 }   IndexOfPrecedentTable;
 
+typedef enum{
+    expPlus,
+    expMinus,
+    expDiv,
+    expMul,
+    expOpeningBracket,
+    expClosingBracket,
+    expEG,
+    expNEG,
+    expBiggerOrEG,
+    expLesserOrEG,
+    expBigger,
+    expLesser,
+    expEOL,
+    expInt,
+    expFloat,
+    expID,
+    
+} expressionstate;
+
  typedef enum{   
     expPLUSepx,//E -> E + E;
     expMINUSepx,//E -> E - E;
     expMULepx,//E -> E * E;
     expDIVepx, //E -> E / E;
     expOPepx, //E -> E o E;
-     //E -> (E);
-      //E -> i;
+    expBrackets, //E -> (E);
+    expIdentity //E -> i;
 
 
-}rules;
+}ruleType;
 
 typedef struct 
 {
-    string* leftOperand;
-    string* rightOperand;
-    string* operator;
-    string* placeHolder;
+    tToken* leftOperand;
+    tToken* rightOperand;
+    tToken* operator;
+    tToken* placeHolder;
+    ruleType typeOfRule;
 }expressionRule;
 
 
-typedef struct tExpression {    //(a+b)*(c-d)
+typedef struct tExpression {    
     char* left_value;
     int is_left_variable;
     char* right_value;
@@ -55,5 +79,12 @@ typedef struct tExpressionList {
     expressionRule *first;
     expressionRule *act;
 } tExpressionList;
-tExpression generateInstruction(string *exp);
-bool chceckBracket(string *toCheck);
+
+tToken* findTerminalToken(ptrStack* topOfStack);
+void pushOpenTokenToStack(ptrStack* topOfStack, tToken* exprOpenToken);
+expressionRule applyrule(ptrStack *stack, expressionRule rule);
+expressionRule extractexpression(ptrStack *stack);
+void printRule(expressionRule rule);
+void printStack(ptrStack* topStack);
+/*tExpression generateInstruction(string *exp);
+bool chceckBracket(string *toCheck);*/

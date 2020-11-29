@@ -7,9 +7,11 @@
 
 void StackInit(ptrStack * s)
 {
+    //tStack newTopStack;
+    //s->top_stack = &newTopStack;
+    //s->top_stack->value = NULL;
+    //s->top_stack->next_value = NULL;
     s->top_stack = NULL;
-    s->top_stack->value = NULL;
-    s->top_stack->next_value = NULL;
 }
 
 void StackPush  (ptrStack* s, void* value)
@@ -50,6 +52,6 @@ void StackDispose (ptrStack* s)
     }
 }
 
-ptrStack* StackTop(ptrStack* s){
+tStack* StackTop(ptrStack* s){
     return (s->top_stack);
 }

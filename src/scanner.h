@@ -84,7 +84,13 @@ typedef enum{
     // Datatypes
     sString,
     sInt,
-    sFloat64
+    sFloat64,
+
+    //Precedence table states
+    tExprOpen, //55
+    tExprClose,
+    tExprEq,
+    tExprPlaceholder
 
 }tState;
 

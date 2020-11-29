@@ -57,3 +57,4 @@ test-scanner
 test-ilist
 test-expression
 .vscode
+test-expParser
