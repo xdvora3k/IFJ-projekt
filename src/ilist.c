@@ -6,471 +6,6 @@
 
 #include "ilist.h"
 
-void CreateInstruction(INSTRUCTION InstrType, char *addr1, char *addr2, char *addr3)
-{
-    tInstr Instruction;
-    Instruction.instType = InstrType;
-    Instruction.addr1 = addr1;
-    Instruction.addr2 = addr2;
-    Instruction.addr3 = addr3;
-    InstructionPrint(Instruction);
-}
-
-tInstructionOperand CreateOperand(char* name, char* value, tVarDataType type, FRAME f)
-{
-    tInstructionOperand o;
-    o.name = name;
-    o.value = value;
-    o.type = type;
-    o.frame = f;
-    return o;
-}
-void Instruction0(INSTRUCTION InstrType)
-{
-    CreateInstruction(InstrType,"","",""); //maybe insted of NULL has to be "";
-}
-
-void Instruction1(INSTRUCTION InstrType, tInstructionOperand op)
-{
-    char* tmp;
-    if(op.frame == Frame_NaN)
-    {
-        // func, konst, spec, labels
-        if(op.type == Unknown_type)
-        {
-            // func, spec, labels
-            if(op.name[0] == '$')
-            {
-                //funcs
-                if(op.name[1] == '$')
-                {
-                    // main
-                    tmp = op.name;
-                }
-                else
-                {
-                    // func
-                    tmp = op.name;
-                }
-            }
-            else
-            {
-                // labels, specs
-                if((strcmp(op.name,"for") == 0) || (strcmp(op.name,"if") == 0))
-                {
-                    //specs
-                    //well this gona be fun...
-                    tmp = op.name;
-                }
-                else
-                {
-                    //labels
-                    tmp = op.name;
-                }
-            }
-        }
-        else
-        {
-            // konst
-            switch(op.type) {
-            case IntType:
-                tmp = "int@";
-                break;
-            case Float64Type:
-                tmp = "float@";
-                break;
-            case StringType:
-                tmp = "string@";
-                break;
-            case UnderscoreType:
-                tmp = "nil@";
-                break;
-            default:
-                tmp = "";
-            }
-            tmp = strcat(tmp,op.value);
-        }
-    }
-    else // if (op.frame != Frame_NaN)
-    {
-        //variables
-        if(op.frame == Frame_GF)
-            tmp = "GF@";
-        else if(op.frame == Frame_LF)
-            tmp = "LF@";
-        else if(op.frame == Frame_TF)
-            tmp = "TF@";
-        tmp = strcat(tmp,op.name);
-    }
-
-    CreateInstruction(InstrType,tmp,"","");
-}
-
-void Instruction2(INSTRUCTION InstrType, tInstructionOperand op, tInstructionOperand op2)
-{
-    char* tmp;
-    if(op.frame == Frame_NaN)
-    {
-        // func, konst, spec, labels
-        if(op.type == Unknown_type)
-        {
-            // func, spec, labels
-            if(op.name[0] == '$')
-            {
-                //funcs
-                if(op.name[1] == '$')
-                {
-                    // main
-                    tmp = op.name;
-                }
-                else
-                {
-                    // func
-                    tmp = op.name;
-                }
-            }
-            else
-            {
-                // labels, specs
-                if((strcmp(op.name,"for") == 0) || (strcmp(op.name,"if") == 0))
-                {
-                    //specs
-                    //well this gona be fun...
-                    tmp = op.name;
-                }
-                else
-                {
-                    //labels
-                    tmp = op.name;
-                }
-            }
-        }
-        else
-        {
-            // konst
-            switch(op.type) {
-                case IntType:
-                    tmp = "int@";
-                    break;
-                case Float64Type:
-                    tmp = "float@";
-                    break;
-                case StringType:
-                    tmp = "string@";
-                    break;
-                case UnderscoreType:
-                    tmp = "nil@";
-                    break;
-                default:
-                    tmp = "";
-            }
-            tmp = strcat(tmp,op.value);
-        }
-    }
-    else // if (op.frame != Frame_NaN)
-    {
-        //variables
-        if(op.frame == Frame_GF)
-            tmp = "GF@";
-        else if(op.frame == Frame_LF)
-            tmp = "LF@";
-        else if(op.frame == Frame_TF)
-            tmp = "TF@";
-        tmp = strcat(tmp,op.name);
-    }
-    //////////////////////
-    char* tmp2;
-    if(op2.frame == Frame_NaN)
-    {
-        // func, konst, spec, labels
-        if(op2.type == Unknown_type)
-        {
-            // func, spec, labels
-            if(op2.name[0] == '$')
-            {
-                //funcs
-                if(op2.name[1] == '$')
-                {
-                    // main
-                    tmp2 = op2.name;
-                }
-                else
-                {
-                    // func
-                    tmp2 = op2.name;
-                }
-            }
-            else
-            {
-                // labels, specs
-                if((strcmp(op2.name,"for") == 0) || (strcmp(op2.name,"if") == 0))
-                {
-                    //specs
-                    //well this gona be fun...
-                    tmp2 = op2.name;
-                }
-                else
-                {
-                    //labels
-                    tmp2 = op2.name;
-                }
-            }
-        }
-        else
-        {
-            // konst
-            switch(op2.type) {
-                case IntType:
-                    tmp2 = "int@";
-                    break;
-                case Float64Type:
-                    tmp2 = "float@";
-                    break;
-                case StringType:
-                    tmp2 = "string@";
-                    break;
-                case UnderscoreType:
-                    tmp2 = "nil@";
-                    break;
-                default:
-                    tmp2 = "";
-            }
-            tmp2 = strcat(tmp2,op2.value);
-        }
-    }
-    else // if (op.frame != Frame_NaN)
-    {
-        //variables
-        if(op2.frame == Frame_GF)
-            tmp2 = "GF@";
-        else if(op2.frame == Frame_LF)
-            tmp2 = "LF@";
-        else if(op2.frame == Frame_TF)
-            tmp2 = "TF@";
-        tmp2 = strcat(tmp2,op2.name);
-    }
-
-    CreateInstruction(InstrType,tmp,tmp2,"");
-}
-
-void Instruction3(INSTRUCTION InstrType, tInstructionOperand op, tInstructionOperand op2, tInstructionOperand op3)
-{
-    char* tmp;
-    if(op.frame == Frame_NaN)
-    {
-        // func, konst, spec, labels
-        if(op.type == Unknown_type)
-        {
-            // func, spec, labels
-            if(op.name[0] == '$')
-            {
-                //funcs
-                if(op.name[1] == '$')
-                {
-                    // main
-                    tmp = op.name;
-                }
-                else
-                {
-                    // func
-                    tmp = op.name;
-                }
-            }
-            else
-            {
-                // labels, specs
-                if((strcmp(op.name,"for") == 0) || (strcmp(op.name,"if") == 0))
-                {
-                    //specs
-                    //well this gona be fun...
-                    tmp = op.name;
-                }
-                else
-                {
-                    //labels
-                    tmp = op.name;
-                }
-            }
-        }
-        else
-        {
-            // konst
-            switch(op.type) {
-                case IntType:
-                    tmp = "int@";
-                    break;
-                case Float64Type:
-                    tmp = "float@";
-                    break;
-                case StringType:
-                    tmp = "string@";
-                    break;
-                case UnderscoreType:
-                    tmp = "nil@";
-                    break;
-                default:
-                    tmp = "";
-            }
-            tmp = strcat(tmp,op.value);
-        }
-    }
-    else // if (op.frame != Frame_NaN)
-    {
-        //variables
-        if(op.frame == Frame_GF)
-            tmp = "GF@";
-        else if(op.frame == Frame_LF)
-            tmp = "LF@";
-        else if(op.frame == Frame_TF)
-            tmp = "TF@";
-        tmp = strcat(tmp,op.name);
-    }
-    //////////////////////
-    char* tmp2;
-    if(op2.frame == Frame_NaN)
-    {
-        // func, konst, spec, labels
-        if(op2.type == Unknown_type)
-        {
-            // func, spec, labels
-            if(op2.name[0] == '$')
-            {
-                //funcs
-                if(op2.name[1] == '$')
-                {
-                    // main
-                    tmp2 = op2.name;
-                }
-                else
-                {
-                    // func
-                    tmp2 = op2.name;
-                }
-            }
-            else
-            {
-                // labels, specs
-                if((strcmp(op2.name,"for") == 0) || (strcmp(op2.name,"if") == 0))
-                {
-                    //specs
-                    //well this gona be fun...
-                    tmp2 = op2.name;
-                }
-                else
-                {
-                    //labels
-                    tmp2 = op2.name;
-                }
-            }
-        }
-        else
-        {
-            // konst
-            switch(op2.type) {
-                case IntType:
-                    tmp2 = "int@";
-                    break;
-                case Float64Type:
-                    tmp2 = "float@";
-                    break;
-                case StringType:
-                    tmp2 = "string@";
-                    break;
-                case UnderscoreType:
-                    tmp2 = "nil@";
-                    break;
-                default:
-                    tmp2 = "";
-            }
-            tmp2 = strcat(tmp2,op2.value);
-        }
-    }
-    else // if (op.frame != Frame_NaN)
-    {
-        //variables
-        if(op2.frame == Frame_GF)
-            tmp2 = "GF@";
-        else if(op2.frame == Frame_LF)
-            tmp2 = "LF@";
-        else if(op2.frame == Frame_TF)
-            tmp2 = "TF@";
-        tmp2 = strcat(tmp2,op2.name);
-    }
-    ////////////////////
-    char* tmp3;
-    if(op3.frame == Frame_NaN)
-    {
-        // func, konst, spec, labels
-        if(op3.type == Unknown_type)
-        {
-            // func, spec, labels
-            if(op3.name[0] == '$')
-            {
-                //funcs
-                if(op3.name[1] == '$')
-                {
-                    // main
-                    tmp3 = op3.name;
-                }
-                else
-                {
-                    // func
-                    tmp3 = op3.name;
-                }
-            }
-            else
-            {
-                // labels, specs
-                if((strcmp(op3.name,"for") == 0) || (strcmp(op3.name,"if") == 0))
-                {
-                    //specs
-                    //well this gona be fun...
-                    tmp3 = op3.name;
-                }
-                else
-                {
-                    //labels
-                    tmp3 = op3.name;
-                }
-            }
-        }
-        else
-        {
-            // konst
-            switch(op3.type) {
-                case IntType:
-                    tmp3 = "int@";
-                    break;
-                case Float64Type:
-                    tmp3 = "float@";
-                    break;
-                case StringType:
-                    tmp3 = "string@";
-                    break;
-                case UnderscoreType:
-                    tmp3 = "nil@";
-                    break;
-                default:
-                    tmp3 = "";
-            }
-            tmp3 = strcat(tmp3,op3.value);
-        }
-    }
-    else // if (op.frame != Frame_NaN)
-    {
-        //variables
-        if(op3.frame == Frame_GF)
-            tmp3 = "GF@";
-        else if(op3.frame == Frame_LF)
-            tmp3 = "LF@";
-        else if(op3.frame == Frame_TF)
-            tmp3 = "TF@";
-        tmp3 = strcat(tmp3,op3.name);
-    }
-
-    CreateInstruction(InstrType,tmp,tmp2,tmp3);
-}
-
 void StrLLInit(tLinkedList *L){
     L->first = NULL;
 }
@@ -549,6 +84,7 @@ int StrLLLen(tLinkedList *L) {
     }
     return i;
 }
+
 // Symtable List
 //---------------------------------------------------------
 void TableLLInit(tLinkedList *L){
@@ -674,7 +210,6 @@ void InstrLLInsertFirst(tLinkedList *L, tInstr* Instruction){
     L->first = new_node;
 }
 
-
 void InstrLLDeleteFirst(tLinkedList *L){
     if (!L->first){
         return;
@@ -684,220 +219,148 @@ void InstrLLDeleteFirst(tLinkedList *L){
     free(to_delete);
 }
 
-void inputi(tInstructionOperand o)
+
+void CreateInstruction(INSTRUCTION InstrType, char *addr1, char *addr2, char *addr3)
 {
-    char* frame;
-    if(o.frame == Frame_GF)
-        frame = "GF";
-    else if(o.frame == Frame_LF)
-        frame = "LF";
-    else if(o.frame == Frame_TF)
-        frame = "TF";
-    else if(o.frame == Frame_NaN)
-        frame = "";
-    printf("READ %s@%s int\n",frame,o.name);
-}
-void inputs(tInstructionOperand o)
-{
-    char* frame;
-    if(o.frame == Frame_GF)
-        frame = "GF";
-    else if(o.frame == Frame_LF)
-        frame = "LF";
-    else if(o.frame == Frame_TF)
-        frame = "TF";
-    else if(o.frame == Frame_NaN)
-        frame = "";
-    printf("READ %s@%s string\n",frame,o.name);
-}
-void inputf(tInstructionOperand o)
-{
-    char* frame;
-    if(o.frame == Frame_GF)
-        frame = "GF";
-    else if(o.frame == Frame_LF)
-        frame = "LF";
-    else if(o.frame == Frame_TF)
-        frame = "TF";
-    else if(o.frame == Frame_NaN)
-        frame = "";
-    printf("READ %s@%s float\n",frame,o.name);
+    tInstr Instruction;
+    Instruction.instType = InstrType;
+    int str_len1 = strlen(addr1);
+    int str_len2 = strlen(addr2);
+    int str_len3 = strlen(addr3);
+    Instruction.addr1 = malloc(str_len1 + 1);
+    strncpy(Instruction.addr1, addr1, str_len1);
+    Instruction.addr1[str_len1] = '\0';
+    Instruction.addr2 = malloc(str_len2 + 1);
+    strncpy(Instruction.addr2, addr2, str_len2);
+    Instruction.addr2[str_len2] = '\0';
+    Instruction.addr3 = malloc(str_len3 + 1);
+    strncpy(Instruction.addr3, addr3, str_len3);
+    Instruction.addr3[str_len3] = '\0';
+    InstructionPrint(Instruction);
+    free(Instruction.addr1);
+    free(Instruction.addr2);
+    free(Instruction.addr3);
 }
 
-void InstructionPrint(tInstr i)
+tInstructionOperand CreateOperand(char* name, char* value, tVarDataType type, FRAME f)
 {
-    switch (i.instType) {
-        case I_MOVE:
-            Instr_I_MOVE(i);
+    tInstructionOperand o;
+    int str_len_name = strlen(name);
+    int str_len_value = strlen(value);
+    o.name = malloc(str_len_name + 1);
+    strncpy(o.name, name, str_len_name);
+    o.name[str_len_name] = '\0';
+    o.value = malloc(str_len_value + 1);
+    strncpy(o.name, value, str_len_value);
+    o.name[str_len_value] = '\0';
+    o.type = type;
+    o.frame = f;
+    return o;
+}
+void Instruction0(INSTRUCTION InstrType)
+{
+    CreateInstruction(InstrType,"","","");
+}
+
+char* _process_operand(tInstructionOperand *op){
+    char* tmp;
+    if(op->frame == Frame_NaN)
+    {
+        // func, konst, spec, labels
+        if(op->type == Unknown_type)
+        {
+            // func or main, specs or labels
+            tmp = op->name;
+        }
+        else
+        {
+            // konst
+            switch(op->type) {
+                case IntType:
+                    tmp = "int@";
+                    break;
+                case Float64Type:
+                    tmp = "float@";
+                    break;
+                case StringType:
+                    tmp = "string@";
+                    break;
+                case UnderscoreType:
+                    tmp = "nil@";
+                    break;
+                default:
+                    tmp = "";
+            }
+            tmp = strcat(tmp,op->value);
+        }
+    }
+    else // if (op->frame != Frame_NaN)
+    {
+        //variables
+        if(op->frame == Frame_GF)
+            tmp = "GF@";
+        else if(op->frame == Frame_LF)
+            tmp = "LF@";
+        else if(op->frame == Frame_TF)
+            tmp = "TF@";
+        tmp = strcat(tmp,op->name);
+    }
+    return tmp;
+}
+
+void Instruction1(INSTRUCTION InstrType, tInstructionOperand op)
+{
+    char *tmp = _process_operand(&op);
+    CreateInstruction(InstrType,tmp,"","");
+}
+
+void Instruction2(INSTRUCTION InstrType, tInstructionOperand op, tInstructionOperand op2)
+{
+    char* tmp = _process_operand(&op);
+    char* tmp2 = _process_operand(&op2);
+    CreateInstruction(InstrType,tmp,tmp2,"");
+}
+
+void Instruction3(INSTRUCTION InstrType, tInstructionOperand op, tInstructionOperand op2, tInstructionOperand op3)
+{
+    char *tmp = _process_operand(&op);
+    char *tmp2 = _process_operand(&op2);
+    char *tmp3 = _process_operand(&op3);
+    CreateInstruction(InstrType,tmp,tmp2,tmp3);
+}
+
+char* _process_frame(tInstructionOperand *o){
+    char *frame;
+    switch (o->frame){
+        case Frame_GF:
+            frame = "GF";
             break;
-        case I_CREATEFRAME:
-            Instr_I_CREATEFRAME(i);
+        case Frame_LF:
+            frame = "LF";
             break;
-        case I_PUSHFRAME:
-            Instr_I_PUSHFRAME(i);
+        case Frame_TF:
+            frame = "TF";
             break;
-        case I_POPFRAME:
-            Instr_I_POPFRAME(i);
-            break;
-        case I_DEFVAR:
-            Instr_I_DEFVAR(i);
-            break;
-        case I_CALL:
-            Instr_I_CALL(i);
-            break;
-        case I_RETURN:
-            Instr_I_RETURN(i);
-            break;
-        case I_PUSHS:
-            Instr_I_PUSHS(i);
-            break;
-        case I_POPS:
-            Instr_I_POPS(i);
-            break;
-        case I_CLEARS:
-            Instr_I_CLEARS(i);
-            break;
-        case I_ADD:
-            Instr_I_ADD(i);
-            break;
-        case I_SUB:
-            Instr_I_SUB(i);
-            break;
-        case I_MUL:
-            Instr_I_MUL(i);
-            break;
-        case I_DIV:
-            Instr_I_DIV(i);
-            break;
-        case I_IDIV:
-            Instr_I_IDIV(i);
-            break;
-        case I_ADDS:
-            Instr_I_ADDS(i);
-            break;
-        case I_SUBS:
-            Instr_I_SUBS(i);
-            break;
-        case I_MULS:
-            Instr_I_MULS(i);
-            break;
-        case I_DIVS:
-            Instr_I_DIVS(i);
-            break;
-        case I_IDIVS:
-            Instr_I_IDIVS(i);
-            break;
-        case I_LT:
-            Instr_I_LT(i);
-            break;
-        case I_GT:
-            Instr_I_GT(i);
-            break;
-        case I_EQ:
-            Instr_I_EQ(i);
-            break;
-        case I_LTS:
-            Instr_I_LTS(i);
-            break;
-        case I_GTS:
-            Instr_I_GTS(i);
-            break;
-        case I_EQS:
-            Instr_I_EQS(i);
-            break;
-        case I_AND:
-            Instr_I_AND(i);
-            break;
-        case I_OR:
-            Instr_I_OR(i);
-            break;
-        case I_NOT:
-            Instr_I_NOT(i);
-            break;
-        case I_ANDS:
-            Instr_I_ANDS(i);
-            break;
-        case I_ORS:
-            Instr_I_ORS(i);
-            break;
-        case I_NOTS:
-            Instr_I_NOTS(i);
-            break;
-        case I_FLOAT2INT:
-            Instr_I_FLOAT2INT(i);
-            break;
-        case I_INT2FLOAT:
-            Instr_I_INT2FLOAT(i);
-            break;
-        case I_INT2CHAR:
-            Instr_I_INT2CHAR(i);
-            break;
-        case I_STRI2INT:
-            Instr_I_STRI2INT(i);
-            break;
-        case I_INT2FLOATS:
-            Instr_I_INT2FLOATS(i);
-            break;
-        case I_FLOAT2INTS:
-            Instr_I_FLOAT2INTS(i);
-            break;
-        case I_INT2CHARS:
-            Instr_I_INT2CHARS(i);
-            break;
-        case I_STRI2INTS:
-            Instr_I_STRI2INTS(i);
-            break;
-        case I_READ:
-            Instr_I_READ(i);
-            break;
-        case I_WRITE:
-            Instr_I_WRITE(i);
-            break;
-        case I_CONCAT:
-            Instr_I_CONCAT(i);
-            break;
-        case I_STRLEN:
-            Instr_I_STRLEN(i);
-            break;
-        case I_GETCHAR:
-            Instr_I_GETCHAR(i);
-            break;
-        case I_SETCHAR:
-            Instr_I_SETCHAR(i);
-            break;
-        case I_TYPE:
-            Instr_I_TYPE(i);
-            break;
-        case I_LABEL:
-            Instr_I_LABEL(i);
-            break;
-        case I_JUMP:
-            Instr_I_JUMP(i);
-            break;
-        case I_JUMPIFEQ:
-            Instr_I_JUMPIFEQ(i);
-            break;
-        case I_JUMPIFNEQ:
-            Instr_I_JUMPIFNEQ(i);
-            break;
-        case I_JUMPIFEQS:
-            Instr_I_JUMPIFEQS(i);
-            break;
-        case I_JUMPIFNEQS:
-            Instr_I_JUMPIFNEQS(i);
-            break;
-        case I_EXIT:
-            Instr_I_EXIT(i);
-            break;
-        case I_BREAK:
-            Instr_I_BREAK(i);
-            break;
-        case I_DPRINT:
-            Instr_I_DPRINT(i);
-            break;
-        default:
+        case Frame_NaN:
+            frame = "";
             break;
     }
+    return frame;
+}
+
+void inputi(tInstructionOperand o)
+{
+    printf("READ %s@%s int\n", _process_frame(&o), o.name);
+}
+
+void inputs(tInstructionOperand o)
+{
+    printf("READ %s@%s int\n", _process_frame(&o), o.name);
+}
+
+void inputf(tInstructionOperand o)
+{
+    printf("READ %s@%s int\n", _process_frame(&o), o.name);
 }
 
 void Instr_I_MOVE(tInstr i){            printf("MOVE %s %s\n",i.addr1,i.addr2);}
@@ -956,6 +419,182 @@ void Instr_I_JUMPIFNEQS(tInstr i){      printf("JUMPIFNEQS %s\n",i.addr1);}
 void Instr_I_EXIT(tInstr i){            printf("EXIT %s\n",i.addr1);}
 void Instr_I_BREAK(){                   printf("BREAK\n");}
 void Instr_I_DPRINT(tInstr i){          printf("DPRINT %s\n",i.addr1);}
+
+void InstructionPrint(tInstr i)
+{
+    switch (i.instType) {
+        case I_MOVE:
+            Instr_I_MOVE(i);
+            break;
+        case I_CREATEFRAME:
+            Instr_I_CREATEFRAME();
+            break;
+        case I_PUSHFRAME:
+            Instr_I_PUSHFRAME();
+            break;
+        case I_POPFRAME:
+            Instr_I_POPFRAME();
+            break;
+        case I_DEFVAR:
+            Instr_I_DEFVAR(i);
+            break;
+        case I_CALL:
+            Instr_I_CALL(i);
+            break;
+        case I_RETURN:
+            Instr_I_RETURN();
+            break;
+        case I_PUSHS:
+            Instr_I_PUSHS(i);
+            break;
+        case I_POPS:
+            Instr_I_POPS(i);
+            break;
+        case I_CLEARS:
+            Instr_I_CLEARS();
+            break;
+        case I_ADD:
+            Instr_I_ADD(i);
+            break;
+        case I_SUB:
+            Instr_I_SUB(i);
+            break;
+        case I_MUL:
+            Instr_I_MUL(i);
+            break;
+        case I_DIV:
+            Instr_I_DIV(i);
+            break;
+        case I_IDIV:
+            Instr_I_IDIV(i);
+            break;
+        case I_ADDS:
+            Instr_I_ADDS();
+            break;
+        case I_SUBS:
+            Instr_I_SUBS();
+            break;
+        case I_MULS:
+            Instr_I_MULS();
+            break;
+        case I_DIVS:
+            Instr_I_DIVS();
+            break;
+        case I_IDIVS:
+            Instr_I_IDIVS();
+            break;
+        case I_LT:
+            Instr_I_LT(i);
+            break;
+        case I_GT:
+            Instr_I_GT(i);
+            break;
+        case I_EQ:
+            Instr_I_EQ(i);
+            break;
+        case I_LTS:
+            Instr_I_LTS();
+            break;
+        case I_GTS:
+            Instr_I_GTS();
+            break;
+        case I_EQS:
+            Instr_I_EQS();
+            break;
+        case I_AND:
+            Instr_I_AND(i);
+            break;
+        case I_OR:
+            Instr_I_OR(i);
+            break;
+        case I_NOT:
+            Instr_I_NOT(i);
+            break;
+        case I_ANDS:
+            Instr_I_ANDS();
+            break;
+        case I_ORS:
+            Instr_I_ORS();
+            break;
+        case I_NOTS:
+            Instr_I_NOTS();
+            break;
+        case I_FLOAT2INT:
+            Instr_I_FLOAT2INT(i);
+            break;
+        case I_INT2FLOAT:
+            Instr_I_INT2FLOAT(i);
+            break;
+        case I_INT2CHAR:
+            Instr_I_INT2CHAR(i);
+            break;
+        case I_STRI2INT:
+            Instr_I_STRI2INT(i);
+            break;
+        case I_INT2FLOATS:
+            Instr_I_INT2FLOATS();
+            break;
+        case I_FLOAT2INTS:
+            Instr_I_FLOAT2INTS();
+            break;
+        case I_INT2CHARS:
+            Instr_I_INT2CHARS();
+            break;
+        case I_STRI2INTS:
+            Instr_I_STRI2INTS();
+            break;
+        case I_READ:
+            Instr_I_READ(i);
+            break;
+        case I_WRITE:
+            Instr_I_WRITE(i);
+            break;
+        case I_CONCAT:
+            Instr_I_CONCAT(i);
+            break;
+        case I_STRLEN:
+            Instr_I_STRLEN(i);
+            break;
+        case I_GETCHAR:
+            Instr_I_GETCHAR(i);
+            break;
+        case I_SETCHAR:
+            Instr_I_SETCHAR(i);
+            break;
+        case I_TYPE:
+            Instr_I_TYPE(i);
+            break;
+        case I_LABEL:
+            Instr_I_LABEL(i);
+            break;
+        case I_JUMP:
+            Instr_I_JUMP(i);
+            break;
+        case I_JUMPIFEQ:
+            Instr_I_JUMPIFEQ(i);
+            break;
+        case I_JUMPIFNEQ:
+            Instr_I_JUMPIFNEQ(i);
+            break;
+        case I_JUMPIFEQS:
+            Instr_I_JUMPIFEQS(i);
+            break;
+        case I_JUMPIFNEQS:
+            Instr_I_JUMPIFNEQS(i);
+            break;
+        case I_EXIT:
+            Instr_I_EXIT(i);
+            break;
+        case I_BREAK:
+            Instr_I_BREAK();
+            break;
+        case I_DPRINT:
+            Instr_I_DPRINT(i);
+            break;
+        default:
+            break;
+    }
+}
 
 void Print_BuiltIn_Functions()
 {
