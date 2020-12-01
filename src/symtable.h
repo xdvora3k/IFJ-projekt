@@ -36,10 +36,10 @@ void BSTDelete(tBSTNodePtr *RootPtr, char* K);
 void BSTDispose(tBSTNodePtr *RootPtr);
 
 void SymTableInit(tSymtable* SymTable);
-tBSTNodePtr SymTableInsertFunction(tSymtable* SymTable, string *key);
-tBSTNodePtr SymTableInsertVariable(tSymtable* SymTable, string *key);
+tBSTNodePtr SymTableInsertFunction(tSymtable* SymTable, char *key);
+tBSTNodePtr SymTableInsertVariable(tSymtable* SymTable, char *key);
 tBSTNodePtr SymTableSearch(tSymtable* SymTable, char *key);
-void SymTableDelete(tSymtable* SymTable, string *key);
+void SymTableDelete(tSymtable* SymTable, char *key);
 void SymTableDispose(tSymtable* Symtable);
 void InsertBuiltInFuncs(tSymtable* SymTable);
 

@@ -5,23 +5,18 @@
 #include <stdio.h>
 #include "scanner.h"
 #include "ilist.h"
+#include "symtable.h"
+
 
 #define FILE_ERROR 5
 tLinkedList *L;
 
 
-int main(int argc, char *argv[]){
-    if (argc == 1){
-        printf("File is missing.\n");
-        return FILE_ERROR;
-    }
+int main(){
+    set_source_file(stdin);
 
-    FILE *f;
-    if (!(f = fopen(argv[1], "r"))){
-        printf("File could not be opened.\n");
-        return FILE_ERROR;
-    }
-    set_source_file(f);
+    tSymtable SymTable;
+    tLinkedList InstrList;
+    SymTableInit(&SymTable);
+    InstrLLInit(&InstrList);
 
-    // TODO: add other functions
-}

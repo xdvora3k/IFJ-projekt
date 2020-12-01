@@ -125,7 +125,7 @@ typedef struct listItem{
 } tListItem;
 
 typedef struct {
-    struct listItem *first;
+    tListItem *first;
 } tLinkedList;
 
 
@@ -144,16 +144,21 @@ void InstrLLInsertFirst(tLinkedList *L, tInstr *Instruction);
 void InstrLLDeleteFirst(tLinkedList *L);
 
 void StrLLInit(tLinkedList *L);
-void StrLLInsert(tLinkedList *L, string *K);
+void StrLLInsert(tLinkedList *L, char *K);
 int StrLLStringAlreadyOccupied(tLinkedList *L, char *S);
 tListItem* StrLLLocateNthElem(tLinkedList *L, int index);
 int StrLLLen(tLinkedList *L);
+void StrLLDeleteLast(tLinkedList *L);
+void StrLLDispose(tLinkedList *L);
 
 void TableLLInit(tLinkedList *L);
 void TableLLInsertFirst(tLinkedList *L, tSymtable *local_var_table);
+void TableLLDeleteFirst(tLinkedList *L);
 tListItem* TableLLLocateNthElem(tLinkedList *L, int index);
 int TableLLLen(tLinkedList *L);
-tSymtable* TableLLGetLastElem(tLinkedList *L);
+int TableLLFindAllVariables(tLinkedList *func_variable_list, tLinkedList *variables);
+int TableLLGetNumOfNests(tLinkedList *func_variable_list, char* var);
+tDataVariable* TableLLGetSingleVariable(tLinkedList *func_variable_list, char* var);
 
 
 void CreateInstruction (INSTRUCTION InstrType, void *addr1, void *addr2, void *addr3);
