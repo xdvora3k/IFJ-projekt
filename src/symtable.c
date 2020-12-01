@@ -1,4 +1,4 @@
-/*
+quad_t /*
  * IFJ project 2020
  * Author: xdvora3k, Jakub Dvorak
  */

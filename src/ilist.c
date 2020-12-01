@@ -13,7 +13,6 @@
 #define LABEL_S     "$"
 #define MAIN        "$$main"*/
 
-extern tLinkedList *L;
 
 
 void CreateInstruction (INSTRUCTION InstrType, void *addr1, void *addr2, void *addr3)

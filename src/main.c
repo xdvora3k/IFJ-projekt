@@ -9,14 +9,13 @@
 
 
 #define FILE_ERROR 5
-tLinkedList *L;
 
 
-int main(){
+int main() {
     set_source_file(stdin);
 
     tSymtable SymTable;
     tLinkedList InstrList;
     SymTableInit(&SymTable);
     InstrLLInit(&InstrList);
-
+}
