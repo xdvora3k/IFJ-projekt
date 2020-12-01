@@ -18,7 +18,8 @@
 typedef enum{
     Frame_GF,
     Frame_LF,
-    Frame_TF
+    Frame_TF,
+    Frame_NaN
 }FRAME;
 
 typedef enum{
@@ -42,7 +43,7 @@ typedef enum{
     I_ADDS,
     I_SUBS,
     I_MULS,
-    I_DISV,
+    I_DIVS,
     I_IDIVS,
     I_LT,
     I_GT,
@@ -93,7 +94,7 @@ typedef enum {
     Float64Type,
     StringType,
     Unknown_type,
-    UnderscoreType = -1
+    UnderscoreType = -1// nilType
 } tVarDataType;
 
 typedef struct tDataVariable {
@@ -102,11 +103,10 @@ typedef struct tDataVariable {
 
 
 typedef struct operands{
-    string value;
+    char* name;
+    char* value;
     tVarDataType type;
     FRAME frame;
-    bool isHelpVariable;  //Pomocna promenna
-    bool isLabel;  // Label == Navesti
 }tInstructionOperand;
 
 
@@ -114,9 +114,9 @@ typedef struct operands{
 
 typedef struct {
     INSTRUCTION instType;
-    void *addr1;
-    void *addr2;
-    void *addr3;
+    char *addr1;
+    char *addr2;
+    char *addr3;
 } tInstr;
 
 typedef struct listItem{
@@ -155,6 +155,72 @@ tListItem* TableLLLocateNthElem(tLinkedList *L, int index);
 int TableLLLen(tLinkedList *L);
 tSymtable* TableLLGetLastElem(tLinkedList *L);
 
-//Add names of the Functions InstructionCreateOneTwoThree OPERANDS
 
+void CreateInstruction (INSTRUCTION InstrType, void *addr1, void *addr2, void *addr3);
+tInstructionOperand CreateOperand (char* name,char* value, tVarDataType type,FRAME f);
+void Instruction0(INSTRUCTION InstrType);
+void Instruction1(INSTRUCTION InstrType, tInstructionOperand op);
+void Instruction2(INSTRUCTION InstrType, tInstructionOperand op, tInstructionOperand op2);
+void Instruction3(INSTRUCTION InstrType, tInstructionOperand op, tInstructionOperand op2, tInstructionOperand op3);
+void len(char* s, tInstructionOperand *out);
+void InstructionPrint(tInstr i);
+
+
+
+void Instr_I_MOVE(tInstr i);
+void Instr_I_CREATEFRAME();
+void Instr_I_PUSHFRAME();
+void Instr_I_POPFRAME();
+void Instr_I_DEFVAR(tInstr i);
+void Instr_I_CALL(tInstr i);
+void Instr_I_RETURN();
+void Instr_I_PUSHS(tInstr i);
+void Instr_I_POPS(tInstr i);
+void Instr_I_CLEARS();
+void Instr_I_ADD(tInstr i);
+void Instr_I_SUB(tInstr i);
+void Instr_I_MUL(tInstr i);
+void Instr_I_DIV(tInstr i);
+void Instr_I_IDIV(tInstr i);
+void Instr_I_ADDS();
+void Instr_I_SUBS();
+void Instr_I_MULS();
+void Instr_I_DIVS();
+void Instr_I_IDIVS();
+void Instr_I_LT(tInstr i);
+void Instr_I_GT(tInstr i);
+void Instr_I_EQ(tInstr i);
+void Instr_I_LTS();
+void Instr_I_GTS();
+void Instr_I_EQS();
+void Instr_I_AND(tInstr i);
+void Instr_I_OR(tInstr i);
+void Instr_I_NOT(tInstr i);
+void Instr_I_ANDS();
+void Instr_I_ORS();
+void Instr_I_NOTS();
+void Instr_I_FLOAT2INT(tInstr i);
+void Instr_I_INT2FLOAT(tInstr i);
+void Instr_I_INT2CHAR(tInstr i);
+void Instr_I_STRI2INT(tInstr i);
+void Instr_I_INT2FLOATS();
+void Instr_I_FLOAT2INTS();
+void Instr_I_INT2CHARS();
+void Instr_I_STRI2INTS();
+void Instr_I_READ(tInstr i);
+void Instr_I_WRITE(tInstr i);
+void Instr_I_CONCAT(tInstr i);
+void Instr_I_STRLEN(tInstr i);
+void Instr_I_GETCHAR(tInstr i);
+void Instr_I_SETCHAR(tInstr i);
+void Instr_I_TYPE(tInstr i);
+void Instr_I_LABEL(tInstr i);
+void Instr_I_JUMP(tInstr i);
+void Instr_I_JUMPIFEQ(tInstr i);
+void Instr_I_JUMPIFNEQ(tInstr i);
+void Instr_I_JUMPIFEQS(tInstr i);
+void Instr_I_JUMPIFNEQS(tInstr i);
+void Instr_I_EXIT(tInstr i);
+void Instr_I_BREAK();
+void Instr_I_DPRINT(tInstr i);
 #endif

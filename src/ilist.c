@@ -9,459 +9,477 @@
 
 
 
-/*#define TYPE_INT    "int@"
-#define TYPE_FLOAT  "float@"
-#define TYPE_BOOL   "bool@"
-#define TYPE_STRING "string@"
-#define TYPE_NIL    "nil@"
-#define FRAMEGF     "GF@"
-#define FRAMELF     "LF@"
-#define FRAMETF     "TF@"
+/*
 #define LABEL_S     "$"
 #define MAIN        "$$main"*/
 
 extern tLinkedList *L;
 
 
-void CreateInstruction (tLinkedList *L, INSTRUCTION InstrType, void *addr1, void *addr2, void *addr3)
+void CreateInstruction (INSTRUCTION InstrType, void *addr1, void *addr2, void *addr3)
 {
     tInstr  Instruciton;
     Instruciton.instType = InstrType;
     Instruciton.addr1 = addr1;
     Instruciton.addr2 = addr2;
     Instruciton.addr3 = addr3;
-    InstrLLInsertFirst(L,&Instruciton);
+    InstructionPrint(Instruciton);
 }
 
-tInstructionOperand CreateOperand (tInstructionOperand o,char* value,tVarDataType type,FRAME frame,bool isItLabel, bool isItVar)
+tInstructionOperand CreateOperand (char* name, char* value, tVarDataType type, FRAME f)
 {
-    adds_to_string(&(o.value),value);
+    tInstructionOperand o;
+    o.name = name;
+    o.value = value;
     o.type = type;
-    o.frame = frame;
-    o.isLabel = isItLabel;
-    o.isHelpVariable = isItVar;
+    o.frame = f;
     return o;
 }
-
-void InstructionWithNoOperand(tLinkedList *L, INSTRUCTION InstrType)
+void Instruction0(INSTRUCTION InstrType)
 {
-    CreateInstruction(L,InstrType,NULL,NULL,NULL);
+    CreateInstruction(InstrType,"","",""); //maybe insted of NULL has to be "";
 }
 
-void InstructionWith1operand(tLinkedList *L, INSTRUCTION InstrType, tInstructionOperand op1)
+void Instruction1(INSTRUCTION InstrType, tInstructionOperand op)
 {
-    string operand;
-    init_string(&operand);
-
-    if(op1.type == Unknown_type)
+    char* tmp;
+    if(op.frame == Frame_NaN)
     {
-        /*if(op1.isVariable == true)
+        // func, konst, spec, labels
+        if(op.type == Unknown_type)
         {
-            clear_str(&operand);
-            adds_to_string(&operand,"GF@tmp");
-        }*/
-        if(op1.frame == Frame_GF)
-        {
-            clear_str(&operand);
-            adds_to_string(&operand,"GF@");
-            adds_to_string(&operand,op1.value.str);
-        }
-        else if(op1.frame == Frame_LF)
-        {
-            clear_str(&operand);
-            adds_to_string(&operand,"LF@");
-            adds_to_string(&operand,op1.value.str);
-        }
-        else if(op1.frame == Frame_TF)
-        {
-            clear_str(&operand);
-            adds_to_string(&operand,"TF@");
-            adds_to_string(&operand,op1.value.str);
-        }
-    }
-    else if(op1.type == IntType)
-    {
-        clear_str(&operand);
-        adds_to_string(&operand,"int@");
-        adds_to_string(&operand,op1.value.str);
-    }
-    else if(op1.type == Float64Type)
-    {
-        clear_str(&operand);
-        adds_to_string(&operand,"float@");
-        adds_to_string(&operand,op1.value.str);
-    }
-    else if(op1.type == StringType)
-    {
-        clear_str(&operand);
-        adds_to_string(&operand,"string@");
-        adds_to_string(&operand,op1.value.str);
-    }
-    //else if(op1.type == tNil)
-    else if(op1.type == -1)
-    {
-        clear_str(&operand);
-        adds_to_string(&operand,"nil@");
-        adds_to_string(&operand,op1.value.str);
-    }
-    if (op1.isLabel == true)
-    {
-        clear_str(&operand);
-        adds_to_string(&operand,"$");
-        if((strcmp(op1.value.str,"main")) == 0)
-        {
-            adds_to_string(&operand,"$main");
+            // func, spec, labels
+            if(op.name[0] == '$')
+            {
+                //funcs
+                if(op.name[1] == '$')
+                {
+                    // main
+                    tmp = op.name;
+                }
+                else
+                {
+                    // func
+                    tmp = op.name;
+                }
+            }
+            else
+            {
+                // labels, specs
+                if((strcmp(op.name,"for") == 0) || (strcmp(op.name,"if") == 0))
+                {
+                    //specs
+                    //well this gona be fun...
+                    tmp = op.name;
+                }
+                else
+                {
+                    //labels
+                    tmp = op.name;
+                }
+            }
         }
         else
-        {adds_to_string(&operand,op1.value.str);}
+        {
+            // konst
+            switch(op.type) {
+            case IntType:
+                tmp = "int@";
+                break;
+            case Float64Type:
+                tmp = "float@";
+                break;
+            case StringType:
+                tmp = "string@";
+                break;
+            case UnderscoreType:
+                tmp = "nil@";
+                break;
+            default:
+                tmp = "";
+            }
+            tmp = strcat(tmp,op.value);
+        }
+    }
+    else // if (op.frame != Frame_NaN)
+    {
+        //variables
+        if(op.frame == Frame_GF)
+            tmp = "GF@";
+        else if(op.frame == Frame_LF)
+            tmp = "LF@";
+        else if(op.frame == Frame_TF)
+            tmp = "TF@";
+        tmp = strcat(tmp,op.name);
     }
 
-    CreateInstruction(L,InstrType,operand.str,NULL,NULL);
+    CreateInstruction(InstrType,tmp,"","");
 }
 
-void InstructionWith2operand(tLinkedList *L, INSTRUCTION InstrType, tInstructionOperand op1, tInstructionOperand op2)
+void Instruction2(INSTRUCTION InstrType, tInstructionOperand op, tInstructionOperand op2)
 {
-    string operand1;
-    string operand2;
-    init_string(&operand1);
-    init_string(&operand2);
-    ///Element num 1
-    if(op1.type == Unknown_type)
+    char* tmp;
+    if(op.frame == Frame_NaN)
     {
-        /*if(op1.isVariable == true)
+        // func, konst, spec, labels
+        if(op.type == Unknown_type)
         {
-            clear_str(&operand1);
-            adds_to_string(&operand1,"GF@tmp");
-        }*/
-        if(op1.frame == Frame_GF)
-        {
-            clear_str(&operand1);
-            adds_to_string(&operand1,"GF@");
-            adds_to_string(&operand1,op1.value.str);
-        }
-        else if(op1.frame == Frame_LF)
-        {
-            clear_str(&operand1);
-            adds_to_string(&operand1,"LF@");
-            adds_to_string(&operand1,op1.value.str);
-        }
-        else if(op1.frame == Frame_TF)
-        {
-            clear_str(&operand1);
-            adds_to_string(&operand1,"TF@");
-            adds_to_string(&operand1,op1.value.str);
-        }
-    }
-    else if(op1.type == IntType)
-    {
-        clear_str(&operand1);
-        adds_to_string(&operand1,"int@");
-        adds_to_string(&operand1,op1.value.str);
-    }
-    else if(op1.type == Float64Type)
-    {
-        clear_str(&operand1);
-        adds_to_string(&operand1,"float@");
-        adds_to_string(&operand1,op1.value.str);
-    }
-    else if(op1.type == StringType)
-    {
-        clear_str(&operand1);
-        adds_to_string(&operand1,"string@");
-        adds_to_string(&operand1,op1.value.str);
-    }
-    //else if(op1.type == tNil)
-    else if(op1.type == -1)
-    {
-        clear_str(&operand1);
-        adds_to_string(&operand1,"nil@");
-        adds_to_string(&operand1,op1.value.str);
-    }
-    if (op1.isLabel == true)
-    {
-        clear_str(&operand1);
-        adds_to_string(&operand1,"$");
-        if((strcmp(op1.value.str,"main")) == 0)
-        {
-            adds_to_string(&operand1,"$main");
+            // func, spec, labels
+            if(op.name[0] == '$')
+            {
+                //funcs
+                if(op.name[1] == '$')
+                {
+                    // main
+                    tmp = op.name;
+                }
+                else
+                {
+                    // func
+                    tmp = op.name;
+                }
+            }
+            else
+            {
+                // labels, specs
+                if((strcmp(op.name,"for") == 0) || (strcmp(op.name,"if") == 0))
+                {
+                    //specs
+                    //well this gona be fun...
+                    tmp = op.name;
+                }
+                else
+                {
+                    //labels
+                    tmp = op.name;
+                }
+            }
         }
         else
-        {adds_to_string(&operand1,op1.value.str);}
-    }
-
-    ///Element num 2
-    if(op2.type == Unknown_type)
-    {
-        /*if(op2.isVariable == true)
         {
-            clear_str(&operan2);
-            adds_to_string(&operan2,"GF@tmp");
-        }*/
+            // konst
+            switch(op.type) {
+                case IntType:
+                    tmp = "int@";
+                    break;
+                case Float64Type:
+                    tmp = "float@";
+                    break;
+                case StringType:
+                    tmp = "string@";
+                    break;
+                case UnderscoreType:
+                    tmp = "nil@";
+                    break;
+                default:
+                    tmp = "";
+            }
+            tmp = strcat(tmp,op.value);
+        }
+    }
+    else // if (op.frame != Frame_NaN)
+    {
+        //variables
+        if(op.frame == Frame_GF)
+            tmp = "GF@";
+        else if(op.frame == Frame_LF)
+            tmp = "LF@";
+        else if(op.frame == Frame_TF)
+            tmp = "TF@";
+        tmp = strcat(tmp,op.name);
+    }
+    //////////////////////
+    char* tmp2;
+    if(op2.frame == Frame_NaN)
+    {
+        // func, konst, spec, labels
+        if(op2.type == Unknown_type)
+        {
+            // func, spec, labels
+            if(op2.name[0] == '$')
+            {
+                //funcs
+                if(op2.name[1] == '$')
+                {
+                    // main
+                    tmp2 = op2.name;
+                }
+                else
+                {
+                    // func
+                    tmp2 = op2.name;
+                }
+            }
+            else
+            {
+                // labels, specs
+                if((strcmp(op2.name,"for") == 0) || (strcmp(op2.name,"if") == 0))
+                {
+                    //specs
+                    //well this gona be fun...
+                    tmp2 = op2.name;
+                }
+                else
+                {
+                    //labels
+                    tmp2 = op2.name;
+                }
+            }
+        }
+        else
+        {
+            // konst
+            switch(op2.type) {
+                case IntType:
+                    tmp2 = "int@";
+                    break;
+                case Float64Type:
+                    tmp2 = "float@";
+                    break;
+                case StringType:
+                    tmp2 = "string@";
+                    break;
+                case UnderscoreType:
+                    tmp2 = "nil@";
+                    break;
+                default:
+                    tmp2 = "";
+            }
+            tmp2 = strcat(tmp2,op2.value);
+        }
+    }
+    else // if (op.frame != Frame_NaN)
+    {
+        //variables
         if(op2.frame == Frame_GF)
-        {
-            clear_str(&operand2);
-            adds_to_string(&operand2,"GF@");
-            adds_to_string(&operand2,op2.value.str);
-        }
+            tmp2 = "GF@";
         else if(op2.frame == Frame_LF)
-        {
-            clear_str(&operand2);
-            adds_to_string(&operand2,"LF@");
-            adds_to_string(&operand2,op2.value.str);
-        }
+            tmp2 = "LF@";
         else if(op2.frame == Frame_TF)
-        {
-            clear_str(&operand2);
-            adds_to_string(&operand2,"TF@");
-            adds_to_string(&operand2,op2.value.str);
-        }
-    }
-    else if(op2.type == IntType)
-    {
-        clear_str(&operand2);
-        adds_to_string(&operand2,"int@");
-        adds_to_string(&operand2,op2.value.str);
-    }
-    else if(op2.type == Float64Type)
-    {
-        clear_str(&operand2);
-        adds_to_string(&operand2,"float@");
-        adds_to_string(&operand2,op2.value.str);
-    }
-    else if(op2.type == StringType)
-    {
-        clear_str(&operand2);
-        adds_to_string(&operand2,"string@");
-        adds_to_string(&operand2,op2.value.str);
-    }
-    //else if(op2.type == tNil)
-    else if(op2.type == -1)
-    {
-        clear_str(&operand2);
-        adds_to_string(&operand2,"nil@");
-        adds_to_string(&operand2,op2.value.str);
-    }
-    if (op2.isLabel == true)
-    {
-        clear_str(&operand2);
-        adds_to_string(&operand2,"$");
-        if((strcmp(op2.value.str,"main")) == 0)
-        {
-            adds_to_string(&operand2,"$main");
-        }
-        else
-        {adds_to_string(&operand2,op2.value.str);}
+            tmp2 = "TF@";
+        tmp2 = strcat(tmp2,op2.name);
     }
 
-
-
-    CreateInstruction(L,InstrType,operand1.str,operand2.str,NULL);
+    CreateInstruction(InstrType,tmp,tmp2,"");
 }
 
-void InstructionWith3operand(tLinkedList *L, INSTRUCTION InstrType, tInstructionOperand op1, tInstructionOperand op2, tInstructionOperand op3)
+void Instruction3(INSTRUCTION InstrType, tInstructionOperand op, tInstructionOperand op2, tInstructionOperand op3)
 {
-    string operand1;
-    string operand2;
-    string operand3;
-    init_string(&operand1);
-    init_string(&operand2);
-    init_string(&operand3);
-
-    ///Element num 1
-    if(op1.type == Unknown_type)
+    char* tmp;
+    if(op.frame == Frame_NaN)
     {
-        /*if(op1.isVariable == true)
+        // func, konst, spec, labels
+        if(op.type == Unknown_type)
         {
-            clear_str(&operand1);
-            adds_to_string(&operand1,"GF@tmp");
-        }*/
-        if(op1.frame == Frame_GF)
-        {
-            clear_str(&operand1);
-            adds_to_string(&operand1,"GF@");
-            adds_to_string(&operand1,op1.value.str);
-        }
-        else if(op1.frame == Frame_LF)
-        {
-            clear_str(&operand1);
-            adds_to_string(&operand1,"LF@");
-            adds_to_string(&operand1,op1.value.str);
-        }
-        else if(op1.frame == Frame_TF)
-        {
-            clear_str(&operand1);
-            adds_to_string(&operand1,"TF@");
-            adds_to_string(&operand1,op1.value.str);
-        }
-    }
-    else if(op1.type == IntType)
-    {
-        clear_str(&operand1);
-        adds_to_string(&operand1,"int@");
-        adds_to_string(&operand1,op1.value.str);
-    }
-    else if(op1.type == Float64Type)
-    {
-        clear_str(&operand1);
-        adds_to_string(&operand1,"float@");
-        adds_to_string(&operand1,op1.value.str);
-    }
-    else if(op1.type == StringType)
-    {
-        clear_str(&operand1);
-        adds_to_string(&operand1,"string@");
-        adds_to_string(&operand1,op1.value.str);
-    }
-        //else if(op1.type == tNil)
-    else if(op1.type == -1)
-    {
-        clear_str(&operand1);
-        adds_to_string(&operand1,"nil@");
-        adds_to_string(&operand1,op1.value.str);
-    }
-    if (op1.isLabel == true)
-    {
-        clear_str(&operand1);
-        adds_to_string(&operand1,"$");
-        if((strcmp(op1.value.str,"main")) == 0)
-        {
-            adds_to_string(&operand1,"$main");
+            // func, spec, labels
+            if(op.name[0] == '$')
+            {
+                //funcs
+                if(op.name[1] == '$')
+                {
+                    // main
+                    tmp = op.name;
+                }
+                else
+                {
+                    // func
+                    tmp = op.name;
+                }
+            }
+            else
+            {
+                // labels, specs
+                if((strcmp(op.name,"for") == 0) || (strcmp(op.name,"if") == 0))
+                {
+                    //specs
+                    //well this gona be fun...
+                    tmp = op.name;
+                }
+                else
+                {
+                    //labels
+                    tmp = op.name;
+                }
+            }
         }
         else
-        {adds_to_string(&operand1,op1.value.str);}
-    }
-
-    ///Element num 2
-    if(op2.type == Unknown_type)
-    {
-        /*if(op2.isVariable == true)
         {
-            clear_str(&operand2);
-            adds_to_string(&operand2,"GF@tmp");
-        }*/
+            // konst
+            switch(op.type) {
+                case IntType:
+                    tmp = "int@";
+                    break;
+                case Float64Type:
+                    tmp = "float@";
+                    break;
+                case StringType:
+                    tmp = "string@";
+                    break;
+                case UnderscoreType:
+                    tmp = "nil@";
+                    break;
+                default:
+                    tmp = "";
+            }
+            tmp = strcat(tmp,op.value);
+        }
+    }
+    else // if (op.frame != Frame_NaN)
+    {
+        //variables
+        if(op.frame == Frame_GF)
+            tmp = "GF@";
+        else if(op.frame == Frame_LF)
+            tmp = "LF@";
+        else if(op.frame == Frame_TF)
+            tmp = "TF@";
+        tmp = strcat(tmp,op.name);
+    }
+    //////////////////////
+    char* tmp2;
+    if(op2.frame == Frame_NaN)
+    {
+        // func, konst, spec, labels
+        if(op2.type == Unknown_type)
+        {
+            // func, spec, labels
+            if(op2.name[0] == '$')
+            {
+                //funcs
+                if(op2.name[1] == '$')
+                {
+                    // main
+                    tmp2 = op2.name;
+                }
+                else
+                {
+                    // func
+                    tmp2 = op2.name;
+                }
+            }
+            else
+            {
+                // labels, specs
+                if((strcmp(op2.name,"for") == 0) || (strcmp(op2.name,"if") == 0))
+                {
+                    //specs
+                    //well this gona be fun...
+                    tmp2 = op2.name;
+                }
+                else
+                {
+                    //labels
+                    tmp2 = op2.name;
+                }
+            }
+        }
+        else
+        {
+            // konst
+            switch(op2.type) {
+                case IntType:
+                    tmp2 = "int@";
+                    break;
+                case Float64Type:
+                    tmp2 = "float@";
+                    break;
+                case StringType:
+                    tmp2 = "string@";
+                    break;
+                case UnderscoreType:
+                    tmp2 = "nil@";
+                    break;
+                default:
+                    tmp2 = "";
+            }
+            tmp2 = strcat(tmp2,op2.value);
+        }
+    }
+    else // if (op.frame != Frame_NaN)
+    {
+        //variables
         if(op2.frame == Frame_GF)
-        {
-            clear_str(&operand2);
-            adds_to_string(&operand2,"GF@");
-            adds_to_string(&operand2,op2.value.str);
-        }
+            tmp2 = "GF@";
         else if(op2.frame == Frame_LF)
-        {
-            clear_str(&operand2);
-            adds_to_string(&operand2,"LF@");
-            adds_to_string(&operand2,op2.value.str);
-        }
+            tmp2 = "LF@";
         else if(op2.frame == Frame_TF)
+            tmp2 = "TF@";
+        tmp2 = strcat(tmp2,op2.name);
+    }
+    ////////////////////
+    char* tmp3;
+    if(op3.frame == Frame_NaN)
+    {
+        // func, konst, spec, labels
+        if(op3.type == Unknown_type)
         {
-            clear_str(&operand2);
-            adds_to_string(&operand2,"TF@");
-            adds_to_string(&operand2,op2.value.str);
-        }
-    }
-    else if(op2.type == IntType)
-    {
-        clear_str(&operand2);
-        adds_to_string(&operand2,"int@");
-        adds_to_string(&operand2,op2.value.str);
-    }
-    else if(op2.type == Float64Type)
-    {
-        clear_str(&operand2);
-        adds_to_string(&operand2,"float@");
-        adds_to_string(&operand2,op2.value.str);
-    }
-    else if(op2.type == StringType)
-    {
-        clear_str(&operand2);
-        adds_to_string(&operand2,"string@");
-        adds_to_string(&operand2,op2.value.str);
-    }
-        //else if(op2.type == tNil)
-    else if(op2.type == -1)
-    {
-        clear_str(&operand2);
-        adds_to_string(&operand2,"nil@");
-        adds_to_string(&operand2,op2.value.str);
-    }
-    if (op2.isLabel == true)
-    {
-        clear_str(&operand2);
-        adds_to_string(&operand2,"$");
-        if((strcmp(op2.value.str,"main")) == 0)
-        {
-            adds_to_string(&operand2,"$main");
+            // func, spec, labels
+            if(op3.name[0] == '$')
+            {
+                //funcs
+                if(op3.name[1] == '$')
+                {
+                    // main
+                    tmp3 = op3.name;
+                }
+                else
+                {
+                    // func
+                    tmp3 = op3.name;
+                }
+            }
+            else
+            {
+                // labels, specs
+                if((strcmp(op3.name,"for") == 0) || (strcmp(op3.name,"if") == 0))
+                {
+                    //specs
+                    //well this gona be fun...
+                    tmp3 = op3.name;
+                }
+                else
+                {
+                    //labels
+                    tmp3 = op3.name;
+                }
+            }
         }
         else
-        {adds_to_string(&operand2,op2.value.str);}
-    }
-
-    ///Element num 3
-    if(op3.type == Unknown_type)
-    {
-        /*if(op3.isVariable == true)
         {
-            clear_str(&operand3);
-            adds_to_string(&operand3,"GF@tmp");
-        }*/
+            // konst
+            switch(op3.type) {
+                case IntType:
+                    tmp3 = "int@";
+                    break;
+                case Float64Type:
+                    tmp3 = "float@";
+                    break;
+                case StringType:
+                    tmp3 = "string@";
+                    break;
+                case UnderscoreType:
+                    tmp3 = "nil@";
+                    break;
+                default:
+                    tmp3 = "";
+            }
+            tmp3 = strcat(tmp3,op3.value);
+        }
+    }
+    else // if (op.frame != Frame_NaN)
+    {
+        //variables
         if(op3.frame == Frame_GF)
-        {
-            clear_str(&operand3);
-            adds_to_string(&operand3,"GF@");
-            adds_to_string(&operand3,op3.value.str);
-        }
+            tmp3 = "GF@";
         else if(op3.frame == Frame_LF)
-        {
-            clear_str(&operand3);
-            adds_to_string(&operand3,"LF@");
-            adds_to_string(&operand3,op3.value.str);
-        }
+            tmp3 = "LF@";
         else if(op3.frame == Frame_TF)
-        {
-            clear_str(&operand3);
-            adds_to_string(&operand3,"TF@");
-            adds_to_string(&operand3,op3.value.str);
-        }
-    }
-    else if(op3.type == IntType)
-    {
-        clear_str(&operand3);
-        adds_to_string(&operand3,"int@");
-        adds_to_string(&operand3,op3.value.str);
-    }
-    else if(op3.type == Float64Type)
-    {
-        clear_str(&operand3);
-        adds_to_string(&operand3,"float@");
-        adds_to_string(&operand3,op3.value.str);
-    }
-    else if(op3.type == StringType)
-    {
-        clear_str(&operand3);
-        adds_to_string(&operand3,"string@");
-        adds_to_string(&operand3,op3.value.str);
-    }
-        //else if(op3.type == tNil)
-    else if(op3.type == -1)
-    {
-        clear_str(&operand3);
-        adds_to_string(&operand3,"nil@");
-        adds_to_string(&operand3,op3.value.str);
-    }
-    if (op3.isLabel == true)
-    {
-        clear_str(&operand3);
-        adds_to_string(&operand3,"$");
-        if((strcmp(op3.value.str,"main")) == 0)
-        {
-            adds_to_string(&operand3,"$main");
-        }
-        else
-        {adds_to_string(&operand3,op3.value.str);}
+            tmp3 = "TF@";
+        tmp3 = strcat(tmp3,op3.name);
     }
 
-    CreateInstruction(L,InstrType,operand1.str,operand2.str,operand3.str);
+    CreateInstruction(InstrType,tmp,tmp2,tmp3);
 }
-
 
 
 
@@ -623,16 +641,506 @@ void InstrLLDeleteFirst(tLinkedList *L){
 
 
 
-/* Built-in functions */
+void len(char* s, tInstructionOperand *out)
+{
+    tInstructionOperand counter;
+    tInstructionOperand navesti_begin;
+    navesti_begin = CreateOperand("$len","",Unknown_type,Frame_NaN);
+    Instruction1(I_LABEL,navesti_begin);
+    Instruction0(I_PUSHFRAME);
+    counter = CreateOperand("",s,StringType,Frame_NaN);
+    Instruction2(I_STRLEN,*out,counter);
+    Instruction0(I_POPFRAME);
+    Instruction0(I_RETURN);
 
+}
+
+void chr()
+{
+    tInstructionOperand navesti_begin;
+    navesti_begin = CreateOperand("$chr","",Unknown_type,Frame_NaN);
+    Instruction1(I_LABEL,navesti_begin);
+    Instruction0(I_PUSHFRAME);
+
+
+}
+
+
+void inputi(tInstructionOperand o)
+{
+    char* frame;
+    if(o.frame == Frame_GF)
+        frame = "GF";
+    else if(o.frame == Frame_LF)
+        frame = "LF";
+    else if(o.frame == Frame_TF)
+        frame = "TF";
+    else if(o.frame == Frame_NaN)
+        frame = "";
+    printf("READ %s@%s int\n",frame,o.name);
+}
+void inputs(tInstructionOperand o)
+{
+    char* frame;
+    if(o.frame == Frame_GF)
+        frame = "GF";
+    else if(o.frame == Frame_LF)
+        frame = "LF";
+    else if(o.frame == Frame_TF)
+        frame = "TF";
+    else if(o.frame == Frame_NaN)
+        frame = "";
+    printf("READ %s@%s string\n",frame,o.name);
+}
+void inputf(tInstructionOperand o)
+{
+    char* frame;
+    if(o.frame == Frame_GF)
+        frame = "GF";
+    else if(o.frame == Frame_LF)
+        frame = "LF";
+    else if(o.frame == Frame_TF)
+        frame = "TF";
+    else if(o.frame == Frame_NaN)
+        frame = "";
+    printf("READ %s@%s float\n",frame,o.name);
+}
+
+/* Built-in functions */
+/*
 void len()
 {   tInstructionOperand operand1;tInstructionOperand operand2;
     operand1 = CreateOperand(operand1,"len",Unknown_type,Frame_GF,true,false);
     InstructionWith1operand(L,I_LABEL,operand1);
     InstructionWithNoOperand(L,I_PUSHFRAME);
-    operand1 = CreateOperand(operand1,"",IntType,Frame_GF,false,true);
+    operand1 = CreateOperand(operand1,"retval",IntType,Frame_GF,false,true);
     operand2 = CreateOperand(operand2,"s",StringType,Frame_LF,false,false);
     InstructionWith2operand(L,I_STRLEN,operand1,operand2);
     InstructionWithNoOperand(L,I_RETURN);
 }
+*/
 
+
+/*
+int len (char* s)
+{
+    tInstructionOperand operandS;
+    tInstructionOperand operandI;
+    operandS = CreateOperand(operandS,s,StringType,Frame_GF,false,false);
+    operandI = CreateOperand(operandI,"0",IntType,Frame_GF,false,false);
+    InstructionWith2operand(L,I_STRLEN,operandI,operandS);
+    return *(operandI.value.str);
+}*/
+
+
+/*
+void for_function()
+{
+    tInstructionOperand iterator,for_begin,for_end;
+    iterator = CreateOperand(iterator,"0",IntType,Frame_TF,false,true);
+    InstructionWith1operand(L,I_DEFVAR,iterator);
+    InstructionWithNoOperand(L,I_PUSHFRAME);
+    for_begin = CreateOperand(for_begin,"for_begin",Unknown_type,Frame_TF,true,)
+
+}
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void InstructionPrint(tInstr i)
+{
+    switch (i.instType) {
+        case I_MOVE:
+            Instr_I_MOVE(i);
+            break;
+        case I_CREATEFRAME:
+            Instr_I_CREATEFRAME(i);
+            break;
+        case I_PUSHFRAME:
+            Instr_I_PUSHFRAME(i);
+            break;
+        case I_POPFRAME:
+            Instr_I_POPFRAME(i);
+            break;
+        case I_DEFVAR:
+            Instr_I_DEFVAR(i);
+            break;
+        case I_CALL:
+            Instr_I_CALL(i);
+            break;
+        case I_RETURN:
+            Instr_I_RETURN(i);
+            break;
+        case I_PUSHS:
+            Instr_I_PUSHS(i);
+            break;
+        case I_POPS:
+            Instr_I_POPS(i);
+            break;
+        case I_CLEARS:
+            Instr_I_CLEARS(i);
+            break;
+        case I_ADD:
+            Instr_I_ADD(i);
+            break;
+        case I_SUB:
+            Instr_I_SUB(i);
+            break;
+        case I_MUL:
+            Instr_I_MUL(i);
+            break;
+        case I_DIV:
+            Instr_I_DIV(i);
+            break;
+        case I_IDIV:
+            Instr_I_IDIV(i);
+            break;
+        case I_ADDS:
+            Instr_I_ADDS(i);
+            break;
+        case I_SUBS:
+            Instr_I_SUBS(i);
+            break;
+        case I_MULS:
+            Instr_I_MULS(i);
+            break;
+        case I_DIVS:
+            Instr_I_DIVS(i);
+            break;
+        case I_IDIVS:
+            Instr_I_IDIVS(i);
+            break;
+        case I_LT:
+            Instr_I_LT(i);
+            break;
+        case I_GT:
+            Instr_I_GT(i);
+            break;
+        case I_EQ:
+            Instr_I_EQ(i);
+            break;
+        case I_LTS:
+            Instr_I_LTS(i);
+            break;
+        case I_GTS:
+            Instr_I_GTS(i);
+            break;
+        case I_EQS:
+            Instr_I_EQS(i);
+            break;
+        case I_AND:
+            Instr_I_AND(i);
+            break;
+        case I_OR:
+            Instr_I_OR(i);
+            break;
+        case I_NOT:
+            Instr_I_NOT(i);
+            break;
+        case I_ANDS:
+            Instr_I_ANDS(i);
+            break;
+        case I_ORS:
+            Instr_I_ORS(i);
+            break;
+        case I_NOTS:
+            Instr_I_NOTS(i);
+            break;
+        case I_FLOAT2INT:
+            Instr_I_FLOAT2INT(i);
+            break;
+        case I_INT2FLOAT:
+            Instr_I_INT2FLOAT(i);
+            break;
+        case I_INT2CHAR:
+            Instr_I_INT2CHAR(i);
+            break;
+        case I_STRI2INT:
+            Instr_I_STRI2INT(i);
+            break;
+        case I_INT2FLOATS:
+            Instr_I_INT2FLOATS(i);
+            break;
+        case I_FLOAT2INTS:
+            Instr_I_FLOAT2INTS(i);
+            break;
+        case I_INT2CHARS:
+            Instr_I_INT2CHARS(i);
+            break;
+        case I_STRI2INTS:
+            Instr_I_STRI2INTS(i);
+            break;
+        case I_READ:
+            Instr_I_READ(i);
+            break;
+        case I_WRITE:
+            Instr_I_WRITE(i);
+            break;
+        case I_CONCAT:
+            Instr_I_CONCAT(i);
+            break;
+        case I_STRLEN:
+            Instr_I_STRLEN(i);
+            break;
+        case I_GETCHAR:
+            Instr_I_GETCHAR(i);
+            break;
+        case I_SETCHAR:
+            Instr_I_SETCHAR(i);
+            break;
+        case I_TYPE:
+            Instr_I_TYPE(i);
+            break;
+        case I_LABEL:
+            Instr_I_LABEL(i);
+            break;
+        case I_JUMP:
+            Instr_I_JUMP(i);
+            break;
+        case I_JUMPIFEQ:
+            Instr_I_JUMPIFEQ(i);
+            break;
+        case I_JUMPIFNEQ:
+            Instr_I_JUMPIFNEQ(i);
+            break;
+        case I_JUMPIFEQS:
+            Instr_I_JUMPIFEQS(i);
+            break;
+        case I_JUMPIFNEQS:
+            Instr_I_JUMPIFNEQS(i);
+            break;
+        case I_EXIT:
+            Instr_I_EXIT(i);
+            break;
+        case I_BREAK:
+            Instr_I_BREAK(i);
+            break;
+        case I_DPRINT:
+            Instr_I_DPRINT(i);
+            break;
+        default:
+            break;
+    }
+}
+
+
+
+void Instr_I_MOVE(tInstr i){            printf("MOVE %s %s\n",i.addr1,i.addr2);}
+void Instr_I_CREATEFRAME(){             printf("CREATEFRAME\n");}
+void Instr_I_PUSHFRAME(){               printf("PUSHFRAME\n");}
+void Instr_I_POPFRAME(){                printf("POPFRAME\n");}
+void Instr_I_DEFVAR(tInstr i){          printf("DEFVAR %s\n",i.addr1);}
+void Instr_I_CALL(tInstr i){            printf("LABEL %s\n",i.addr1);}
+void Instr_I_RETURN(){                  printf("RETURN\n");}
+void Instr_I_PUSHS(tInstr i){           printf("PUSHS %s\n",i.addr1);}
+void Instr_I_POPS(tInstr i){            printf("POPS %s\n",i.addr1);}
+void Instr_I_CLEARS(){                  printf("CLEARS\n");}
+void Instr_I_ADD(tInstr i){             printf("ADD %s %s %s\n",i.addr1,i.addr2,i.addr3);}
+void Instr_I_SUB(tInstr i){             printf("SUB %s %s %s\n",i.addr1,i.addr2,i.addr3);}
+void Instr_I_MUL(tInstr i){             printf("MUL %s %s %s\n",i.addr1,i.addr2,i.addr3);}
+void Instr_I_DIV(tInstr i){             printf("DIV %s %s %s\n",i.addr1,i.addr2,i.addr3);}
+void Instr_I_IDIV(tInstr i){            printf("IDIV %s %s %s\n",i.addr1,i.addr2,i.addr3);}
+void Instr_I_ADDS(){                    printf("ADDS\n");}
+void Instr_I_SUBS(){                    printf("SUBS\n");}
+void Instr_I_MULS(){                    printf("MULS\n");}
+void Instr_I_DIVS(){                    printf("DIVS\n");}
+void Instr_I_IDIVS(){                   printf("IDIVS\n");}
+void Instr_I_LT(tInstr i){              printf("LT %s %s %s\n",i.addr1,i.addr2,i.addr3);}
+void Instr_I_GT(tInstr i){              printf("GT %s %s %s\n",i.addr1,i.addr2,i.addr3);}
+void Instr_I_EQ(tInstr i){              printf("EQ %s %s %s\n",i.addr1,i.addr2,i.addr3);}
+void Instr_I_LTS(){                     printf("LTS\n");}
+void Instr_I_GTS(){                     printf("GTS\n");}
+void Instr_I_EQS(){                     printf("EQS\n");}
+void Instr_I_AND(tInstr i){             printf("AND %s %s %s\n",i.addr1,i.addr2,i.addr3);}
+void Instr_I_OR(tInstr i){              printf("OR %s %s %s\n",i.addr1,i.addr2,i.addr3);}
+void Instr_I_NOT(tInstr i){             printf("NOT %s %s %s\n",i.addr1,i.addr2,i.addr3);}
+void Instr_I_ANDS(){                    printf("ANDS\n");}
+void Instr_I_ORS(){                     printf("ORS\n");}
+void Instr_I_NOTS(){                    printf("NOTS\n");}
+void Instr_I_FLOAT2INT(tInstr i){       printf("FLOAT2INT %s %s\n",i.addr1,i.addr2);}
+void Instr_I_INT2FLOAT(tInstr i){       printf("INT2FLOAT %s %s\n",i.addr1,i.addr2);}
+void Instr_I_INT2CHAR(tInstr i){        printf("INT2CHAR %s %s\n",i.addr1,i.addr2);}
+void Instr_I_STRI2INT(tInstr i){        printf("STRI2INT %s %s %s\n",i.addr1,i.addr2,i.addr3);}
+void Instr_I_INT2FLOATS(){              printf("INT2FLOATS\n");}
+void Instr_I_FLOAT2INTS(){              printf("FLOAT2INTS\n");}
+void Instr_I_INT2CHARS(){               printf("INT2CHARS\n");}
+void Instr_I_STRI2INTS(){               printf("STRI2INTS\n");}
+void Instr_I_READ(tInstr i){            printf("READ %s %s\n",i.addr1,i.addr2);}
+void Instr_I_WRITE(tInstr i){           printf("WRITE %s",i.addr1);}
+void Instr_I_CONCAT(tInstr i){          printf("CONCAT %s %s %s\n",i.addr1,i.addr2,i.addr3);}
+void Instr_I_STRLEN(tInstr i){          printf("STRLEN %s %s\n",i.addr1,i.addr2);}
+void Instr_I_GETCHAR(tInstr i){         printf("GETCHAR %s %s %s\n",i.addr1,i.addr2,i.addr3);}
+void Instr_I_SETCHAR(tInstr i){         printf("SETCHAR %s %s %s\n",i.addr1,i.addr2,i.addr3);}
+void Instr_I_TYPE(tInstr i){            printf("TYPE %s %s\n",i.addr1,i.addr2);}
+void Instr_I_LABEL(tInstr i){           printf("LABEL %s\n",i.addr1);}
+void Instr_I_JUMP(tInstr i){            printf("JUMP %s\n",i.addr1);}
+void Instr_I_JUMPIFEQ(tInstr i){        printf("JUMPIFEQ %s %s %s\n",i.addr1,i.addr2,i.addr3);}
+void Instr_I_JUMPIFNEQ(tInstr i){       printf("JUMPIFNEQ %s %s %s\n",i.addr1,i.addr2,i.addr3);}
+void Instr_I_JUMPIFEQS(tInstr i){       printf("JUMPIFEQS %s\n",i.addr1);}
+void Instr_I_JUMPIFNEQS(tInstr i){      printf("JUMPIFNEQS %s\n",i.addr1);}
+void Instr_I_EXIT(tInstr i){            printf("EXIT %s\n",i.addr1);}
+void Instr_I_BREAK(){                   printf("BREAK\n");}
+void Instr_I_DPRINT(tInstr i){          printf("DPRINT %s\n",i.addr1);}
+
+
+void Print_BuiltIn_Functions()
+{
+    printf(".IFJcode20\n\n");
+    //DEF 2x tmp
+    printf("JUMP $$main\n\n");
+
+    //printf inputi
+    printf("LABEL $inputi\n"
+           "PUSHFRAME\n"
+           "DEFVAR LF@reval\n"
+           "READ LF@retval int\n"
+           "POPFRAME\n"
+           "RETURN\n");
+
+    //printf inputf
+    printf("LABEL $inputf\n"
+           "PUSHFRAME\n"
+           "DEFVAR LF@retval"
+           "READ LF@retval float\n"
+           "POPFRAME\n"
+           "RETURN\n");
+
+    //printf inputs
+    printf("LABEL $inputs\n"
+           "PUSHFRAME\n"
+           "DEFVAR LF@retval\n"
+           "READ LF@retval string\n"
+           "POPFRAME\n"
+           "RETURN\n");
+
+    //printf int2float
+    printf("LABEL $int2float\n"
+           "PUSHFRAME\n"
+           "DEFVAR LF@retval\n"
+           "INT2FLOAT LF@retval LF@i\n"
+           "POPFRAME\n"
+           "RETURN\n");
+
+    //printf float2int
+    printf("LABEL $float2int\n"
+           "PUSHFRAME\n"
+           "DEFVAR LF@retval\n"
+           "FLOAT2INT LF@retval LF@f\n"
+           "POPFRAME\n"
+           "RETURN\n");
+
+    //Print len
+    printf("LABEL $len\n"
+           "PUSHFRAME\n"
+           "DEFVAR LF@retval\n"
+           "STRLEN LF@retval LF@s\n"
+           "POPFRAME \n"
+           "RETURN\n");
+
+    //print substr
+    printf("LABEL $substr\n"
+           "PUSHFRAME\n"
+           "DEFVAR LF@retval\n"
+           "MOVE LF@retval string@\n"
+           "DEFVAR LF@length\n"
+           "CREATEFRAME\n"
+           "DEFVAR TF%%0\n"
+           "MOVE TF@%%0 LF%%0\n"
+           "CALL $len\n"
+           "MOVE LF@length TF@%%retval\n"
+           "DEFVAR LF@ret\n"
+           "LT LF@ret LF@length int@0\n"
+           "JUMPIFEQ $substr$return LF@ret bool@true\n"
+           "EQ LF@ret LF@length int@0\n"
+           "JUMPIFEQ $substr$return LF@ret bool@true\n"
+           "LT LF@ret LF@%%1 int@0\n"
+           "JUMPIFEQ $substr$return LF@ret bool@true\n"
+           "EQ LF@ret LF@%%1 int@0\n"
+           "JUMPIFEQ $substr$return LF@ret bool@true\n"
+           "GT LF@ret LF@%%1 LF@length\n"
+           "JUMPIFEQ $substr$return LF@ret bool@true\n"
+           "EQ LF@ret LF@%%2 int@0\n"
+           "JUMPIFEQ $substr$return LF@ret bool@true\n"
+           "DEFVAR LF@max\n"
+           "MOVE LF@max LF@length\n"
+           "SUB LF@max LF@max LF@%%1\n"
+           "ADD LF@max LF@max int@1\n"
+           "DEFVAR LF@edit\n"
+           "LT LF@edit LF@%%2 int@0\n"
+           "JUMPIFEQ $substr$edit LF@edit bool@true\n"
+           "GT LF@edit LF@%%2 LF@max\n"
+           "JUMPIFEQ $substr$edit LF@edit bool@true\n"
+           "JUMP $substr$process\n"
+           "LABEL $substr$edit\n"
+           "MOVE LF@%%2 LF@max\n"
+           "LABEL $substr$process\n"
+           "DEFVAR LF@index\n"
+           "MOVE LF@index LF@%%1\n"
+           "SUB LF@index LF@index int@1\n"
+           "DEFVAR LF@char\n"
+           "DEFVAR LF@processloop\n"
+           "LABEL $substr$loop\n"
+           "GETCHAR LF@char LF@%%0 LF@index\n"
+           "CONCAT LF@retval LF@retval LF@char\n"
+           "ADD LF@index LF@index int@1\n"
+           "SUB LF@%%2 LF@%%2 int@1\n"
+           "GT LF@processloop LF@%%2 int@0\n"
+           "JUMPIFEQ $substr$loop LF@processloop bool@true\n"
+           "LABEL $substr$return\n"
+           "POPFRAME\n"
+           "RETURN\n");
+
+    //printf chr
+    printf("LABEL $chr\n"
+           "PUSHFRAME\n"
+           "DEFVAR LF@retval\n"
+           "MOVE LF@retval string@\n"
+           "DEFVAR LF@cond\n"
+           "LT LF@cond LF@%%0 int@0\n"
+           "JUMPIFEQ $chr$return LF@cond bool@true\n"
+           "GT LF@cond LF@%%0 int@255\n"
+           "JUMPIFEQ $chr$return LF@cond bool@true\n"
+           "INT2CHAR LF@retval LF@%%0\n"
+           "LABEL $chr$return\n"
+           "POPFRAME\n"
+           "RETURN\n");
+
+    //printf ord
+    printf("LABEL $ord\n"
+           "PUSHFRAME\n"
+           "DEFVAR LF@retval\n"
+           "MOVE LF@retval int@0\n"
+           "DEFVAR LF@cond\n"
+           "LT LF@cond LF@%%1 int@1\n"
+           "JUMPIFEQ $ord$return LF@cond bool@true\n"
+           "DEFVAR LF@length\n"
+           "CREATEFRAME\n"
+           "DEFVAR TF@%%0\n"
+           "MOVE TF@%%0 LF@%%0\n"
+           "CALL $len\n"
+           "MOVE LF@length TF@retval\n"
+           "GT LF@cond LF@%%1 LF@length\n"
+           "JUMPIFEQ $ord$return LF@cond bool@true\n"
+           "SUB LF@%%1 LF@%%1 int@1\n"
+           "STRI2INT LF@retval LF@%%0 LF@%%1\n"
+           "LABEL $ord$return\n"
+           "POPFRAME\n"
+           "RETURN\n");
+
+
+    //printf begin of main
+    printf("LABEL $$main\n");
+}
