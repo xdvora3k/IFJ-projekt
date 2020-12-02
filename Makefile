@@ -2,7 +2,7 @@ PROJ=proj
 BINARY_FILES=$(PROJ) test-scanner test-ilist test-symtable
 CC=gcc
 CFLAGS=-std=c11 -Wall -Wextra -Werror -pedantic -pthread
-FILES=src/str.c src/scanner.c src/symtable.c src/ilist.c src/parser.c
+FILES=src/str.c src/scanner.c src/symtable.c src/ilist.c src/parser.c src/Connector.c
 
 .PHONY: all
 all: $(PROJ)
