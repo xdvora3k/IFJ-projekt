@@ -99,40 +99,8 @@ int getTokenTableIndex(tState type)
 /* if 5 -> chyaba 2*/
 
 
-/*
-tExpression switchStruct(string *exp, tExpressionNode node){ //change this name
-    tExpression expStruct;
-    switch (get_token(exp))
-       {
-       case tMultiply:
-            expStruct.sign = tMultiply;
-        case tDivide:
-            expStruct.sign = tDivide;
-        case tMinus:
-            expStruct.sign = tMinus;
-        case tPlus:
-            expStruct.sign = tPlus;
-        case tSmallerThan:
-            expStruct.sign = tSmallerThan;
-        case tBiggerThan:
-            expStruct.sign = tBiggerThan;
-        case tBiggerOrEqual:
-           expStruct.sign = tBiggerOrEqual;
-
-        case tInteger: 
-        node.data_type = IntType;
-        case tFloat:
-        node.data_type = Float64Type;
-        default:
-            break;
-
-
-       }
-       return expStruct;
-
-} */ 
-
 void precedencSA(string* input){
+    printf("start pecedenc SA\n");
     tLinkedList tokens = get_tokens(input);
     ptrStack topOfStack;
     StackInit(&topOfStack);
@@ -166,6 +134,7 @@ void precedencSA(string* input){
     expressionRule rule;
     int index = 0;
     tToken* topToken;
+    tExpressionList listt;
     tToken* inputToken = (tToken*)(StrLLLocateNthElem(&tokens, index)->Content);
     do{
         //printf("%d %s %d\n", index, inputToken->text.str, token->type);
@@ -174,15 +143,18 @@ void precedencSA(string* input){
         int firstIndex = getTokenTableIndex(topToken->type);
         int secondIndex = getTokenTableIndex(inputToken->type);
 
-        printf("result = %c", precedentTable[firstIndex][secondIndex]);
-        printf("indexes: %d %d\n", firstIndex, secondIndex);
-        printStack(&topOfStack);
+        //printf("result = %c", precedentTable[firstIndex][secondIndex]);
+        //printf("indexes: %d %d\n", firstIndex, secondIndex);
+       // printStack(&topOfStack);
 
         switch (precedentTable[firstIndex][secondIndex])
         {
-        case '>': //zamen <y          
+        case '>': //zamen <y 
+        
+        //fillList(&topOfStack, listt);         
             rule = extractexpression(&topOfStack);
             rule = applyrule(&topOfStack, rule);
+            printf("index %d\n", index++);
             printRule(rule);
             printStack(&topOfStack);
             tToken* token = (tToken*)(topOfStack.top_stack->value);
@@ -196,11 +168,12 @@ void precedencSA(string* input){
         //zamen a za a<
         pushOpenTokenToStack(&topOfStack, &exprOpenToken);    
         StackPush(&topOfStack, inputToken);
-        printStack(&topOfStack);
+        listt = fillExpList(&topOfStack);
+      //  printStack(&topOfStack);
         index++;
         tListItem* listItem = StrLLLocateNthElem(&tokens, index);
 
-        printf("listItem %p\n", listItem);
+      //  printf("listItem %p\n", listItem);
         //take next, if not available, return $
         if (listItem == NULL)
         {
@@ -218,9 +191,11 @@ void precedencSA(string* input){
         //actualToken = get_token(token);
 */
         }
-        printf("input: %d", inputToken->type);
-        printf("top: %d", topToken->type);
+       // printf("input: %d", inputToken->type);
+        //printf("top: %d", topToken->type);
     }while(inputToken->type != tEOF || topToken->type != tEOF);
+
+
 }
 
 void pushOpenTokenToStack(ptrStack* topOfStack, tToken* exprOpenToken)
@@ -312,6 +287,7 @@ expressionRule applyrule(ptrStack *stack, expressionRule rule){
         if(rule.rightOperand == NULL){
           exit(SYN_ERROR);
         }
+        rule.typeOfRule = expIdentity;
         StackPush(stack, rule.rightOperand); //na vstupu je i
     }
     else
@@ -320,9 +296,48 @@ expressionRule applyrule(ptrStack *stack, expressionRule rule){
            exit(SYN_ERROR);
         }
         if(rule.rightOperand->type == tClosingSimpleBrace && rule.leftOperand->type == tOpeningSimpleBrace){ 
+            rule.typeOfRule = expBrackets;
             StackPush(stack, rule.operator); //nahrada (i) za i
         }
         else{
+            if(rule.operator->type == tPlus){
+                rule.typeOfRule = expPLUSepx;
+                StackPush(stack, rule.rightOperand);
+                StackPush(stack, rule.operator);
+                StackPush(stack, rule.leftOperand);
+                counter++;
+                printf("rule E+E");
+                printStack(stack);
+            }
+            if(rule.operator->type == tMinus){
+                rule.typeOfRule = expMINUSepx;
+                StackPush(stack, rule.rightOperand);
+                StackPush(stack, rule.operator);
+                StackPush(stack, rule.leftOperand);
+                printf("rule E-E");
+                counter++;
+                printStack(stack);
+            }
+            if(rule.operator->type == tDivide){
+                rule.typeOfRule = expDIVepx;
+                StackPush(stack, rule.rightOperand);
+                StackPush(stack, rule.operator);
+                StackPush(stack, rule.leftOperand);
+                printf("rule E/E");
+                counter++;
+                printStack(stack);
+                
+            }
+            if(rule.operator->type == tMultiply){
+                rule.typeOfRule = expMULepx;
+                StackPush(stack, rule.rightOperand);
+                StackPush(stack, rule.operator);
+                StackPush(stack, rule.leftOperand);
+                printf("rule E*E");
+                printStack(stack);
+                counter++;
+            }
+            printf("Counter %d\n", counter);
           string placeholderText;
           init_string(&placeholderText);
           add_to_string(&placeholderText, '{');
@@ -374,3 +389,59 @@ void printStack(ptrStack *topStack)
     } while (actual != NULL);
     printf("\n");
 }
+void ListInit(tExpressionList *L){
+    L->first = NULL;
+}
+tExpressionList fillExpList(ptrStack *stack /*, expressionRule rule*/)
+{ //void fillExpList(ptrStack* stack, tExpressionList *L)
+    tExpressionList expList, newNode;
+    tToken tokens;
+    ListInit(&expList);
+    
+    while (stack->top_stack->next_value != NULL)
+    {
+        printf("set\n");
+        // if(expList.first == NULL){
+
+        tokens.text.str = ((tToken *)stack->top_stack->value)->text.str;
+        printf("tokens %s\n", tokens.text.str);
+        printf("Ttoken %s\n", ((tToken *)stack->top_stack->value)->text.str);
+        //expList.first->leftOperand->text.str = ((tToken*)stack->top_stack->value)->text.str;
+        printf("get list: %p\n", expList.first);
+        //  expList.first->leftOperand->type = ((tToken*)stack->top_stack->value)->type;
+
+        //printf("get list: %s\n", expList.first->leftOperand->text.str);
+        printf("%s token on stack\n", tokens.text.str);
+
+        /*string testing;
+    init_string(&testing);
+    add_to_string(&testing, 'b');
+    expList.first->leftOperand->text.str = testing.str;*/
+        printf("set1.5\n");
+        printStack(stack);
+
+        StackPop(stack);
+        printStack(stack);
+
+        /* StackPop(stack);
+    expList.first->operator = stack->top_stack->value;
+    StackPop(stack);
+    expList.first->rightOperand = stack->top_stack->value;
+    StackPop(stack);
+    } else{
+        printf("set2\n");
+        newNode.first = expList.first;*/
+    }
+    printf("get here\n");
+    exit(2); //just for testing
+}
+// return expList;
+//}
+
+/*
+
+void Insert(tExpressionList *L, tToken token){
+    expressionRule *new_node = malloc(sizeof(expressionRule));
+    tToken *new_content = malloc(sizeof(tToken));
+    
+}*/

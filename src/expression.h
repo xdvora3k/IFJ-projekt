@@ -20,25 +20,7 @@ typedef enum
     DollarIndex
 }   IndexOfPrecedentTable;
 
-typedef enum{
-    expPlus,
-    expMinus,
-    expDiv,
-    expMul,
-    expOpeningBracket,
-    expClosingBracket,
-    expEG,
-    expNEG,
-    expBiggerOrEG,
-    expLesserOrEG,
-    expBigger,
-    expLesser,
-    expEOL,
-    expInt,
-    expFloat,
-    expID,
-    
-} expressionstate;
+
 
  typedef enum{   
     expPLUSepx,//E -> E + E;
@@ -59,6 +41,7 @@ typedef struct
     tToken* operator;
     tToken* placeHolder;
     ruleType typeOfRule;
+   struct expressionRule* next;
 }expressionRule;
 
 
@@ -77,7 +60,6 @@ typedef struct tExpressionNode {
 
 typedef struct tExpressionList {
     expressionRule *first;
-    expressionRule *act;
 } tExpressionList;
 
 tToken* findTerminalToken(ptrStack* topOfStack);
@@ -86,5 +68,6 @@ expressionRule applyrule(ptrStack *stack, expressionRule rule);
 expressionRule extractexpression(ptrStack *stack);
 void printRule(expressionRule rule);
 void printStack(ptrStack* topStack);
-/*tExpression generateInstruction(string *exp);
-bool chceckBracket(string *toCheck);*/
+tExpressionList fillExpList(ptrStack* stack/*, expressionRule rule*/);
+//void fillList(ptrStack* stack, tExpressionList *L);
+//void Insert(tExpressionList *L, tToken token);
