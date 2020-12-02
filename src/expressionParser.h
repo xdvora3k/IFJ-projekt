@@ -10,5 +10,5 @@ typedef struct{
     int endIndex;
 } tToken;
 
-tLinkedList get_tokens(string *s);
-tToken get_tokenExp(string *input, int startIndex);
+tLinkedList* get_tokens(string *s);
+void get_tokenExp(tToken* token, string *input, int startIndex);

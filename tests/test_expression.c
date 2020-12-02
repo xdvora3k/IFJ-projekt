@@ -6,8 +6,7 @@
 int main(){
    string input;
    init_string(&input);
-   input.str = "a+a*a";
-   input.length = 5;
+   adds_to_string(&input, "a+v*c");
    precedencSA(&input);
    return 0;
 }

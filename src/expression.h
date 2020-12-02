@@ -44,22 +44,14 @@ typedef struct
    struct expressionRule* next;
 }expressionRule;
 
-
-typedef struct tExpression {    
-    char* left_value;
-    int is_left_variable;
-    char* right_value;
-    int is_right_variable;
-    tState sign;
-} tExpression;
-
 typedef struct tExpressionNode {
     tVarDataType data_type;
-    tExpression *first;
+    expressionRule *first;
+    struct tExpressionNode *next_node;
 } tExpressionNode;
 
 typedef struct tExpressionList {
-    expressionRule *first;
+    tExpressionNode *first;
 } tExpressionList;
 
 tToken* findTerminalToken(ptrStack* topOfStack);
@@ -68,6 +60,6 @@ expressionRule applyrule(ptrStack *stack, expressionRule rule);
 expressionRule extractexpression(ptrStack *stack);
 void printRule(expressionRule rule);
 void printStack(ptrStack* topStack);
-tExpressionList fillExpList(ptrStack* stack/*, expressionRule rule*/);
+tExpressionList fillExpList(ptrStack *stack, tExpressionList *list);
 //void fillList(ptrStack* stack, tExpressionList *L);
 //void Insert(tExpressionList *L, tToken token);

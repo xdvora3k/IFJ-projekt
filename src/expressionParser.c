@@ -3,11 +3,10 @@
 
 
 
-tToken get_tokenExp(string *input, int startIndex){
+void get_tokenExp(tToken* token, string *input, int startIndex){
     tState state = start;
     char c;
     int i = 0;
-    tToken token; 
     string tokenText;
     init_string(&tokenText);
     while (TRUE) {
@@ -18,16 +17,9 @@ tToken get_tokenExp(string *input, int startIndex){
                     i++;
                     continue;
                 }
-                else if (is_EOL(c)) {
-                     add_to_string(&tokenText, c);
-                    token.text = tokenText;
-                    token.type = EOL;
-                    token.endIndex = startIndex + i;
-                    return token;
-                }
                 else if (is_alpha(c)) {
                     add_to_string(&tokenText, c);
-                    token.type = unknown_identifier;
+                    token->type = unknown_identifier;
                     state = unknown_identifier;
                 }
                 else if (c == '_') {
@@ -43,24 +35,24 @@ tToken get_tokenExp(string *input, int startIndex){
                 }
                 else if (c == '+') {
                     add_to_string(&tokenText, c);
-                    token.text = tokenText;
-                    token.type = tPlus;
-                    token.endIndex = startIndex + i;
-                    return token;
+                    token->text = tokenText;
+                    token->type = tPlus;
+                    token->endIndex = startIndex + i;
+                    return;
                 }
                 else if (c == '-') {
                     add_to_string(&tokenText, c);
-                    token.text = tokenText;
-                    token.type = tMinus;
-                    token.endIndex = startIndex + i;
-                    return token;
+                    token->text = tokenText;
+                    token->type = tMinus;
+                    token->endIndex = startIndex + i;
+                    return;
                 }
                 else if (c == '*') {
                     add_to_string(&tokenText, c);
-                    token.text = tokenText;
-                    token.type = tMultiply;
-                    token.endIndex = startIndex + i;
-                    return token;
+                    token->text = tokenText;
+                    token->type = tMultiply;
+                    token->endIndex = startIndex + i;
+                    return;
                 }
                 else if (c == '/') {
                     add_to_string(&tokenText, c);
@@ -93,18 +85,18 @@ tToken get_tokenExp(string *input, int startIndex){
                 }
                 else if (c == '(') {
                     add_to_string(&tokenText, c);
-                    token.text = tokenText;
-                    token.type = tOpeningSimpleBrace;
-                    token.endIndex = startIndex + i;
-                    return token;
+                    token->text = tokenText;
+                    token->type = tOpeningSimpleBrace;
+                    token->endIndex = startIndex + i;
+                    return;
 
                 }
                 else if (c == ')') {
                     add_to_string(&tokenText, c);
-                    token.text = tokenText;
-                    token.type = tClosingSimpleBrace;
-                    token.endIndex = startIndex + i;
-                    return token;
+                    token->text = tokenText;
+                    token->type = tClosingSimpleBrace;
+                    token->endIndex = startIndex + i;
+                    return;
                 }
                 else if (c == '{') {
                     exit(SYN_ERROR);;
@@ -114,50 +106,50 @@ tToken get_tokenExp(string *input, int startIndex){
                 }
                 else if (c == EOF) {
                     add_to_string(&tokenText, '$');
-                    token.text = tokenText;
-                    token.type = tEOF;
-                    token.endIndex = startIndex + i;
-                    return token;
+                    token->text = tokenText;
+                    token->type = tEOF;
+                    token->endIndex = startIndex + i;
+                    return;
                 }
                 break;
             case tBiggerThan:
                 if (c == '=') {
                     add_to_string(&tokenText, c);
-                    token.text = tokenText;
-                    token.type = tBiggerOrEqual;
-                    token.endIndex = startIndex + i;
-                    return token;
+                    token->text = tokenText;
+                    token->type = tBiggerOrEqual;
+                    token->endIndex = startIndex + i;
+                    return;
                 }
                 else if (!comparison_assumption(c)) {
                     exit(LEX_ERROR);
                 }
-                    token.text = tokenText;
-                    token.type = tBiggerThan;
-                    token.endIndex = startIndex + i - 1;
-                    return token;
+                    token->text = tokenText;
+                    token->type = tBiggerThan;
+                    token->endIndex = startIndex + i - 1;
+                    return;
             case tSmallerThan:
                 if (c == '=') {
                     add_to_string(&tokenText, c);
-                    token.text = tokenText;
-                    token.type = tSmallerOrEqual;
-                    token.endIndex = startIndex + i;
-                    return token;
+                    token->text = tokenText;
+                    token->type = tSmallerOrEqual;
+                    token->endIndex = startIndex + i;
+                    return;
                 }
                 else if (!comparison_assumption(c)) {
                     exit(LEX_ERROR);
                 }
-                token.text = tokenText;
-                    token.type = tSmallerOrEqual;
-                    token.endIndex = startIndex + i - 1;
-                    return token;
+                token->text = tokenText;
+                    token->type = tSmallerOrEqual;
+                    token->endIndex = startIndex + i - 1;
+                    return;
             case tAssignment:
                 if (c == '=') {
                     add_to_string(&tokenText, c);
-                    token.text = tokenText;
-                    token.type = tEqual;
-                    token.endIndex = startIndex + i;
-                    return token;
-                }   
+                    token->text = tokenText;
+                    token->type = tEqual;
+                    token->endIndex = startIndex + i;
+                    return;
+                }
                 else {
                     exit(SYN_ERROR);; //assignment not supported in expression
                 }
@@ -165,18 +157,18 @@ tToken get_tokenExp(string *input, int startIndex){
             case tNotEqual:
                 if (c == '=') {
                     add_to_string(&tokenText, c);
-                    token.text = tokenText;
-                    token.type = tNotEqual;
-                    token.endIndex = startIndex + i;
-                    return token;
+                    token->text = tokenText;
+                    token->type = tNotEqual;
+                    token->endIndex = startIndex + i;
+                    return;
                 }
                 exit(LEX_ERROR);
             case string_start:
                 if (c == '"') {
-                    token.text = tokenText;
-                    token.endIndex = startIndex + i -1; //-1 == nepatri token ktery 
-                    token.type = tString;
-                    return token;
+                    token->text = tokenText;
+                    token->endIndex = startIndex + i -1; //-1 == nepatri token ktery
+                    token->type = tString;
+                    return;
                 }
                 else if (c == '\\') {
                     add_to_string(&tokenText, c);
@@ -236,10 +228,10 @@ tToken get_tokenExp(string *input, int startIndex){
                      exit(LEX_ERROR);
                 }
                 else {
-                    token.text = tokenText;
-                    token.endIndex = startIndex + i -1; //-1 == nepatri token ktery 
-                    token.type = tInteger;
-                    return token;
+                    token->text = tokenText;
+                    token->endIndex = startIndex + i -1; //-1 == nepatri token ktery
+                    token->type = tInteger;
+                    return;
                 }
                 break;
             case float_point:
@@ -262,11 +254,11 @@ tToken get_tokenExp(string *input, int startIndex){
                     state = float_exponent;
                 }
                 else {
-                    token.text = tokenText;
-                    token.endIndex = startIndex + i -1; //-1 == nepatri token ktery 
-                    token.type = tFloat;
-                    return token;
-        
+                    token->text = tokenText;
+                    token->endIndex = startIndex + i -1; //-1 == nepatri token ktery
+                    token->type = tFloat;
+                    return;
+
                 }
                 break;
             case float_exponent:
@@ -283,10 +275,10 @@ tToken get_tokenExp(string *input, int startIndex){
                     exit(LEX_ERROR);
                 }
                 else {
-                    token.text = tokenText;
-                    token.endIndex = startIndex + i -1; //-1 == nepatri token ktery 
-                    token.type = tFloat;
-                    return token;
+                    token->text = tokenText;
+                    token->endIndex = startIndex + i -1; //-1 == nepatri token ktery
+                    token->type = tFloat;
+                    return;
                 }
                 break;
             case float_exponent_number:
@@ -298,10 +290,10 @@ tToken get_tokenExp(string *input, int startIndex){
                     exit(LEX_ERROR);
                 }
                 else {
-                    token.text = tokenText;
-                    token.endIndex = startIndex + i -1; //-1 == nepatri token ktery 
-                    token.type = tFloat;
-                    return token;
+                    token->text = tokenText;
+                    token->endIndex = startIndex + i -1; //-1 == nepatri token ktery
+                    token->type = tFloat;
+                    return;
                 }
                 break;
             case float_singed_exponent:
@@ -319,10 +311,10 @@ tToken get_tokenExp(string *input, int startIndex){
                     add_to_string(&tokenText, c);
                 }
                 else {
-                    token.text = tokenText;
-                    token.endIndex = startIndex + i -1; //-1 == nepatri token ktery 
-                    token.type = tFloat;
-                    return token;
+                    token->text = tokenText;
+                    token->endIndex = startIndex + i -1; //-1 == nepatri token ktery
+                    token->type = tFloat;
+                    return;
                 }
                 break;
             case unknown_identifier:
@@ -335,17 +327,17 @@ tToken get_tokenExp(string *input, int startIndex){
                 }
                 else {
                     if (is_keyword(&tokenText)) {
-                        token.type = tKeyword;
+                        token->type = tKeyword;
                     }
                     else if (is_built_in_func(&tokenText)) {
-                        token.type = tBuiltIn;
+                        token->type = tBuiltIn;
                     } else {
-                        token.type = tId;
+                        token->type = tId;
                         
                     }
-                    token.text = tokenText;
-                    token.endIndex = startIndex + i -1; //-1 == nepatri token ktery 
-                    return token;
+                    token->text = tokenText;
+                    token->endIndex = startIndex + i -1; //-1 == nepatri token ktery
+                    return;
 
                 }
                 break;
@@ -354,10 +346,10 @@ tToken get_tokenExp(string *input, int startIndex){
                     add_to_string(&tokenText, c);
                 }
                 else{
-                    token.type = tId;
-                    token.text = tokenText;
-                    token.endIndex = startIndex + i -1; //-1 == nepatri token ktery 
-                    return token;
+                    token->type = tId;
+                    token->text = tokenText;
+                    token->endIndex = startIndex + i -1; //-1 == nepatri token ktery
+                    return;
 
                 }
                 break;
@@ -370,10 +362,10 @@ tToken get_tokenExp(string *input, int startIndex){
                     
                 }
                 else {
-                    token.text = tokenText;
-                    token.type = tDivide;
-                    token.endIndex = startIndex + i - 1;
-                    return token;
+                    token->text = tokenText;
+                    token->type = tDivide;
+                    token->endIndex = startIndex + i - 1;
+                    return;
                     
                 }
                 break;
@@ -381,33 +373,28 @@ tToken get_tokenExp(string *input, int startIndex){
                 continue;
         }
         i++;
+        token->endIndex++;
     }
 } 
-int ix = 0;
-void TokenLLInsert(tLinkedList *L, tToken token){
+
+void TokenLLInsert(tLinkedList *L, tToken *token){
     tListItem *new_node = malloc(sizeof(tListItem));
-    tToken *new_content = malloc(sizeof(tToken));
-    
-    new_node->Content = new_content;
-    ((tToken*)new_node->Content)->text = token.text; 
-    ((tToken*)new_node->Content)->endIndex = token.endIndex;
-    ((tToken*)new_node->Content)->type = token.type;
+    new_node->Content = malloc(sizeof(tToken));
+
+    ((tToken*)new_node->Content)->text = token->text;
+    ((tToken*)new_node->Content)->endIndex = token->endIndex;
+    ((tToken*)new_node->Content)->type = token->type;
 
     new_node->nextItem = NULL;
     
     if (!L->first){
         L->first = new_node;
-//        printf("Token test %s\n", token.text.str);
+//        printf("Token test %s\n", token->text.str);
  //   printf("first %s\n", ((tToken*)(L->first->Content))->text.str);
- ix++;
         return;
     }
-    //printf("Token test %s\n", token.text->str);
+    //printf("Token test %s\n", token->text->str);
     //printf("%d\n", ix);
-    if(ix > 0){ 
- //    printf("nonfirst %s\n", ((tToken*)(L->first->Content))->text.str);
-     
-    }
     tListItem *curr = L->first;
     while (curr->nextItem){
         curr = curr->nextItem;
@@ -416,14 +403,14 @@ void TokenLLInsert(tLinkedList *L, tToken token){
     curr->nextItem = new_node;
 }
 
-tLinkedList get_tokens(string *s){
-    tLinkedList L;
-    StrLLInit(&L);
+tLinkedList* get_tokens(string *s){
+    tLinkedList *L = malloc(sizeof(tLinkedList));
+    StrLLInit(L);
     int i = 0;  
     tToken t;
     do {
-        t = get_tokenExp(s, i);
-        TokenLLInsert(&L, t);
+        get_tokenExp(&t, s, i);
+        TokenLLInsert(L, &t);
         i = t.endIndex + 1;
         //printf("%s %d %d %d\n", t.text.str, t.type, t.endIndex, s->length);
     } while (t.endIndex + 1 < s->length);
