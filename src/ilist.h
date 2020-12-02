@@ -12,6 +12,7 @@
 #include <string.h>
 #include "symtable.h"
 #include "str.h"
+#include "expression.h"
 
 typedef enum{
     Frame_GF,
@@ -130,6 +131,25 @@ typedef struct tDataFunction {
     tLinkedList paramNames;
 } tDataFunction;
 
+typedef struct tExpressionRule{
+    tToken* leftOperand;
+    tToken* rightOperand;
+    tToken* operator;
+    tToken* placeHolder;
+    ruleType typeOfRule;
+    struct tExpressionRule *next;
+} tExpressionRule;
+
+typedef struct tExpressionNode {
+    tVarDataType data_type;
+    tExpressionRule *first;
+    struct tExpressionNode *next_node;
+} tExpressionNode;
+
+typedef struct tExpressionList {
+    tExpressionNode *first;
+} tExpressionList;
+
 void InstrLLInit(tLinkedList *L);
 void InstrLLDisposeAll(tLinkedList *L);
 void InstrLLInsertFirst(tLinkedList *L, tInstr *Instruction);
@@ -161,4 +181,13 @@ void Instruction3(INSTRUCTION InstrType, tInstructionOperand op, tInstructionOpe
 void InstructionPrint(tInstr i);
 
 void Print_BuiltIn_Functions();
+
+void ExprLLInit(tExpressionList *L);
+void ExprLLCreateNextNode(tExpressionList *L, tVarDataType data_type);
+void ExprLLInsertExprToLastNode(tExpressionList *L, tToken *leftOperand, tToken *rightOperand, tToken *operator, tToken *placeHolder, ruleType typeOfRule);
+int ExprLLNodeLen(tExpressionList *L);
+int ExprLLRuleLen(tExpressionList *L, int index);
+tExpressionNode* ExprLLGetNthNode(tExpressionList *L, int index);
+tExpressionRule* ExprLLGetNthRule(tExpressionList *L, int node_index, int rule_index);
+
 #endif
