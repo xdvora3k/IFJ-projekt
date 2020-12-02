@@ -188,6 +188,131 @@ tDataVariable* TableLLGetSingleVariable(tLinkedList *func_variable_list, char* v
     return NULL;
 }
 
+// Expression List
+//---------------------------------------------------------
+
+void ExprLLInit(tExpressionList *L){
+    L->first = NULL;
+}
+
+void ExprLLCreateNextNode(tExpressionList *L, tVarDataType data_type){
+    tExpressionNode *last_node = L->first;
+    if (last_node) {
+        while (last_node->next_node) {
+            last_node = last_node->next_node;
+        }
+    }
+
+    tExpressionNode *new_node = malloc(sizeof(tExpressionNode));
+    new_node->first = NULL;
+    new_node->data_type = data_type;
+    new_node->next_node = NULL;
+
+    if (!L->first){
+        L->first = new_node;
+        return;
+    }
+    last_node->next_node = new_node;
+}
+
+tToken* _insert_token_to_node(tToken *token){
+    tToken *ret = malloc(sizeof(tToken));
+    ret->endIndex = token->endIndex;
+    ret->type = token->type;
+    ret->text = malloc(sizeof(string));
+    ret->text->allocSize = token->text->allocSize;
+    ret->text->length = token->text->length;
+    int str_len = strlen(token->text->str);
+    ret->text->str = malloc(str_len + 1);
+    strncpy(ret->text->str, token->text->str, str_len);
+    ret->text->str[str_len] = '\0';
+    return ret;
+}
+
+void ExprLLInsertExprToLastNode(tExpressionList *L, tToken *leftOperand, tToken* rightOperand, tToken* operator, tToken* placeHolder, ruleType typeOfRule){
+    tExpressionNode *last_node = L->first;
+    if (last_node) {
+        while (last_node->next_node) {
+            last_node = last_node->next_node;
+        }
+    }
+    tExpressionRule *last_rule = last_node->first;
+    if (last_rule) {
+        while (last_rule->next) {
+            last_rule = last_rule->next;
+        }
+    }
+
+    tExpressionRule *new_rule = malloc(sizeof(tExpressionRule));
+    new_rule->leftOperand = _insert_token_to_node(leftOperand);
+    new_rule->rightOperand = _insert_token_to_node(rightOperand);
+    new_rule->operator = _insert_token_to_node(operator);
+    new_rule->placeHolder = _insert_token_to_node(placeHolder);
+    new_rule->typeOfRule = typeOfRule;
+    new_rule->next = NULL;
+    if (!last_node->first){
+        last_node->first = new_rule;
+        return;
+    }
+    last_rule->next = new_rule;
+}
+
+int ExprLLNodeLen(tExpressionList *L){
+    tExpressionNode *node = L->first;
+    int i = 0;
+    while (node){
+        node = node->next_node;
+        i++;
+    }
+    return i;
+}
+
+int ExprLLRuleLen(tExpressionList *L, int index){
+    tExpressionNode *node = L->first;
+    while (index){
+        node = node->next_node;
+        if (!node){
+            return -1;
+        }
+        index--;
+    }
+    tExpressionRule *rule = node->first;
+    int i = 0;
+    while (rule){
+        rule = rule->next;
+        i++;
+    }
+    return i;
+}
+
+tExpressionNode* ExprLLGetNthNode(tExpressionList *L, int index){
+    tExpressionNode *node = L->first;
+    while (index){
+        node = node->next_node;
+        if (!node){
+            return NULL;
+        }
+        index--;
+    }
+    return node;
+}
+
+tExpressionRule* ExprLLGetNthRule(tExpressionList *L, int node_index, int rule_index){
+    tExpressionNode *node = ExprLLGetNthNode(L, node_index);
+    if (!node){
+        return NULL;
+    }
+    tExpressionRule *rule = node->first;
+    while (rule_index){
+        rule = rule->next;
+        if (!rule){
+            return NULL;
+        }
+        rule_index--;
+    }
+    return rule;
+}
+
 // Instruction List
 //---------------------------------------------------------
 void InstrLLInit(tLinkedList *L){
