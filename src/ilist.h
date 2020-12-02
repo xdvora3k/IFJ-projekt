@@ -186,7 +186,7 @@ int TableLLGetNumOfNests(tLinkedList *func_variable_list, char* var);
 tDataVariable* TableLLGetSingleVariable(tLinkedList *func_variable_list, char* var);
 
 void CreateInstruction (INSTRUCTION InstrType, char *addr1, char *addr2, char *addr3);
-tInstructionOperand CreateOperand (char* name,char* value, tVarDataType type,FRAME f);
+tInstructionOperand* CreateOperand (char* name,char* value, tVarDataType type,FRAME f);
 void Instruction0(INSTRUCTION InstrType);
 void Instruction1(INSTRUCTION InstrType, tInstructionOperand op);
 void Instruction2(INSTRUCTION InstrType, tInstructionOperand op, tInstructionOperand op2);
@@ -198,13 +198,16 @@ void PassedLLInit(tPassedSide *L);
 void PassedLLInsert(tPassedSide *L, char* value, int is_variable, tVarDataType data_type);
 void PassedLLDeleteLast(tPassedSide *L);
 void PassedLLDispose(tPassedSide *L);
+int PassedLLLen(tPassedSide *L);
+tPassedNode* PassedLLGetNode(tPassedSide *L, int index);
 
 void ExprLLInit(tExpressionList *L);
 void ExprLLCreateNextNode(tExpressionList *L, tVarDataType data_type);
 void ExprLLInsertExprToLastNode(tExpressionList *L, tToken *leftOperand, tToken *rightOperand, tToken *operator, tToken *placeHolder, ruleType typeOfRule);
 int ExprLLNodeLen(tExpressionList *L);
 int ExprLLRuleLen(tExpressionList *L, int index);
+int ExprLLRuleRuleLen(tExpressionNode *L);
 tExpressionNode* ExprLLGetNthNode(tExpressionList *L, int index);
 tExpressionRule* ExprLLGetNthRule(tExpressionList *L, int node_index, int rule_index);
-
+tExpressionRule* ExprLLGetNthRuleRule(tExpressionNode *node,int index);
 #endif

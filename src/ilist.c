@@ -238,6 +238,28 @@ void PassedLLDispose(tPassedSide *L){
     }
 }
 
+int PassedLLLen(tPassedSide *L){
+    tPassedNode *node = L->first;
+    int i = 0;
+    while (node){
+        node = node->nextItem;
+        i++;
+    }
+    return i;
+}
+
+tPassedNode* PassedLLGetNode(tPassedSide *L, int index){
+    tPassedNode *node = L->first;
+    while (index){
+        node = node->nextItem;
+        if (!node){
+            return NULL;
+        }
+        index--;
+    }
+    return node;
+}
+
 // Expression List
 //---------------------------------------------------------
 
@@ -336,6 +358,16 @@ int ExprLLRuleLen(tExpressionList *L, int index){
     return i;
 }
 
+int ExprLLRuleRuleLen(tExpressionNode *L){
+    tExpressionRule *node = L->first;
+    int i = 0;
+    while (node){
+        node = node->next;
+        i++;
+    }
+    return i;
+}
+
 tExpressionNode* ExprLLGetNthNode(tExpressionList *L, int index){
     tExpressionNode *node = L->first;
     while (index){
@@ -350,6 +382,22 @@ tExpressionNode* ExprLLGetNthNode(tExpressionList *L, int index){
 
 tExpressionRule* ExprLLGetNthRule(tExpressionList *L, int node_index, int rule_index){
     tExpressionNode *node = ExprLLGetNthNode(L, node_index);
+    if (!node){
+        return NULL;
+    }
+    tExpressionRule *rule = node->first;
+    while (rule_index){
+        rule = rule->next;
+        if (!rule){
+            return NULL;
+        }
+        rule_index--;
+    }
+    return rule;
+}
+
+tExpressionRule* ExprLLGetNthRuleRule(tExpressionNode *L,int rule_index){
+    tExpressionNode *node = L;
     if (!node){
         return NULL;
     }
@@ -418,19 +466,19 @@ void CreateInstruction(INSTRUCTION InstrType, char *addr1, char *addr2, char *ad
     free(Instruction.addr3);
 }
 
-tInstructionOperand CreateOperand(char* name, char* value, tVarDataType type, FRAME f)
+tInstructionOperand* CreateOperand(char* name, char* value, tVarDataType type, FRAME f)
 {
-    tInstructionOperand o;
+    tInstructionOperand *o = malloc(sizeof(tInstructionOperand));
     int str_len_name = strlen(name);
     int str_len_value = strlen(value);
-    o.name = malloc(str_len_name + 1);
-    strncpy(o.name, name, str_len_name);
-    o.name[str_len_name] = '\0';
-    o.value = malloc(str_len_value + 1);
-    strncpy(o.name, value, str_len_value);
-    o.name[str_len_value] = '\0';
-    o.type = type;
-    o.frame = f;
+    o->name = malloc(str_len_name + 1);
+    strncpy(o->name, name, str_len_name);
+    o->name[str_len_name] = '\0';
+    o->value = malloc(str_len_value + 1);
+    strncpy(o->name, value, str_len_value);
+    o->name[str_len_value] = '\0';
+    o->type = type;
+    o->frame = f;
     return o;
 }
 void Instruction0(INSTRUCTION InstrType)
