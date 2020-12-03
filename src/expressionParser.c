@@ -11,6 +11,7 @@ void get_tokenExp(tToken* token, string *input, int startIndex){
     init_string(&tokenText);
     while (TRUE) {
         c = input->str[startIndex + i];
+        //printf("char %c, startIndex %d, and i %d", c, startIndex, i);
         switch (state) {
             case start:
                 if (is_whitespace(c)) {
@@ -373,7 +374,6 @@ void get_tokenExp(tToken* token, string *input, int startIndex){
                 continue;
         }
         i++;
-        token->endIndex++;
     }
 } 
 
@@ -407,13 +407,15 @@ tLinkedList* get_tokens(string *s){
     tLinkedList *L = malloc(sizeof(tLinkedList));
     StrLLInit(L);
     int i = 0;  
-    tToken t;
+    tToken *t = malloc(sizeof(tToken));
     do {
-        get_tokenExp(&t, s, i);
-        TokenLLInsert(L, &t);
-        i = t.endIndex + 1;
+        printf("index %d\n", i);
+        get_tokenExp(t, s, i);
+        TokenLLInsert(L, t);
+        i = t->endIndex + 1;
+        
         //printf("%s %d %d %d\n", t.text.str, t.type, t.endIndex, s->length);
-    } while (t.endIndex + 1 < s->length);
+    } while (t->endIndex + 1 < s->length);
     /*tToken t = get_tokenExp(s, i);
     printf("Token %s\n", t.text->str);
     while(t.type != EOL || t.type != tEOF){ 
@@ -428,6 +430,7 @@ tLinkedList* get_tokens(string *s){
     printf("Token %s\n", t.text->str);
     i++;
     }*/
+    printf("nextt\n");
   
     //printf("%s", ((tToken*)L.first->Content)->text.str);
     return L;

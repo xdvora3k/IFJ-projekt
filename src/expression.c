@@ -6,6 +6,8 @@
 
 #include "ilist.h"
 
+//#include <atoi.h>
+
 int counter = 0;
 
 int precedentTable[8][8] = //> za | < pred
@@ -99,8 +101,8 @@ int getTokenTableIndex(tState type) {
 /* if 5 -> chyaba 2*/
 
 void precedencSA(string * input) {
-    printf("start pecedenc SA\n");
-    tLinkedList * tokens = get_tokens(&input);
+    printf("start pecedenc SA- %s\n", input);
+    tLinkedList * tokens = get_tokens(input);
 
     ptrStack topOfStack;
     StackInit( & topOfStack);
@@ -148,7 +150,7 @@ void precedencSA(string * input) {
 
         switch (precedentTable[firstIndex][secondIndex]) {
             case '>': //zamen <y
-
+                
                 rule = extractexpression( & topOfStack);
                 rule = applyrule( & topOfStack, rule);
                 printRule(rule);
@@ -188,7 +190,7 @@ void precedencSA(string * input) {
         //printf("top: %d", topToken->type);
 
     } while (inputToken -> type != tEOF || topToken -> type != tEOF);
-    printf("1111111111111111\n");
+    printf("inputtoken type %d  toptokentype %d\n", inputToken->type, topToken->type);
 
     fillExpList( & topOfStack, list);
 
@@ -235,9 +237,9 @@ expressionRule extractexpression(ptrStack * stack) {
     exp.operator = NULL;
     exp.rightOperand = NULL;
     exp.placeHolder = NULL;
-
+    printStack(stack);
     tToken * topToken = ((tToken * ) stack -> top_stack -> value);
-
+    printf("TOPTOKEN value %d\n", topToken->type);
     if (topToken -> type != tExprOpen) {
         exp.rightOperand = topToken;
         StackPop(stack);
@@ -255,10 +257,14 @@ expressionRule extractexpression(ptrStack * stack) {
         StackPop(stack);
         topToken = ((tToken * ) stack -> top_stack -> value);
     }
-    printf("%s\n", topToken->text.str);
+    if(exp.operator != NULL){ 
+    printf("%s left %s %s right %s\n", topToken->text.str, exp.leftOperand->text.str, exp.operator->text.str,exp.rightOperand->text.str);
     printf("typ: %d\n", topToken->type);
+    }
+    printStack(stack);
     if (topToken->type != tExprOpen)
     {
+     printf("EXIT\n");
         exit(SYN_ERROR);
     }
     StackPop(stack); //removing '<' from stack
@@ -283,46 +289,39 @@ expressionRule applyrule(ptrStack * stack, expressionRule rule) {
         } else {
             if (rule.operator -> type == tPlus) {
                 rule.typeOfRule = expPLUSepx;
-                StackPush(stack, rule.rightOperand);
-                StackPush(stack, rule.operator);
-                StackPush(stack, rule.leftOperand);
-                counter++;
+                
+               
                 printf("rule E+E");
                 printStack(stack);
             }
             if (rule.operator -> type == tMinus) {
                 rule.typeOfRule = expMINUSepx;
-                StackPush(stack, rule.rightOperand);
-                StackPush(stack, rule.operator);
-                StackPush(stack, rule.leftOperand);
+                
                 printf("rule E-E");
-                counter++;
+             
                 printStack(stack);
             }
             if (rule.operator -> type == tDivide) {
                 rule.typeOfRule = expDIVepx;
-                StackPush(stack, rule.rightOperand);
-                StackPush(stack, rule.operator);
-                StackPush(stack, rule.leftOperand);
+               
                 printf("rule E/E");
-                counter++;
+              
                 printStack(stack);
 
             }
             if (rule.operator -> type == tMultiply) {
                 rule.typeOfRule = expMULepx;
-                StackPush(stack, rule.rightOperand);
-                StackPush(stack, rule.operator);
-                StackPush(stack, rule.leftOperand);
+                
                 printf("rule E*E");
                 printStack(stack);
-                counter++;
+               
             }
             printf("Counter %d\n", counter);
+            counter++;
             string placeholderText;
             init_string( & placeholderText);
             add_to_string( & placeholderText, '{');
-            //add_to_string(&placeholderText, counter);
+            add_to_string(&placeholderText, counter + '0');
             add_to_string( & placeholderText, '}');
 
             tToken * placeholder;
@@ -368,33 +367,33 @@ void ListInit(tExpressionList * L) {
     L -> first = NULL;
 }
 tExpressionList fillExpList(ptrStack * stack, tExpressionList * list) { //void fillExpList(ptrStack* stack, tExpressionList *L)
-    tExpressionList expList;
+    /*tExpressionList expList;
     ListInit( & expList);
 
     printf("%p\n", (void * ) stack -> top_stack -> value);
     while (stack -> top_stack -> value) {
         printf("----------%s\n", ((tToken * ) stack -> top_stack -> value) -> text.str);
-        printf("set\n");
+        printf("set\n");*/
         // if(expList.first == NULL){
 
         //tokens.text.str = ((tToken *)stack->top_stack->value)->text.str;
-        printf("Ttoken %s\n", ((tToken * ) stack -> top_stack -> value) -> text.str);
+       /* printf("Ttoken %s\n", ((tToken * ) stack -> top_stack -> value) -> text.str);
         expList.first -> first -> rightOperand -> text = ((tToken * ) stack -> top_stack -> value) -> text;
         printf("get list: %p\n", (void * ) expList.first);
         expList.first -> first -> leftOperand -> type = ((tToken * ) stack -> top_stack -> value) -> type;
-
+*/
         //printf("get list: %s\n", expList.first->leftOperand->text.str);
 
         /*string testing;
     init_string(&testing);
     add_to_string(&testing, 'b');
     expList.first->leftOperand->text.str = testing.str;*/
-        printf("set1.5\n");
+     /*   printf("set1.5\n");
         printStack(stack);
 
         StackPop(stack);
         printStack(stack);
-
+*/
         /* StackPop(stack);
     expList.first->operator = stack->top_stack->value;
     StackPop(stack);
@@ -403,8 +402,8 @@ tExpressionList fillExpList(ptrStack * stack, tExpressionList * list) { //void f
     } else{
         printf("set2\n");
         newNode.first = expList.first;*/
-    }
-    printf("get here\n");
+   // }
+   // printf("get here\n");
     //exit(2); //just for testing
 }
 // return expList;
