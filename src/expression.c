@@ -100,7 +100,7 @@ int getTokenTableIndex(tState type) {
 
 void precedencSA(string * input) {
     printf("start pecedenc SA\n");
-    tLinkedList * tokens = get_tokens(input);
+    tLinkedList * tokens = get_tokens(&input);
 
     ptrStack topOfStack;
     StackInit( & topOfStack);
@@ -257,7 +257,8 @@ expressionRule extractexpression(ptrStack * stack) {
     }
     printf("%s\n", topToken->text.str);
     printf("typ: %d\n", topToken->type);
-    if (topToken -> type != tExprOpen) {
+    if (topToken->type != tExprOpen)
+    {
         exit(SYN_ERROR);
     }
     StackPop(stack); //removing '<' from stack
