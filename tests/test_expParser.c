@@ -6,7 +6,7 @@ int main(){
     tToken* myToken;
     string s;
     init_string(&s);
-    adds_to_string(&s, "(46+ab/5)");
+    adds_to_string(&s, "b-(c*d)");
 
     int i = 0;
    /* int index = 0;

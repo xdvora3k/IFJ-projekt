@@ -7,7 +7,7 @@
 typedef struct{
     string text;
     tState type;
-    int endIndex;
+    int endIndex;   //abc + tr = tState string
 } tToken;
 
 tLinkedList* get_tokens(string *s);

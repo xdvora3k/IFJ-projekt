@@ -142,6 +142,8 @@ void precedencSA(string * input) {
         topToken = findTerminalToken( & topOfStack);
 
         int firstIndex = getTokenTableIndex(topToken -> type);
+              printf("topToken  %d\n", topToken->type);  
+              printf("inputToken  %d\n", inputToken->type);  
         int secondIndex = getTokenTableIndex(inputToken -> type);
 
         //printf("result = %c", precedentTable[firstIndex][secondIndex]);
@@ -184,14 +186,37 @@ void precedencSA(string * input) {
             secondIndex = get_tokenEXP(token, startIndex);
             //actualToken = get_token(token);
     */
+        case '=':
+        StackPush(&topOfStack, inputToken); 
+        index++;
+        printf("%d index =\n", index);
+        tListItem* lItem = StrLLLocateNthElem(tokens, index);
+        printf("%d index2 =\n", index);
+        if (lItem == NULL)
+        {
+            inputToken = &endToken;
+        }
+        else
+        {
+
+            inputToken = (tToken*)(lItem->Content);   
+            printf("iTem %s\n", inputToken->text.str); 
+        }
+
+        //actualToken = get_token(token);
+
+        case 'E':
+           // return SYN_ERROR;
+            break;
         }
 
         // printf("input: %d", inputToken->type);
         //printf("top: %d", topToken->type);
 
-    } while (inputToken -> type != tEOF || topToken -> type != tEOF);
+    } while (inputToken -> type != tEOF || topToken -> type != tEOF); // || topToken-> type != tComma
     printf("inputtoken type %d  toptokentype %d\n", inputToken->type, topToken->type);
-
+    //fill List
+    counter = 0;    // a+8 , o*89, 
     fillExpList( & topOfStack, list);
 
 }
@@ -313,6 +338,13 @@ expressionRule applyrule(ptrStack * stack, expressionRule rule) {
                 rule.typeOfRule = expMULepx;
                 
                 printf("rule E*E");
+                printStack(stack);
+               
+            }
+            if (rule.operator -> type == tBiggerOrEqual || rule.operator -> type == tBiggerThan || rule.operator -> type == tSmallerOrEqual || rule.operator -> type == tSmallerThan) {
+                rule.typeOfRule = expOPepx;
+                
+                printf("rule E op E");
                 printStack(stack);
                
             }
