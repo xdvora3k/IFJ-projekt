@@ -11,7 +11,13 @@
 #include "parser.h"
 #include "expression.h"
 
-int Calc_Int_Expression(tExpressionNode *Rules);
-float Calc_Float_Expression(tExpressionNode *Rules);
-void print(tPassedSide *Frases);
+void print_variable_declaration_Expression(tLinkedList *leftside, tExpressionList *rightside);
+void print_variable_assigment_Expression(tLinkedList *leftside,tExpressionList *rightside);
+char* Calc_int_Expression(tExpressionNode *Rules);
+char* Calc_float_Expression(tExpressionNode *Rules);
+char* Calc_string_Expression(tExpressionNode *Rules);
+void print_print_Expression(tPassedSide *Frases);
+void print_int2float_Expression(tLinkedList *leftside, tPassedSide * rightside);
+void print_float2int_Expression(tLinkedList *leftside, tPassedSide * rightside);
+
 #endif //IFJ_CONNECTOR_H
