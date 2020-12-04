@@ -1,0 +1,70 @@
+<program> -> <first_pass> <parse_func> EOF
+
+<first_pass> -> <skip_to_next_function> <parse_func_header> EOF
+
+<skip_to_next_function> -> <parse_func_header> e
+
+<parse_func_header> -> func <id> <(<params> <type>)> <(type)> { EOL
+<parse_func_header> -> <skip_to_next_function> e
+
+<parse_func> -> <skip_func_declaration> <_parse_func_body> e
+
+<_parse_func_body> -> <_process_one_line_and_follow> e
+<_process_one_line_and_follow> -> <is_fn_or_id> e
+<_process_one_line_and_follow> -> <_process_for_cycle> e
+<_process_one_line_and_follow> -> <_process_if_call> e
+<_process_one_line_and_follow> -> <_process_return> e
+<_process_one_line_and_follow> -> <_process_one_line_and_follow>
+
+<is_fn_or_id> -> <is_fn> <_process_function_call>
+<is_fn_or_id> -> <is_id> <_process_tId_token>
+
+<_process_tId_token> -> <get_left_side_of_assignment>
+<_process_tId_token> -> <_process_var_declaration>
+<_process_tId_token> -> <_process_var_assignment>
+
+<get_left_side_of_assignment> -> <(<is_id_left>)>
+
+<_process_var_declaration> -> := <get_expression_to_string> EOL
+
+<_process_var_assignment> -> = <get_expression_to_string> EOL
+<_process_var_assignment> -> = <_process_function_call> EOL
+
+<_process_function_call> -> <id> ( <_parse_func_right_side> ) EOL
+
+<is_id_left> -> id
+<is_id_left> -> ,
+
+<get_expression_to_string> -> <(type)> EOL
+
+<_parse_func_right_side> -> <(value)>
+<_parse_func_right_side> -> <(id)>
+<_parse_func_right_side> -> e
+
+<_process_for_cycle> -> <_process_tId_token> ; <process_expression> ; <_process_tId_token> { EOL <_process_one_line_and_follow> <}> EOL
+
+<process_expression> -> <value>
+<process_expression> -> <value> <is_id> <value>
+
+<_process_if_call> -> <get_expression_to_string> { EOL <_process_one_line_and_follow> } EOL
+
+<_process_return> -> <get_expression_to_string> EOL
+<_process_return> -> <_process_function_call> EOL
+
+<is_fn> = (
+<is_id> = +
+<is_id> = -
+<is_id> = *
+<is_id> = /
+<is_id> = ,
+
+<value> -> IntType
+<value> -> Float64Type
+<value> -> StringType
+<value> -> id
+
+<type> -> int
+<type> -> float
+<type> -> string
+
+
