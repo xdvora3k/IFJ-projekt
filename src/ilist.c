@@ -6,6 +6,8 @@
 
 #include "ilist.h"
 
+extern FRAME currentFrame;
+
 void StrLLInit(tLinkedList *L){
     L->first = NULL;
 }
@@ -475,61 +477,82 @@ tInstructionOperand* CreateOperand(char* name, char* value, tVarDataType type, F
     strncpy(o->name, name, str_len_name);
     o->name[str_len_name] = '\0';
     o->value = malloc(str_len_value + 1);
-    strncpy(o->name, value, str_len_value);
-    o->name[str_len_value] = '\0';
+    strncpy(o->value, value, str_len_value);
+    o->value[str_len_value] = '\0';
     o->type = type;
     o->frame = f;
     return o;
 }
+
+tInstructionOperand* ChangeOperand (tInstructionOperand *op, char* name,char* value, tVarDataType type,FRAME f)
+{
+    int str_len_name = strlen(name);
+    int str_len_value = strlen(value);
+    op->name = realloc(op->name,str_len_name + 1);
+    op->value = realloc(op->value,str_len_value + 1);
+    strncpy(op->name,name,str_len_name);
+    strncpy(op->value,value,str_len_value);
+    op->name[str_len_name] = '\0';
+    op->value[str_len_value] = '\0';
+    op->type = type;
+    op->frame = f;
+    return op;
+}
+
 void Instruction0(INSTRUCTION InstrType)
 {
     CreateInstruction(InstrType,"","","");
 }
 
 char* _process_operand(tInstructionOperand *op){
-    char* tmp;
+
+    string tmp;
+    init_string(&tmp);
+
     if(op->frame == Frame_NaN)
     {
         // func, konst, spec, labels
         if(op->type == Unknown_type)
         {
             // func or main, specs or labels
-            tmp = op->name;
+            adds_to_string(&tmp,op->name);
         }
         else
         {
             // konst
             switch(op->type) {
                 case IntType:
-                    tmp = "int@";
+                    adds_to_string(&tmp,"int@");
                     break;
                 case Float64Type:
-                    tmp = "float@";
+                    adds_to_string(&tmp,"float@");
                     break;
                 case StringType:
-                    tmp = "string@";
+                    adds_to_string(&tmp,"string@");
                     break;
                 case UnderscoreType:
-                    tmp = "nil@";
+                    adds_to_string(&tmp,"nil@");
                     break;
                 default:
-                    tmp = "";
+                    break;
             }
-            tmp = strcat(tmp,op->value);
+            adds_to_string(&tmp,op->value);
         }
     }
     else // if (op->frame != Frame_NaN)
     {
         //variables
         if(op->frame == Frame_GF)
-            tmp = "GF@";
+        adds_to_string(&tmp,"GF@");
         else if(op->frame == Frame_LF)
-            tmp = "LF@";
+            adds_to_string(&tmp,"LF@");
         else if(op->frame == Frame_TF)
-            tmp = "TF@";
-        tmp = strcat(tmp,op->name);
+            adds_to_string(&tmp,"TF@");
+
+        adds_to_string(&tmp,op->name);
     }
-    return tmp;
+    return tmp.str;
+
 }
 
 void Instruction1(INSTRUCTION InstrType, tInstructionOperand op)
@@ -575,74 +598,77 @@ char* _process_frame(tInstructionOperand *o){
 void inputi(tInstructionOperand o)
 {
     printf("READ %s@%s int\n", _process_frame(&o), o.name);
+    fflush(stdout);
 }
 
 void inputs(tInstructionOperand o)
 {
     printf("READ %s@%s int\n", _process_frame(&o), o.name);
+    fflush(stdout);
 }
 
 void inputf(tInstructionOperand o)
 {
     printf("READ %s@%s int\n", _process_frame(&o), o.name);
+    fflush(stdout);
 }
 
-void Instr_I_MOVE(tInstr i){            printf("MOVE %s %s\n",i.addr1,i.addr2);}
-void Instr_I_CREATEFRAME(){             printf("CREATEFRAME\n");}
-void Instr_I_PUSHFRAME(){               printf("PUSHFRAME\n");}
-void Instr_I_POPFRAME(){                printf("POPFRAME\n");}
-void Instr_I_DEFVAR(tInstr i){          printf("DEFVAR %s\n",i.addr1);}
-void Instr_I_CALL(tInstr i){            printf("LABEL %s\n",i.addr1);}
-void Instr_I_RETURN(){                  printf("RETURN\n");}
-void Instr_I_PUSHS(tInstr i){           printf("PUSHS %s\n",i.addr1);}
-void Instr_I_POPS(tInstr i){            printf("POPS %s\n",i.addr1);}
-void Instr_I_CLEARS(){                  printf("CLEARS\n");}
-void Instr_I_ADD(tInstr i){             printf("ADD %s %s %s\n",i.addr1,i.addr2,i.addr3);}
-void Instr_I_SUB(tInstr i){             printf("SUB %s %s %s\n",i.addr1,i.addr2,i.addr3);}
-void Instr_I_MUL(tInstr i){             printf("MUL %s %s %s\n",i.addr1,i.addr2,i.addr3);}
-void Instr_I_DIV(tInstr i){             printf("DIV %s %s %s\n",i.addr1,i.addr2,i.addr3);}
-void Instr_I_IDIV(tInstr i){            printf("IDIV %s %s %s\n",i.addr1,i.addr2,i.addr3);}
-void Instr_I_ADDS(){                    printf("ADDS\n");}
-void Instr_I_SUBS(){                    printf("SUBS\n");}
-void Instr_I_MULS(){                    printf("MULS\n");}
-void Instr_I_DIVS(){                    printf("DIVS\n");}
-void Instr_I_IDIVS(){                   printf("IDIVS\n");}
-void Instr_I_LT(tInstr i){              printf("LT %s %s %s\n",i.addr1,i.addr2,i.addr3);}
-void Instr_I_GT(tInstr i){              printf("GT %s %s %s\n",i.addr1,i.addr2,i.addr3);}
-void Instr_I_EQ(tInstr i){              printf("EQ %s %s %s\n",i.addr1,i.addr2,i.addr3);}
-void Instr_I_LTS(){                     printf("LTS\n");}
-void Instr_I_GTS(){                     printf("GTS\n");}
-void Instr_I_EQS(){                     printf("EQS\n");}
-void Instr_I_AND(tInstr i){             printf("AND %s %s %s\n",i.addr1,i.addr2,i.addr3);}
-void Instr_I_OR(tInstr i){              printf("OR %s %s %s\n",i.addr1,i.addr2,i.addr3);}
-void Instr_I_NOT(tInstr i){             printf("NOT %s %s %s\n",i.addr1,i.addr2,i.addr3);}
-void Instr_I_ANDS(){                    printf("ANDS\n");}
-void Instr_I_ORS(){                     printf("ORS\n");}
-void Instr_I_NOTS(){                    printf("NOTS\n");}
-void Instr_I_FLOAT2INT(tInstr i){       printf("FLOAT2INT %s %s\n",i.addr1,i.addr2);}
-void Instr_I_INT2FLOAT(tInstr i){       printf("INT2FLOAT %s %s\n",i.addr1,i.addr2);}
-void Instr_I_INT2CHAR(tInstr i){        printf("INT2CHAR %s %s\n",i.addr1,i.addr2);}
-void Instr_I_STRI2INT(tInstr i){        printf("STRI2INT %s %s %s\n",i.addr1,i.addr2,i.addr3);}
-void Instr_I_INT2FLOATS(){              printf("INT2FLOATS\n");}
-void Instr_I_FLOAT2INTS(){              printf("FLOAT2INTS\n");}
-void Instr_I_INT2CHARS(){               printf("INT2CHARS\n");}
-void Instr_I_STRI2INTS(){               printf("STRI2INTS\n");}
-void Instr_I_READ(tInstr i){            printf("READ %s %s\n",i.addr1,i.addr2);}
-void Instr_I_WRITE(tInstr i){           printf("WRITE %s",i.addr1);}
-void Instr_I_CONCAT(tInstr i){          printf("CONCAT %s %s %s\n",i.addr1,i.addr2,i.addr3);}
-void Instr_I_STRLEN(tInstr i){          printf("STRLEN %s %s\n",i.addr1,i.addr2);}
-void Instr_I_GETCHAR(tInstr i){         printf("GETCHAR %s %s %s\n",i.addr1,i.addr2,i.addr3);}
-void Instr_I_SETCHAR(tInstr i){         printf("SETCHAR %s %s %s\n",i.addr1,i.addr2,i.addr3);}
-void Instr_I_TYPE(tInstr i){            printf("TYPE %s %s\n",i.addr1,i.addr2);}
-void Instr_I_LABEL(tInstr i){           printf("LABEL %s\n",i.addr1);}
-void Instr_I_JUMP(tInstr i){            printf("JUMP %s\n",i.addr1);}
-void Instr_I_JUMPIFEQ(tInstr i){        printf("JUMPIFEQ %s %s %s\n",i.addr1,i.addr2,i.addr3);}
-void Instr_I_JUMPIFNEQ(tInstr i){       printf("JUMPIFNEQ %s %s %s\n",i.addr1,i.addr2,i.addr3);}
-void Instr_I_JUMPIFEQS(tInstr i){       printf("JUMPIFEQS %s\n",i.addr1);}
-void Instr_I_JUMPIFNEQS(tInstr i){      printf("JUMPIFNEQS %s\n",i.addr1);}
-void Instr_I_EXIT(tInstr i){            printf("EXIT %s\n",i.addr1);}
-void Instr_I_BREAK(){                   printf("BREAK\n");}
-void Instr_I_DPRINT(tInstr i){          printf("DPRINT %s\n",i.addr1);}
+void Instr_I_MOVE(tInstr i){            printf("MOVE %s %s\n",i.addr1,i.addr2);fflush(stdout);}
+void Instr_I_CREATEFRAME(){             printf("CREATEFRAME\n");fflush(stdout);}
+void Instr_I_PUSHFRAME(){               printf("PUSHFRAME\n");fflush(stdout);}
+void Instr_I_POPFRAME(){                printf("POPFRAME\n");fflush(stdout);}
+void Instr_I_DEFVAR(tInstr i){          printf("DEFVAR %s\n",i.addr1);fflush(stdout);}
+void Instr_I_CALL(tInstr i){            printf("LABEL %s\n",i.addr1);fflush(stdout);}
+void Instr_I_RETURN(){                  printf("RETURN\n");fflush(stdout);}
+void Instr_I_PUSHS(tInstr i){           printf("PUSHS %s\n",i.addr1);fflush(stdout);}
+void Instr_I_POPS(tInstr i){            printf("POPS %s\n",i.addr1);fflush(stdout);}
+void Instr_I_CLEARS(){                  printf("CLEARS\n");fflush(stdout);}
+void Instr_I_ADD(tInstr i){             printf("ADD %s %s %s\n",i.addr1,i.addr2,i.addr3);fflush(stdout);}
+void Instr_I_SUB(tInstr i){             printf("SUB %s %s %s\n",i.addr1,i.addr2,i.addr3);fflush(stdout);}
+void Instr_I_MUL(tInstr i){             printf("MUL %s %s %s\n",i.addr1,i.addr2,i.addr3);fflush(stdout);}
+void Instr_I_DIV(tInstr i){             printf("DIV %s %s %s\n",i.addr1,i.addr2,i.addr3);fflush(stdout);}
+void Instr_I_IDIV(tInstr i){            printf("IDIV %s %s %s\n",i.addr1,i.addr2,i.addr3);fflush(stdout);}
+void Instr_I_ADDS(){                    printf("ADDS\n");fflush(stdout);}
+void Instr_I_SUBS(){                    printf("SUBS\n");fflush(stdout);}
+void Instr_I_MULS(){                    printf("MULS\n");fflush(stdout);}
+void Instr_I_DIVS(){                    printf("DIVS\n");fflush(stdout);}
+void Instr_I_IDIVS(){                   printf("IDIVS\n");fflush(stdout);}
+void Instr_I_LT(tInstr i){              printf("LT %s %s %s\n",i.addr1,i.addr2,i.addr3);fflush(stdout);}
+void Instr_I_GT(tInstr i){              printf("GT %s %s %s\n",i.addr1,i.addr2,i.addr3);fflush(stdout);}
+void Instr_I_EQ(tInstr i){              printf("EQ %s %s %s\n",i.addr1,i.addr2,i.addr3);fflush(stdout);}
+void Instr_I_LTS(){                     printf("LTS\n");fflush(stdout);}
+void Instr_I_GTS(){                     printf("GTS\n");fflush(stdout);}
+void Instr_I_EQS(){                     printf("EQS\n");fflush(stdout);}
+void Instr_I_AND(tInstr i){             printf("AND %s %s %s\n",i.addr1,i.addr2,i.addr3);fflush(stdout);}
+void Instr_I_OR(tInstr i){              printf("OR %s %s %s\n",i.addr1,i.addr2,i.addr3);fflush(stdout);}
+void Instr_I_NOT(tInstr i){             printf("NOT %s %s %s\n",i.addr1,i.addr2,i.addr3);fflush(stdout);}
+void Instr_I_ANDS(){                    printf("ANDS\n");fflush(stdout);}
+void Instr_I_ORS(){                     printf("ORS\n");fflush(stdout);}
+void Instr_I_NOTS(){                    printf("NOTS\n");fflush(stdout);}
+void Instr_I_FLOAT2INT(tInstr i){       printf("FLOAT2INT %s %s\n",i.addr1,i.addr2);fflush(stdout);}
+void Instr_I_INT2FLOAT(tInstr i){       printf("INT2FLOAT %s %s\n",i.addr1,i.addr2);fflush(stdout);}
+void Instr_I_INT2CHAR(tInstr i){        printf("INT2CHAR %s %s\n",i.addr1,i.addr2);fflush(stdout);}
+void Instr_I_STRI2INT(tInstr i){        printf("STRI2INT %s %s %s\n",i.addr1,i.addr2,i.addr3);fflush(stdout);}
+void Instr_I_INT2FLOATS(){              printf("INT2FLOATS\n");fflush(stdout);}
+void Instr_I_FLOAT2INTS(){              printf("FLOAT2INTS\n");fflush(stdout);}
+void Instr_I_INT2CHARS(){               printf("INT2CHARS\n");fflush(stdout);}
+void Instr_I_STRI2INTS(){               printf("STRI2INTS\n");fflush(stdout);}
+void Instr_I_READ(tInstr i){            printf("READ %s %s\n",i.addr1,i.addr2);fflush(stdout);}
+void Instr_I_WRITE(tInstr i){           printf("WRITE %s\n",i.addr1);fflush(stdout);}
+void Instr_I_CONCAT(tInstr i){          printf("CONCAT %s %s %s\n",i.addr1,i.addr2,i.addr3);fflush(stdout);}
+void Instr_I_STRLEN(tInstr i){          printf("STRLEN %s %s\n",i.addr1,i.addr2);fflush(stdout);}
+void Instr_I_GETCHAR(tInstr i){         printf("GETCHAR %s %s %s\n",i.addr1,i.addr2,i.addr3);fflush(stdout);}
+void Instr_I_SETCHAR(tInstr i){         printf("SETCHAR %s %s %s\n",i.addr1,i.addr2,i.addr3);fflush(stdout);}
+void Instr_I_TYPE(tInstr i){            printf("TYPE %s %s\n",i.addr1,i.addr2);fflush(stdout);}
+void Instr_I_LABEL(tInstr i){           printf("LABEL %s\n",i.addr1);fflush(stdout);}
+void Instr_I_JUMP(tInstr i){            printf("JUMP %s\n",i.addr1);fflush(stdout);}
+void Instr_I_JUMPIFEQ(tInstr i){        printf("JUMPIFEQ %s %s %s\n",i.addr1,i.addr2,i.addr3);fflush(stdout);}
+void Instr_I_JUMPIFNEQ(tInstr i){       printf("JUMPIFNEQ %s %s %s\n",i.addr1,i.addr2,i.addr3);fflush(stdout);}
+void Instr_I_JUMPIFEQS(tInstr i){       printf("JUMPIFEQS %s\n",i.addr1);fflush(stdout);}
+void Instr_I_JUMPIFNEQS(tInstr i){      printf("JUMPIFNEQS %s\n",i.addr1);fflush(stdout);}
+void Instr_I_EXIT(tInstr i){            printf("EXIT %s\n",i.addr1);fflush(stdout);}
+void Instr_I_BREAK(){                   printf("BREAK\n");fflush(stdout);}
+void Instr_I_DPRINT(tInstr i){          printf("DPRINT %s\n",i.addr1);fflush(stdout);}
 
 void InstructionPrint(tInstr i)
 {
@@ -823,8 +849,14 @@ void InstructionPrint(tInstr i)
 void Print_BuiltIn_Functions()
 {
     printf(".IFJcode20\n\n");
-    //DEF 2x tmp
+    fflush(stdout);
+
+
+    printf("DEFVAR GF@tmpInt\nDEFVAR GF@tmpFloat\nDEFVAR GF@tmpString\nDEFVAR GF@tmp\n\n");
+    fflush(stdout);
+
     printf("JUMP $$main\n\n");
+    fflush(stdout);
 
     //printf inputi
     printf("LABEL $inputi\n"
@@ -833,6 +865,7 @@ void Print_BuiltIn_Functions()
            "READ LF@retval int\n"
            "POPFRAME\n"
            "RETURN\n");
+    fflush(stdout);
 
     //printf inputf
     printf("LABEL $inputf\n"
@@ -841,6 +874,7 @@ void Print_BuiltIn_Functions()
            "READ LF@retval float\n"
            "POPFRAME\n"
            "RETURN\n");
+    fflush(stdout);
 
     //printf inputs
     printf("LABEL $inputs\n"
@@ -849,6 +883,7 @@ void Print_BuiltIn_Functions()
            "READ LF@retval string\n"
            "POPFRAME\n"
            "RETURN\n");
+    fflush(stdout);
 
     //printf int2float
     printf("LABEL $int2float\n"
@@ -857,6 +892,7 @@ void Print_BuiltIn_Functions()
            "INT2FLOAT LF@retval LF@i\n"
            "POPFRAME\n"
            "RETURN\n");
+    fflush(stdout);
 
     //printf float2int
     printf("LABEL $float2int\n"
@@ -865,6 +901,7 @@ void Print_BuiltIn_Functions()
            "FLOAT2INT LF@retval LF@f\n"
            "POPFRAME\n"
            "RETURN\n");
+    fflush(stdout);
 
     //Print len
     printf("LABEL $len\n"
@@ -873,6 +910,7 @@ void Print_BuiltIn_Functions()
            "STRLEN LF@retval LF@s\n"
            "POPFRAME \n"
            "RETURN\n");
+    fflush(stdout);
 
     //print substr
     printf("LABEL $substr\n"
@@ -926,6 +964,7 @@ void Print_BuiltIn_Functions()
            "LABEL $substr$return\n"
            "POPFRAME\n"
            "RETURN\n");
+    fflush(stdout);
 
     //printf chr
     printf("LABEL $chr\n"
@@ -941,6 +980,7 @@ void Print_BuiltIn_Functions()
            "LABEL $chr$return\n"
            "POPFRAME\n"
            "RETURN\n");
+    fflush(stdout);
 
     //printf ord
     printf("LABEL $ord\n"
@@ -963,7 +1003,14 @@ void Print_BuiltIn_Functions()
            "LABEL $ord$return\n"
            "POPFRAME\n"
            "RETURN\n");
+    fflush(stdout);
 
     //printf begin of main
     printf("LABEL $$main\n");
+    fflush(stdout);
+    printf("CREATEFRAME\n");
+    fflush(stdout);
+    //printf("PUSHFRAME\n");
+    //fflush(stdout);
+    currentFrame = Frame_TF;
 }

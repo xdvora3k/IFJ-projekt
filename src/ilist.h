@@ -177,7 +177,6 @@ void StrLLDispose(tLinkedList *L);
 
 void TableLLInit(tLinkedList *L);
 void TableLLInsertFirst(tLinkedList *L, tSymtable *local_var_table);
-void TableLLInsertFirstSeenVariable(tLinkedList *L, tLinkedList *variables, tPassedSide *data_types);
 void TableLLDeleteFirst(tLinkedList *L);
 void TableLLInsertFirstSeenVariable(tLinkedList *L, tLinkedList *variables, tExpressionList *expr_list);
 tListItem* TableLLLocateNthElem(tLinkedList *L, int index);
@@ -188,6 +187,7 @@ tDataVariable* TableLLGetSingleVariable(tLinkedList *func_variable_list, char* v
 
 void CreateInstruction (INSTRUCTION InstrType, char *addr1, char *addr2, char *addr3);
 tInstructionOperand* CreateOperand (char* name,char* value, tVarDataType type,FRAME f);
+tInstructionOperand* ChangeOperand (tInstructionOperand *op, char* name,char* value, tVarDataType type,FRAME f);
 void Instruction0(INSTRUCTION InstrType);
 void Instruction1(INSTRUCTION InstrType, tInstructionOperand op);
 void Instruction2(INSTRUCTION InstrType, tInstructionOperand op, tInstructionOperand op2);
