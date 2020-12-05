@@ -187,6 +187,7 @@ tDataVariable* TableLLGetSingleVariable(tLinkedList *func_variable_list, char* v
 
 void CreateInstruction (INSTRUCTION InstrType, char *addr1, char *addr2, char *addr3);
 tInstructionOperand* CreateOperand (char* name,char* value, tVarDataType type,FRAME f);
+tInstructionOperand* ChangeOperand (tInstructionOperand *op, char* name,char* value, tVarDataType type,FRAME f);
 void Instruction0(INSTRUCTION InstrType);
 void Instruction1(INSTRUCTION InstrType, tInstructionOperand op);
 void Instruction2(INSTRUCTION InstrType, tInstructionOperand op, tInstructionOperand op2);

@@ -2,7 +2,7 @@
 // Created by xkvasn14 on 02.12.20.
 //
 
-#include "Connector.h"
+#include "connector.h"
 
 extern FRAME currentFrame;
 
