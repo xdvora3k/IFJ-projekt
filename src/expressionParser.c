@@ -1,7 +1,17 @@
 
 #include "expressionParser.h"
 
-
+void _save_to_token(tToken *token, string *string, tState type, int end_index){
+    token->text = malloc(sizeof(string));
+    int str_len = strlen(string->str);
+    token->text->str = malloc(str_len + 1);
+    strncpy(token->text->str, string->str, str_len);
+    token->text->str[str_len] = '\0';
+    token->text->length = string->length;
+    token->text->allocSize = string->allocSize;
+    token->endIndex = end_index;
+    token->type = type;
+}
 
 void get_tokenExp(tToken* token, string *input, int startIndex){
     tState state = start;
@@ -37,23 +47,17 @@ void get_tokenExp(tToken* token, string *input, int startIndex){
                 }
                 else if (c == '+') {
                     add_to_string(&tokenText, c);
-                    token->text = tokenText;
-                    token->type = tPlus;
-                    token->endIndex = startIndex + i;
+                    _save_to_token(token, &tokenText, tPlus, startIndex + i);
                     return;
                 }
                 else if (c == '-') {
                     add_to_string(&tokenText, c);
-                    token->text = tokenText;
-                    token->type = tMinus;
-                    token->endIndex = startIndex + i;
+                    _save_to_token(token, &tokenText, tMinus, startIndex + i);
                     return;
                 }
                 else if (c == '*') {
                     add_to_string(&tokenText, c);
-                    token->text = tokenText;
-                    token->type = tMultiply;
-                    token->endIndex = startIndex + i;
+                    _save_to_token(token, &tokenText, tMultiply, startIndex + i);
                     return;
                 }
                 else if (c == '/') {
@@ -87,17 +91,13 @@ void get_tokenExp(tToken* token, string *input, int startIndex){
                 }
                 else if (c == '(') {
                     add_to_string(&tokenText, c);
-                    token->text = tokenText;
-                    token->type = tOpeningSimpleBrace;
-                    token->endIndex = startIndex + i;
+                    _save_to_token(token, &tokenText, tOpeningSimpleBrace, startIndex + i);
                     return;
 
                 }
                 else if (c == ')') {
                     add_to_string(&tokenText, c);
-                    token->text = tokenText;
-                    token->type = tClosingSimpleBrace;
-                    token->endIndex = startIndex + i;
+                    _save_to_token(token, &tokenText, tClosingSimpleBrace, startIndex + i);
                     return;
                 }
                 else if (c == '{') {
@@ -108,48 +108,36 @@ void get_tokenExp(tToken* token, string *input, int startIndex){
                 }
                 else if (c == EOF) {
                     add_to_string(&tokenText, '$');
-                    token->text = tokenText;
-                    token->type = tEOF;
-                    token->endIndex = startIndex + i;
+                    _save_to_token(token, &tokenText, tEOF, startIndex + i);;
                     return;
                 }
                 break;
             case tBiggerThan:
                 if (c == '=') {
                     add_to_string(&tokenText, c);
-                    token->text = tokenText;
-                    token->type = tBiggerOrEqual;
-                    token->endIndex = startIndex + i;
+                    _save_to_token(token, &tokenText, tBiggerOrEqual, startIndex + i);
                     return;
                 }
                 else if (!comparison_assumption(c)) {
                     exit(LEX_ERROR);
                 }
-                    token->text = tokenText;
-                    token->type = tBiggerThan;
-                    token->endIndex = startIndex + i - 1;
+                _save_to_token(token, &tokenText, tBiggerThan, startIndex + i);
                     return;
             case tSmallerThan:
                 if (c == '=') {
                     add_to_string(&tokenText, c);
-                    token->text = tokenText;
-                    token->type = tSmallerOrEqual;
-                    token->endIndex = startIndex + i;
+                    _save_to_token(token, &tokenText, tSmallerOrEqual, startIndex + i);
                     return;
                 }
                 else if (!comparison_assumption(c)) {
                     exit(LEX_ERROR);
                 }
-                token->text = tokenText;
-                    token->type = tSmallerOrEqual;
-                    token->endIndex = startIndex + i - 1;
-                    return;
+                _save_to_token(token, &tokenText, tSmallerThan, startIndex + i);
+                return;
             case tAssignment:
                 if (c == '=') {
                     add_to_string(&tokenText, c);
-                    token->text = tokenText;
-                    token->type = tEqual;
-                    token->endIndex = startIndex + i;
+                    _save_to_token(token, &tokenText, tEqual, startIndex + i);
                     return;
                 }
                 else {
@@ -159,17 +147,13 @@ void get_tokenExp(tToken* token, string *input, int startIndex){
             case tNotEqual:
                 if (c == '=') {
                     add_to_string(&tokenText, c);
-                    token->text = tokenText;
-                    token->type = tNotEqual;
-                    token->endIndex = startIndex + i;
+                    _save_to_token(token, &tokenText, tNotEqual, startIndex + i);
                     return;
                 }
                 exit(LEX_ERROR);
             case string_start:
                 if (c == '"') {
-                    token->text = tokenText;
-                    token->endIndex = startIndex + i -1; //-1 == nepatri token ktery
-                    token->type = tString;
+                    _save_to_token(token, &tokenText, tString, startIndex + i - 1);
                     return;
                 }
                 else if (c == '\\') {
@@ -231,9 +215,7 @@ void get_tokenExp(tToken* token, string *input, int startIndex){
                      exit(LEX_ERROR);
                 }
                 else {
-                    token->text = tokenText;
-                    token->endIndex = startIndex + i -1; //-1 == nepatri token ktery
-                    token->type = tInteger;
+                    _save_to_token(token, &tokenText, tInteger, startIndex + i - 1);
                     return;
                 }
                 break;
@@ -257,11 +239,8 @@ void get_tokenExp(tToken* token, string *input, int startIndex){
                     state = float_exponent;
                 }
                 else {
-                    token->text = tokenText;
-                    token->endIndex = startIndex + i -1; //-1 == nepatri token ktery
-                    token->type = tFloat;
+                    _save_to_token(token, &tokenText, tFloat, startIndex + i - 1);
                     return;
-
                 }
                 break;
             case float_exponent:
@@ -278,9 +257,7 @@ void get_tokenExp(tToken* token, string *input, int startIndex){
                     exit(LEX_ERROR);
                 }
                 else {
-                    token->text = tokenText;
-                    token->endIndex = startIndex + i -1; //-1 == nepatri token ktery
-                    token->type = tFloat;
+                    _save_to_token(token, &tokenText, tFloat, startIndex + i - 1);
                     return;
                 }
                 break;
@@ -293,9 +270,7 @@ void get_tokenExp(tToken* token, string *input, int startIndex){
                     exit(LEX_ERROR);
                 }
                 else {
-                    token->text = tokenText;
-                    token->endIndex = startIndex + i -1; //-1 == nepatri token ktery
-                    token->type = tFloat;
+                    _save_to_token(token, &tokenText, tFloat, startIndex + i - 1);
                     return;
                 }
                 break;
@@ -314,9 +289,7 @@ void get_tokenExp(tToken* token, string *input, int startIndex){
                     add_to_string(&tokenText, c);
                 }
                 else {
-                    token->text = tokenText;
-                    token->endIndex = startIndex + i -1; //-1 == nepatri token ktery
-                    token->type = tFloat;
+                    _save_to_token(token, &tokenText, tFloat, startIndex + i - 1);
                     return;
                 }
                 break;
@@ -330,18 +303,16 @@ void get_tokenExp(tToken* token, string *input, int startIndex){
                 }
                 else {
                     if (is_keyword(&tokenText)) {
-                        token->type = tKeyword;
+                        state = tKeyword;
                     }
                     else if (is_built_in_func(&tokenText)) {
-                        token->type = tBuiltIn;
+                        state = tBuiltIn;
                     } else {
-                        token->type = tId;
+                        state = tId;
                         
                     }
-                    token->text = tokenText;
-                    token->endIndex = startIndex + i -1; //-1 == nepatri token ktery
+                    _save_to_token(token, &tokenText, tInteger, startIndex + i - 1);
                     return;
-
                 }
                 break;
             case tId:
@@ -349,9 +320,7 @@ void get_tokenExp(tToken* token, string *input, int startIndex){
                     add_to_string(&tokenText, c);
                 }
                 else{
-                    token->type = tId;
-                    token->text = tokenText;
-                    token->endIndex = startIndex + i -1; //-1 == nepatri token ktery
+                    _save_to_token(token, &tokenText, tId, startIndex + i - 1);
                     return;
 
                 }
@@ -365,9 +334,7 @@ void get_tokenExp(tToken* token, string *input, int startIndex){
                     
                 }
                 else {
-                    token->text = tokenText;
-                    token->type = tDivide;
-                    token->endIndex = startIndex + i - 1;
+                    _save_to_token(token, &tokenText, tDivide, startIndex + i - 1);
                     return;
                     
                 }

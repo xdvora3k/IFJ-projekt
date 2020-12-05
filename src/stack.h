@@ -6,11 +6,6 @@
 #define IFJ_PROJEKT_STACK_H
 
 #include <stdio.h>
-#include <stdlib.h>
-//#include "instr.h"
-#include "str.h"
-#include "symtable.h"
-
 
 typedef struct stack_struct{
     struct stack_struct* next_value;
@@ -21,15 +16,10 @@ typedef struct {
     tStack* top_stack;
 }ptrStack;
 
-
-
-
-
-
 void StackInit  (ptrStack* s);
 void StackPush  (ptrStack* s, void* value);
 void StackPop   (ptrStack* s);
-bool StackIsEmpty (ptrStack* s);
+int StackIsEmpty (ptrStack* s);
 void StackDispose (ptrStack* s);
 tStack* StackTop(ptrStack* s);
 

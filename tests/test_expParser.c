@@ -23,7 +23,7 @@ int main(){
     tListItem* listItem = List->first;
     myToken = (tToken*)listItem->Content;
     //printf("List: %s", myToken.text->str);
-    printf("I %d %s\n", i, (myToken->text).str);
+    printf("I %d %s\n", i, (myToken->text)->str);
    // printf("Index = 2\n");//%d and %s\n", i, (myToken->text).str);
 
     while (listItem->nextItem)
@@ -31,7 +31,7 @@ int main(){
         i++;
         listItem = listItem->nextItem;
         myToken = (tToken*)listItem->Content;
-        printf("I %d %s\n", i, (myToken->text).str);
+        printf("I %d %s\n", i, (myToken->text)->str);
 
     }
     return 0;

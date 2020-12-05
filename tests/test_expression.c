@@ -8,7 +8,7 @@ int main(){
    init_string(&input);
    printf("\n");
    adds_to_string(&input, "1+2+5");   //a+v*c //"58-o+1+9"
-   printf("input %s . %d\n", input, input.length);
+   printf("input %s . %d\n", input.str, input.length);
    precedencSA(&input);
    printf("\n");
 

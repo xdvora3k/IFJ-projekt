@@ -3,7 +3,7 @@
 //
 
 #include "stack.h"
-//#include "instr.h"
+#include <stdlib.h>
 
 void StackInit(ptrStack * s)
 {
@@ -36,7 +36,7 @@ void StackPop   (ptrStack* s)
     free(tmp);
 }
 
-bool StackIsEmpty (ptrStack* s)
+int StackIsEmpty (ptrStack* s)
 {
     return (s->top_stack == NULL);
 }

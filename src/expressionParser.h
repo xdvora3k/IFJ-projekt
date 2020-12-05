@@ -1,14 +1,12 @@
-#include "scanner.h"
-#include "error_codes.h"
-#include "ilist.h"
+#ifndef IFJ_PROJEKT_EXPRESSION_PARSER_H
+#define IFJ_PROJEKT_EXPRESSION_PARSER_H
+
 #include <stdio.h>
+#include "ilist.h"
 
-
-typedef struct{
-    string text;
-    tState type;
-    int endIndex;   //abc + tr = tState string
-} tToken;
 
 tLinkedList* get_tokens(string *s);
 void get_tokenExp(tToken* token, string *input, int startIndex);
+void _save_to_token(tToken *token, string *string, tState type, int end_index);
+
+#endif
