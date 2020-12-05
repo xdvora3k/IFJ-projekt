@@ -2,7 +2,7 @@
 package main
 
 func main() {
-  print("Zadejte cislo pro vypocet faktorialu: ")
+  print("Zadejte cislo pro vypocet faktorialu: ###LL")
   a := 0
 	a, _ = inputi()
   if a < 0 {
@@ -12,6 +12,6 @@ func main() {
     for ; a > 0; a = a - 1 {
       vysl = vysl * a
     }
-    print("Vysledek je ", vysl, "\n")
+    print("Vysledek je ",vysl,"\n")
   }
 }

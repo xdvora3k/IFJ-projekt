@@ -8,6 +8,8 @@
 #include "symtable.h"
 #include "parser.h"
 
+FRAME currentFrame = Frame_GF;
+
 int main() {
     set_source_file(stdin);
 

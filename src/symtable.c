@@ -41,6 +41,7 @@ tBSTNodePtr BSTInsert(tBSTNodePtr* RootPtr, char* K, void* Data){
         *RootPtr = BSTCreateNode(K, Data);
         return *RootPtr;
     }
+
     // If already exists, Semantic error
     if (strcmp(K,(*RootPtr)->Key) == 0){  //K == (*RootPtr)->Key
         return NULL;
