@@ -29,6 +29,7 @@ void get_tokenExp(tToken* token, string *input, int startIndex){
                 }
                 else if (is_num(c)) {
                     add_to_string(&tokenText, c);
+                    printf("tIntiger\n");
                     state = tInteger;
                 }
                 else if (c == '"') {
@@ -216,6 +217,7 @@ void get_tokenExp(tToken* token, string *input, int startIndex){
             case tInteger:
                 if (is_num(c)) {
                     add_to_string(&tokenText, c);
+                    printf("\n add to string\n");
                 }
                 else if (c == '.') {
                     add_to_string(&tokenText, c);

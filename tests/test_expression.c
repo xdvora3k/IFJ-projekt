@@ -7,7 +7,7 @@ int main(){
    string input;
    init_string(&input);
    printf("\n");
-   adds_to_string(&input, "a+v*c");
+   adds_to_string(&input, "1+2+5");   //a+v*c //"58-o+1+9"
    printf("input %s . %d\n", input, input.length);
    precedencSA(&input);
    printf("\n");
@@ -46,5 +46,33 @@ int main(){
    adds_to_string(&input2, "(b+4) > (c-o)");    //b < c  || (b+4) > (c-o)
    printf("Input2 %s . %d\n", input2.str, input2.length);
    precedencSA(&input2);
+
+   string input9;
+   init_string(&input9);
+   printf("\n");
+   adds_to_string(&input9, "b+4 > c-o");    //tested: !=, <, == 
+   printf("Input2 %s . %d\n", input9.str, input9.length);
+   precedencSA(&input9);
+
+   string input10;
+   init_string(&input10);
+   printf("\n");
+   adds_to_string(&input10, "4 == c-o");    
+   printf("Input2 %s . %d\n", input10.str, input10.length);
+   precedencSA(&input10);
+
+ /*  string input11;
+   init_string(&input11);
+   printf("\n");
+   adds_to_string(&input11, "e = 9"); //error   
+   printf("Input2 %s . %d\n", input11.str, input11.length);
+   precedencSA(&input11);
+*/
+   string input12;
+   init_string(&input12);
+   printf("\n");
+   adds_to_string(&input12, "+p = 9"); //error   
+   printf("Input2 %s . %d\n", input12.str, input12.length);
+   precedencSA(&input12);
    return 0;
 }

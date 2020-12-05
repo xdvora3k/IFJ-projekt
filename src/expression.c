@@ -224,7 +224,7 @@ void precedencSA(string * input) {
 void pushOpenTokenToStack(ptrStack * topOfStack, tToken * exprOpenToken) {
     tToken * topToken = (tToken * )(topOfStack -> top_stack -> value);
 
-    if (topToken -> type == tId || topToken -> type == tExprPlaceholder) {
+    if (topToken -> type == tId || topToken -> type == tExprPlaceholder || topToken->type == tInteger || topToken->type == tFloat) {
         StackPop(topOfStack);
         StackPush(topOfStack, exprOpenToken);
         StackPush(topOfStack, topToken);
@@ -246,7 +246,7 @@ tToken * findTerminalToken(ptrStack * topOfStack) {
     //Hack: if there is "<i" on top of stack, we want to process it, otherwise
     //we expect something like $i and in such case we consider i to be a node, not terminal
     //We try to avoid necesity to replace "i" with "E" and make things more complicated later
-    if (topToken -> type == tId || topToken -> type == tExprPlaceholder) {
+    if (topToken -> type == tId || topToken -> type == tExprPlaceholder || topToken->type == tInteger || topToken->type == tFloat) {
         if (nextToken -> type == tExprOpen) {
             return topToken;
         } else {
@@ -299,7 +299,7 @@ expressionRule extractexpression(ptrStack * stack) {
 
 expressionRule applyrule(ptrStack * stack, expressionRule rule) {
     if (rule.operator == NULL) {
-        if (rule.rightOperand == NULL) {
+        if (rule.rightOperand == NULL ) {   //|| rule.rightOperand->type == tPlus
             exit(SYN_ERROR);
         }
         rule.typeOfRule = expIdentity;
@@ -341,7 +341,7 @@ expressionRule applyrule(ptrStack * stack, expressionRule rule) {
                 printStack(stack);
                
             }
-            if (rule.operator -> type == tBiggerOrEqual || rule.operator -> type == tBiggerThan || rule.operator -> type == tSmallerOrEqual || rule.operator -> type == tSmallerThan) {
+            if (rule.operator -> type == tBiggerOrEqual || rule.operator -> type == tBiggerThan || rule.operator -> type == tSmallerOrEqual || rule.operator -> type == tSmallerThan || rule.operator->type == tEqual || rule.operator->type == tNotEqual) {
                 rule.typeOfRule = expOPepx;
                 
                 printf("rule E op E");
@@ -363,6 +363,7 @@ expressionRule applyrule(ptrStack * stack, expressionRule rule) {
 
             rule.placeHolder = placeholder;
             StackPush(stack, rule.placeHolder);
+            printf("\n FINAL%s %s %s\n", rule.leftOperand->text.str, rule.operator->text.str, rule.rightOperand->text.str);
         }
     }
     return rule;
