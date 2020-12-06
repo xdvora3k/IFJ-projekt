@@ -92,7 +92,6 @@ char* Calc_int_Expression(tExpressionNode *Rules)
     int expLength = ExprLLRuleRuleLen(Rules);
     rule = ExprLLGetNthRuleRule(Rules,0);
 
-
     //1 + 2 = tmp
     tInstructionOperand *opL = CreateOperand("","",Unknown_type,Frame_NaN); // 1
     tInstructionOperand *opR = CreateOperand("","",Unknown_type,Frame_NaN); // 2
