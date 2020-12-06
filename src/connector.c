@@ -1,10 +1,64 @@
-//
-// Created by xkvasn14 on 02.12.20.
-//
+/*
+ * IFJ project 2020
+ * Author: xdvora3k, Jakub Dvorak
+ *         xkvasn14, Jaroslav Kvasnicka
+ */
 
 #include "connector.h"
 
 extern FRAME currentFrame;
+extern tLinkedList *final_variables;
+
+void VarLLInit(tFinalList *L){
+    L->first = NULL;
+}
+
+tFinalVariable* _search_for_variable(tFinalList *L, char* key){
+    if (!L || !L->first){
+        return NULL;
+    }
+    tFinalVariable *curr = L->first;
+    while (curr && strcmp(curr->key, key)){
+        curr = curr->next;
+    }
+    if (!curr){
+        return NULL;
+    }
+    return curr;
+}
+
+char* VarLLInsert(tFinalList *L, char* name, tLinkedList *func_variable_list){
+    tFinalVariable *variable = malloc(sizeof(tFinalVariable));
+    int malloc_size = strlen(name) + 10;
+    variable->key = malloc(malloc_size);
+    int nests = TableLLGetNumOfNests(func_variable_list, name);
+    snprintf(variable->key, malloc_size, "%s%d", name, nests);
+    tFinalVariable *last_found = _search_for_variable(L, name);
+    if (!last_found){
+        variable->count = 0;
+    }
+    else {
+        variable->count = last_found->count + 1;
+    }
+    variable->real_variable_name = malloc(malloc_size);
+    snprintf(variable->real_variable_name, malloc_size, "%s_%d", variable->key, variable->count);
+
+    if (!L->first){
+        variable->next = NULL;
+    }
+    else {
+        variable->next = L->first;
+    }
+    L->first = variable;
+    return variable->real_variable_name;
+}
+
+char* VarLLGetRealName(tFinalList *L, char* name, tLinkedList *func_variable_list){
+    char *key = malloc(strlen(name) + 10);
+    int nests = TableLLGetNumOfNests(func_variable_list, name);
+    snprintf(key, strlen(name) + 10, "%s%d", name, nests);
+    return _search_for_variable(L, key)->real_variable_name;
+}
 
 void print_variable_declaration_Expression(tLinkedList *leftside, tExpressionList *rightside)
 {

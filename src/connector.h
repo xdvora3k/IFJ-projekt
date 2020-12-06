@@ -1,6 +1,9 @@
-//
-// Created by xkvasn14 on 02.12.20.
-//
+/*
+ * IFJ project 2020
+ * Author: xdvora3k, Jakub Dvorak
+ *         xkvasn14, Jaroslav Kvasnicka
+ */
+
 
 #ifndef IFJ_CONNECTOR_H
 #define IFJ_CONNECTOR_H
@@ -10,6 +13,17 @@
 #include "ilist.h"
 #include "parser.h"
 #include "expression.h"
+
+typedef struct FinalVariable{
+    char* key;
+    char* real_variable_name;
+    int count;
+    struct FinalVariable *next;
+} tFinalVariable;
+
+typedef struct tFinalList{
+    tFinalVariable *first;
+} tFinalList;
 
 void print_variable_declaration_Expression(tLinkedList *leftside, tExpressionList *rightside);
 void print_variable_assigment_Expression(tLinkedList *leftside,tExpressionList *rightside);
