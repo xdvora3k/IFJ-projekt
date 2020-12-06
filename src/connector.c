@@ -37,6 +37,9 @@ char* VarLLInsert(tFinalList *L, char* name, char* func_name, tLinkedList *func_
     int malloc_size = strlen(name) + strlen(func_name) + 10;
     variable->key = malloc(malloc_size);
     int nests = TableLLGetNumOfNests(func_variable_list, name);
+    if ((!strcmp(name, "if") || !strcmp(name, "else")) && !nests){
+        nests = TableLLLen(func_variable_list) - 1;
+    }
     snprintf(variable->key, malloc_size, "%s_%s_%d", name, func_name, nests);
     tFinalVariable *last_found = _search_for_variable(L, name);
     if (!last_found){
@@ -64,7 +67,10 @@ char* VarLLGetRealName(tFinalList *L, char* name, char* func_name, tLinkedList *
     }
     char *key = malloc(strlen(name) + 10);
     int nests = TableLLGetNumOfNests(func_variable_list, name);
-    snprintf(key, strlen(name) + 10, "%s%d", name, nests);
+    if ((!strcmp(name, "if") || !strcmp(name, "else")) && !nests){
+        nests = TableLLLen(func_variable_list) - 1;
+    }
+    snprintf(key, strlen(name) + 10, "%s_%s_%d", name, func_name, nests);
     tFinalVariable *var = _search_for_variable(L, key);
     if (!var){
         return NULL;
@@ -94,7 +100,7 @@ char* VarLLGetReturnRealName(char* func_name, int index){
     return retval;
 }
 
-void print_variable_declaration_Expression(tLinkedList *leftside, tExpressionList *rightside)
+void print_variable_declaration_Expression(tLinkedList *leftside, tExpressionList *rightside, tLinkedList *func_variable_list)
 {
     printf("PUSHFRAME\n");fflush(stdout);currentFrame = Frame_LF;
     printf("CREATEFRAME\n");fflush(stdout);currentFrame = Frame_TF;
@@ -107,29 +113,29 @@ void print_variable_declaration_Expression(tLinkedList *leftside, tExpressionLis
     int expressionNumber = ExprLLRuleRuleLen(rightside->first);
     tExpressionRule *rule = ExprLLGetNthRuleRule(rightside->first,0);
     if(rule->leftOperand->type == tId)
-        rule->leftOperand->text->str = VarLLGetRealName(myVariables,rule->leftOperand->text->str,final_variables);
+        rule->leftOperand->text->str = VarLLGetRealName(final_variables,rule->leftOperand->text->str, NULL, func_variable_list);
     for(int i = 0; i < expressionNumber; i++)
     {
         if(rule->rightOperand->type == tId)
-            rule->rightOperand->text->str = VarLLGetRealName(myVariables,rule->rightOperand->text->str,final_variables);
+            rule->rightOperand->text->str = VarLLGetRealName(final_variables,rule->rightOperand->text->str, NULL, func_variable_list);
     }
 
     if(rightside->first->data_type == IntType)
     {
         printfS = Calc_Int_Expression(rightside->first);
-        left = ChangeOperand(left,VarLLInsert(myVariables,leftside->first->Content,final_variables),"",IntType,Frame_LF);
+        left = ChangeOperand(left,VarLLInsert(final_variables,leftside->first->Content, NULL, func_variable_list),"",IntType,Frame_LF);
         right = ChangeOperand(right,printfS,"",IntType,currentFrame);
     }
     else if(rightside->first->data_type == Float64Type)
     {
         printfS = Calc_Float_Expression(rightside->first);
-        left = ChangeOperand(left,VarLLInsert(myVariables,leftside->first->Content,final_variables),"",Float64Type,Frame_LF);
+        left = ChangeOperand(left,VarLLInsert(final_variables,leftside->first->Content, NULL, func_variable_list),"",Float64Type,Frame_LF);
         right = ChangeOperand(right,printfS,"",Float64Type,currentFrame);
     }
     else if(rightside->first->data_type == StringType)
     {
         printfS = Calc_String_Expression(rightside->first);
-        left = ChangeOperand(left,VarLLInsert(myVariables,leftside->first->Content,final_variables),"",StringType,Frame_LF);
+        left = ChangeOperand(left,VarLLInsert(final_variables,leftside->first->Content, NULL, func_variable_list),"",StringType,Frame_LF);
         right = ChangeOperand(right,printfS,"",StringType,currentFrame);
     }
     else if(rightside->first->data_type == UnderscoreType)
@@ -145,7 +151,7 @@ void print_variable_declaration_Expression(tLinkedList *leftside, tExpressionLis
     printf("POPFRAME\n");fflush(stdout);currentFrame = Frame_LF;
 }
 
-void print_variable_assigment_Expression(tLinkedList *leftside,tExpressionList *rightside)
+void print_variable_assigment_Expression(tLinkedList *leftside,tExpressionList *rightside, tLinkedList *func_variable_list)
 {
     printf("PUSHFRAME\n");fflush(stdout);currentFrame = Frame_LF;
     printf("CREATEFRAME\n");fflush(stdout);currentFrame = Frame_TF;
@@ -163,29 +169,29 @@ void print_variable_assigment_Expression(tLinkedList *leftside,tExpressionList *
 
         tExpressionRule *rule = ExprLLGetNthRuleRule(RightItem,0);
         if(rule->leftOperand->type == tId)
-            rule->leftOperand->text->str = VarLLGetRealName(myVariables,rule->leftOperand->text->str,final_variables);
+            rule->leftOperand->text->str = VarLLGetRealName(final_variables,rule->leftOperand->text->str, NULL, func_variable_list);
         for(int j = 0; j < expresionLength; j++)
         {
             tExpressionRule *rule = ExprLLGetNthRuleRule(RightItem,j);
             if(rule->rightOperand->type == tId)
-                rule->rightOperand->text->str = VarLLGetRealName(myVariables,rule->rightOperand->text->str,final_variables);
+                rule->rightOperand->text->str = VarLLGetRealName(final_variables,rule->rightOperand->text->str, NULL, func_variable_list);
         }
 
         switch(RightItem->data_type)
         {
             case IntType:
                 printfS = Calc_Int_Expression(RightItem);
-                opVar = ChangeOperand(opVar,VarLLGetRealName(myVariables,LeftItem->Content,final_variables),"",IntType,Frame_LF);
+                opVar = ChangeOperand(opVar,VarLLGetRealName(final_variables,LeftItem->Content, NULL, func_variable_list),"",IntType,Frame_LF);
                 opVal = ChangeOperand(opVal,printfS,"",IntType,currentFrame);
                 break;
             case Float64Type:
                 printfS = Calc_Int_Expression(RightItem);
-                opVar = ChangeOperand(opVar,VarLLGetRealName(myVariables,LeftItem->Content,final_variables),"",Float64Type,Frame_LF);
+                opVar = ChangeOperand(opVar,VarLLGetRealName(final_variables,LeftItem->Content, NULL, func_variable_list),"",Float64Type,Frame_LF);
                 opVal = ChangeOperand(opVal,printfS,"",Float64Type,currentFrame);
                 break;
             case StringType:
                 printfS = Calc_String_Expression(RightItem);
-                opVar = ChangeOperand(opVar,VarLLGetRealName(myVariables,LeftItem->Content,final_variables),"",StringType,Frame_LF);
+                opVar = ChangeOperand(opVar,VarLLGetRealName(final_variables,LeftItem->Content, NULL, func_variable_list),"",StringType,Frame_LF);
                 opVal = ChangeOperand(opVal,printfS,"",StringType,currentFrame);
                 break;
             case UnderscoreType:
@@ -508,7 +514,7 @@ void print_float2int_Expression(tLinkedList *leftside, tPassedSide * rightside)
 
 }
 
-void print_function_begin(char* funcName, tPassedSide * retvariables, tPassedSide* variables)
+void print_function_begin(char* funcName, tPassedSide * retvariables, tPassedSide* variables, tLinkedList *func_variable_list)
 {
     printf("LABEL %s\n",funcName);fflush(stdout);
     printf("PUSHFRAME\n");fflush(stdout);
@@ -522,12 +528,12 @@ void print_function_begin(char* funcName, tPassedSide * retvariables, tPassedSid
         tPassedNode *inputVariableNode = PassedLLGetNode(variables,i);
         char* tmpS = malloc(10);
 
-        tmpS = VarLLInsert(myVariables,inputVariableNode->value,final_variables);
+        tmpS = VarLLInsert(final_variables,inputVariableNode->value, NULL, func_variable_list);
         tInstructionOperand *tmpString = CreateOperand(tmpS,"",Unknown_type,Frame_LF);
         Instruction1(I_DEFVAR,*tmpString);
 
         if(inputVariableNode->is_variable)
-            inputVariableNode->value = VarLLGetRealName(myVariables,inputVariableNode->value,final_variables);
+            inputVariableNode->value = VarLLGetRealName(final_variables,inputVariableNode->value, NULL, func_variable_list);
 
         tInstructionOperand *moveString = CreateOperand(inputVariableNode->value,"",Unknown_type,Frame_LF);
         Instruction2(I_MOVE,*tmpString,*moveString);
@@ -540,7 +546,7 @@ void print_function_begin(char* funcName, tPassedSide * retvariables, tPassedSid
         tPassedNode *returnVariable = PassedLLGetNode(retvariables,i);
         char* tmpS = malloc(10);
 
-        tmpS = VarLLInsert(myVariables,returnVariable->value,final_variables);
+        tmpS = VarLLInsert(final_variables,returnVariable->value, NULL, func_variable_list);
         tInstructionOperand *tmpString = CreateOperand(tmpS,"",Unknown_type,Frame_LF);
         Instruction1(I_DEFVAR,*tmpString);
     }
@@ -553,20 +559,20 @@ void print_function_end()
     printf("RETURN\n");fflush(stdout);
 }
 
-void print_function_assigment(tLinkedList *leftside, char* funcName,tPassedSide *retvariables,tPassedSide* variables,tPassedSide *params)
+void print_function_assigment(tLinkedList *leftside, char* funcName,tPassedSide *retvariables,tPassedSide* variables,tPassedSide *params, tLinkedList *func_variable_list)
 {
     int numberLside = StrLLLen(leftside);
     for(int i = 0; i < numberLside; i++)
     {
         tListItem *LeftItem = StrLLLocateNthElem(leftside,i);
-        LeftItem->Content = VarLLGetRealName(myVariables,LeftItem->Content,final_variables);
+        LeftItem->Content = VarLLGetRealName(final_variables,LeftItem->Content, NULL, func_variable_list);
     }
 
     int numberParams = PassedLLLen(params);
     for(int i = 0; i < numberParams; i++)
     {
         tPassedNode *ParamsNode = PassedLLGetNode(params,i);
-        ParamsNode->value = VarLLGetRealName(myVariables,ParamsNode->value,final_variables);
+        ParamsNode->value = VarLLGetRealName(final_variables,ParamsNode->value, NULL, func_variable_list);
     }
 
     //  ZKONTROLOVAT JESTLI MÁM DOBŘE VSTUPY A VÝSTUPY včetně built-in funkcí
@@ -673,6 +679,7 @@ void print_function_assigment(tLinkedList *leftside, char* funcName,tPassedSide 
     }
     else
     {
+
         int numberReturnVariables = StrLLLen(leftside);
         int numberInputVariables = PassedLLLen(params);
 
