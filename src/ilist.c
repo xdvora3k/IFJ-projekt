@@ -919,47 +919,47 @@ void Print_BuiltIn_Functions()
            "MOVE LF@retval string@\n"
            "DEFVAR LF@length\n"
            "CREATEFRAME\n"
-           "DEFVAR TF%%0\n"
-           "MOVE TF@%%0 LF%%0\n"
+           "DEFVAR TF@s\n"
+           "MOVE TF@s LF@substr_s\n"
            "CALL $len\n"
-           "MOVE LF@length TF@%%retval\n"
+           "MOVE LF@length TF@retval\n"
            "DEFVAR LF@ret\n"
            "LT LF@ret LF@length int@0\n"
            "JUMPIFEQ $substr$return LF@ret bool@true\n"
            "EQ LF@ret LF@length int@0\n"
            "JUMPIFEQ $substr$return LF@ret bool@true\n"
-           "LT LF@ret LF@%%1 int@0\n"
+           "LT LF@ret LF@substr_i int@0\n"
            "JUMPIFEQ $substr$return LF@ret bool@true\n"
-           "EQ LF@ret LF@%%1 int@0\n"
+           "EQ LF@ret LF@substr_i int@0\n"
            "JUMPIFEQ $substr$return LF@ret bool@true\n"
-           "GT LF@ret LF@%%1 LF@length\n"
+           "GT LF@ret LF@substr_i LF@length\n"
            "JUMPIFEQ $substr$return LF@ret bool@true\n"
-           "EQ LF@ret LF@%%2 int@0\n"
+           "EQ LF@ret LF@substr_n int@0\n"
            "JUMPIFEQ $substr$return LF@ret bool@true\n"
            "DEFVAR LF@max\n"
            "MOVE LF@max LF@length\n"
-           "SUB LF@max LF@max LF@%%1\n"
+           "SUB LF@max LF@max LF@substr_i\n"
            "ADD LF@max LF@max int@1\n"
            "DEFVAR LF@edit\n"
-           "LT LF@edit LF@%%2 int@0\n"
+           "LT LF@edit LF@substr_n int@0\n"
            "JUMPIFEQ $substr$edit LF@edit bool@true\n"
-           "GT LF@edit LF@%%2 LF@max\n"
+           "GT LF@edit LF@substr_n LF@max\n"
            "JUMPIFEQ $substr$edit LF@edit bool@true\n"
            "JUMP $substr$process\n"
            "LABEL $substr$edit\n"
-           "MOVE LF@%%2 LF@max\n"
+           "MOVE LF@substr_n LF@max\n"
            "LABEL $substr$process\n"
            "DEFVAR LF@index\n"
-           "MOVE LF@index LF@%%1\n"
+           "MOVE LF@index LF@substr_i\n"
            "SUB LF@index LF@index int@1\n"
            "DEFVAR LF@char\n"
            "DEFVAR LF@processloop\n"
            "LABEL $substr$loop\n"
-           "GETCHAR LF@char LF@%%0 LF@index\n"
+           "GETCHAR LF@char LF@substr_s LF@index\n"
            "CONCAT LF@retval LF@retval LF@char\n"
            "ADD LF@index LF@index int@1\n"
-           "SUB LF@%%2 LF@%%2 int@1\n"
-           "GT LF@processloop LF@%%2 int@0\n"
+           "SUB LF@substr_n LF@substr_n int@1\n"
+           "GT LF@processloop LF@substr_n int@0\n"
            "JUMPIFEQ $substr$loop LF@processloop bool@true\n"
            "LABEL $substr$return\n"
            "POPFRAME\n"
@@ -972,11 +972,11 @@ void Print_BuiltIn_Functions()
            "DEFVAR LF@retval\n"
            "MOVE LF@retval string@\n"
            "DEFVAR LF@cond\n"
-           "LT LF@cond LF@%%0 int@0\n"
+           "LT LF@cond LF@chr_int int@0\n"
            "JUMPIFEQ $chr$return LF@cond bool@true\n"
-           "GT LF@cond LF@%%0 int@255\n"
+           "GT LF@cond LF@chr_int int@255\n"
            "JUMPIFEQ $chr$return LF@cond bool@true\n"
-           "INT2CHAR LF@retval LF@%%0\n"
+           "INT2CHAR LF@retval LF@chr_int\n"
            "LABEL $chr$return\n"
            "POPFRAME\n"
            "RETURN\n");
@@ -988,23 +988,38 @@ void Print_BuiltIn_Functions()
            "DEFVAR LF@retval\n"
            "MOVE LF@retval int@0\n"
            "DEFVAR LF@cond\n"
-           "LT LF@cond LF@%%1 int@1\n"
+           "LT LF@cond LF@s int@0\n"
            "JUMPIFEQ $ord$return LF@cond bool@true\n"
            "DEFVAR LF@length\n"
            "CREATEFRAME\n"
-           "DEFVAR TF@%%0\n"
-           "MOVE TF@%%0 LF@%%0\n"
+           "DEFVAR TF@s\n"
+           "MOVE TF@s LF@ord_s\n"
            "CALL $len\n"
            "MOVE LF@length TF@retval\n"
-           "GT LF@cond LF@%%1 LF@length\n"
+           "GT LF@cond LF@s LF@length\n"
            "JUMPIFEQ $ord$return LF@cond bool@true\n"
-           "SUB LF@%%1 LF@%%1 int@1\n"
-           "STRI2INT LF@retval LF@%%0 LF@%%1\n"
+           "SUB LF@ord_i LF@s int@1\n"
+           "STRI2INT LF@retval LF@ord_s LF@s\n"
            "LABEL $ord$return\n"
            "POPFRAME\n"
            "RETURN\n");
     fflush(stdout);
 
+
+
+    // možná tady budou jesdnotlivé funkce ještě před mainem...
+
+    /*
+     * takže např LABEL $func
+     * pushframe/createframe
+     * práce s proměnnými
+     * popframe
+     * RETURN
+     * */
+}
+
+void print_Mainframe_begin()
+{
     //printf begin of main
     printf("LABEL $$main\n");
     fflush(stdout);
@@ -1013,4 +1028,9 @@ void Print_BuiltIn_Functions()
     //printf("PUSHFRAME\n");
     //fflush(stdout);
     currentFrame = Frame_TF;
+}
+
+void print_Mainframe_end()
+{
+    printf("RETURN\n");fflush(stdout);
 }
