@@ -9,6 +9,7 @@
 #include "parser.h"
 
 FRAME currentFrame = Frame_GF;
+tLinkedList *final_variables;
 
 int main() {
     set_source_file(stdin);

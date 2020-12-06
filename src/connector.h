@@ -36,4 +36,7 @@ char* Calc_String_Expression(tExpressionNode *Rules);
 void print_print_Expression(tPassedSide *Frases);
 void print_int2float_Expression(tLinkedList *leftside, tPassedSide * rightside);
 void print_float2int_Expression(tLinkedList *leftside, tPassedSide * rightside);
+void print_function_begin(char* funcName, tPassedSide * retvariables, tPassedSide* variables);
+void print_function_end();
+void print_function_assigment(tLinkedList *leftside, char* funcName,tPassedSide *retvariables,tPassedSide* variables,tPassedSide *params);
 #endif //IFJ_CONNECTOR_H

@@ -635,6 +635,9 @@ void _process_function_call(tLinkedList *func_variable_list, tLinkedList *left_v
             free_and_exit(SYN_ERROR, func_variable_list, left_variables);
         }
         // TODO: call `print` or custom non-return type function
+
+        print_print_Expression(right_side);
+        fflush(stdout);
     }
 }
 
