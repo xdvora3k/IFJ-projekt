@@ -8,6 +8,8 @@
 
 extern FRAME currentFrame;
 extern tLinkedList *final_variables;
+extern string FUNC_NAME;
+extern tSymtable *GlobalFuncRoot;
 
 void VarLLInit(tFinalList *L){
     L->first = NULL;
@@ -27,12 +29,15 @@ tFinalVariable* _search_for_variable(tFinalList *L, char* key){
     return curr;
 }
 
-char* VarLLInsert(tFinalList *L, char* name, tLinkedList *func_variable_list){
+char* VarLLInsert(tFinalList *L, char* name, char* func_name, tLinkedList *func_variable_list){
+    if (!func_name){
+        func_name = FUNC_NAME.str;
+    }
     tFinalVariable *variable = malloc(sizeof(tFinalVariable));
-    int malloc_size = strlen(name) + 10;
+    int malloc_size = strlen(name) + strlen(func_name) + 10;
     variable->key = malloc(malloc_size);
     int nests = TableLLGetNumOfNests(func_variable_list, name);
-    snprintf(variable->key, malloc_size, "%s%d", name, nests);
+    snprintf(variable->key, malloc_size, "%s_%s_%d", name, func_name, nests);
     tFinalVariable *last_found = _search_for_variable(L, name);
     if (!last_found){
         variable->count = 0;
@@ -40,8 +45,8 @@ char* VarLLInsert(tFinalList *L, char* name, tLinkedList *func_variable_list){
     else {
         variable->count = last_found->count + 1;
     }
-    variable->real_variable_name = malloc(malloc_size);
-    snprintf(variable->real_variable_name, malloc_size, "%s_%d", variable->key, variable->count);
+    variable->real_variable_name = malloc(malloc_size + 10);
+    snprintf(variable->real_variable_name, malloc_size + 10, "%s_%d", variable->key, variable->count);
 
     if (!L->first){
         variable->next = NULL;
@@ -53,11 +58,36 @@ char* VarLLInsert(tFinalList *L, char* name, tLinkedList *func_variable_list){
     return variable->real_variable_name;
 }
 
-char* VarLLGetRealName(tFinalList *L, char* name, tLinkedList *func_variable_list){
+char* VarLLGetRealName(tFinalList *L, char* name, char* func_name, tLinkedList *func_variable_list){
+    if (!func_name){
+        func_name = FUNC_NAME.str;
+    }
     char *key = malloc(strlen(name) + 10);
     int nests = TableLLGetNumOfNests(func_variable_list, name);
-    snprintf(key, strlen(name) + 10, "%s%d", name, nests);
+    snprintf(key, strlen(name) + 10, "%s_%s_%d", name, func_name, nests);
     return _search_for_variable(L, key)->real_variable_name;
+}
+
+char* VarLLGetReturnRealName(char* func_name, int index){
+    if (!func_name){
+        func_name = FUNC_NAME.str;
+    }
+    tDataFunction *func_node = (tDataFunction*) SymTableSearch(GlobalFuncRoot, func_name);
+    char* retval = malloc(strlen(func_name) + 20);
+    switch (func_node->returnType.str[index]){
+        case 'i':
+            snprintf(retval, strlen(func_name) + 20, "-retvalInt_%s_%d", func_name, index);
+            break;
+        case 's':
+            snprintf(retval, strlen(func_name) + 20, "-retvalString_%s_%d", func_name, index);
+            break;
+        case 'f':
+            snprintf(retval, strlen(func_name) + 20, "-retvalFloat_%s_%d", func_name, index);
+            break;
+        default:
+            exit(INTERNAL_ERROR);
+    }
+    return retval;
 }
 
 void print_variable_declaration_Expression(tLinkedList *leftside, tExpressionList *rightside)

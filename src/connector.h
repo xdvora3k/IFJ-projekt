@@ -25,6 +25,9 @@ typedef struct tFinalList{
     tFinalVariable *first;
 } tFinalList;
 
+void VarLLInit(tFinalList *L);
+char* VarLLInsert(tFinalList *L, char* name, char* func_name, tLinkedList *func_variable_list);
+
 void print_variable_declaration_Expression(tLinkedList *leftside, tExpressionList *rightside);
 void print_variable_assigment_Expression(tLinkedList *leftside,tExpressionList *rightside);
 char* Calc_Int_Expression(tExpressionNode *Rules);
