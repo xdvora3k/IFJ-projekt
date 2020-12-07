@@ -1,3 +1,8 @@
+/*
+ * IFJ project 2020
+ * Author: xkuzel08, Marie Kuzelova
+ *         
+ */
 #ifndef IFJ_PROJEKT_EXPRESSION_H
 #define IFJ_PROJEKT_EXPRESSION_H
 #include <stdio.h>
@@ -31,6 +36,5 @@ tExpressionRule extractexpression(ptrStack *stack);
 void printRule(tExpressionRule rule);
 void printStack(ptrStack* topStack);
 void printList(tExpressionList *List, tExpressionRule rule);
-//void CreateEXPList(tExpressionList *L , /*tExpressionRule *rule*/ tToken *leftToken, tToken *rightToken, int counter);
-void InsertList(tExpressionRule rule, tExpressionList *expL, tLinkedList *linkedL);
+void InsertList(tExpressionRule rule, tExpressionList *expL);
 #endif
