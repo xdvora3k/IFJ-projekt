@@ -202,12 +202,10 @@ void ExprLLCreateNextNode(tExpressionList *L, tVarDataType data_type){
             last_node = last_node->next_node;
         }
     }
-
     tExpressionNode *new_node = malloc(sizeof(tExpressionNode));
     new_node->first = NULL;
     new_node->data_type = data_type;
     new_node->next_node = NULL;
-
     if (!L->first){
         L->first = new_node;
         return;
@@ -230,26 +228,35 @@ tToken* _insert_token_to_node(tToken *token){
 }
 
 void ExprLLInsertExprToLastNode(tExpressionList *L, tToken *leftOperand, tToken* rightOperand, tToken* operator, tToken* placeHolder, ruleType typeOfRule){
+    printf("insertLast\n");
     tExpressionNode *last_node = L->first;
     if (last_node) {
+        printf("insertLast2\n");
         while (last_node->next_node) {
             last_node = last_node->next_node;
         }
     }
     tExpressionRule *last_rule = last_node->first;
+    
     if (last_rule) {
         while (last_rule->next) {
             last_rule = last_rule->next;
         }
     }
-
     tExpressionRule *new_rule = malloc(sizeof(tExpressionRule));
+    if(leftOperand != NULL){ 
     new_rule->leftOperand = _insert_token_to_node(leftOperand);
+    }
     new_rule->rightOperand = _insert_token_to_node(rightOperand);
+    if(operator != NULL){ 
     new_rule->operator = _insert_token_to_node(operator);
+    }
+    if(placeHolder != NULL){ 
     new_rule->placeHolder = _insert_token_to_node(placeHolder);
+    }
     new_rule->typeOfRule = typeOfRule;
     new_rule->next = NULL;
+    
     if (!last_node->first){
         last_node->first = new_rule;
         return;

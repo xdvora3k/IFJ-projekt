@@ -24,11 +24,6 @@ typedef enum{
     expIdentity //E -> i;
 }ruleType;
 
-typedef struct{
-    string *text;
-    tState type;
-    int endIndex;   //abc + tr = tState string
-} tToken;
 
 typedef enum{
     Frame_GF,
@@ -110,6 +105,13 @@ typedef enum {
     Unknown_type,
     UnderscoreType = -1// nilType
 } tVarDataType;
+
+typedef struct{
+    string *text;
+    tState type;
+    int endIndex;
+    tVarDataType dataType;
+} tToken;
 
 typedef struct tDataVariable {
     tVarDataType dataType;

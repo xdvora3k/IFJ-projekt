@@ -1,6 +1,24 @@
 
 #include "expressionParser.h"
 
+tVarDataType getDataType(tToken *token){
+    switch (token->type)
+    {
+    case tInteger:
+        return IntType;
+        
+    case tId:
+        
+        //L.first... = TableLLGetSingleVariable(linkedL, char* var);
+    case tFloat:
+        return Float64Type;
+    case tString:
+        return StringType;
+
+    }
+}
+
+
 void _save_to_token(tToken *token, string *string, tState type, int end_index){
     token->text = malloc(sizeof(string));
     int str_len = strlen(string->str);
@@ -11,6 +29,8 @@ void _save_to_token(tToken *token, string *string, tState type, int end_index){
     token->text->allocSize = string->allocSize;
     token->endIndex = end_index;
     token->type = type;
+    token->dataType = getDataType(token);
+    printf("token datatyp %d sta %d\n", token->dataType, token->type);
 }
 
 void get_tokenExp(tToken* token, string *input, int startIndex){
@@ -39,7 +59,6 @@ void get_tokenExp(tToken* token, string *input, int startIndex){
                 }
                 else if (is_num(c)) {
                     add_to_string(&tokenText, c);
-                    printf("tIntiger\n");
                     state = tInteger;
                 }
                 else if (c == '"') {
