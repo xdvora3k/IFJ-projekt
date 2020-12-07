@@ -1,25 +1,47 @@
 
 #include "expressionParser.h"
 
-tVarDataType getDataType(tToken *token){
+tVarDataType getDatatypefromId(tToken *token, tLinkedList *linkedL){
+    tDataVariable *var;
+    if(token == NULL){ 
+   // printf("token text  %s", token->text->str);
+    }
+   var = TableLLGetSingleVariable(linkedL, token->text->str); //or just token
+      printf("null\n");
+
+   if(var == NULL){
+       exit(SYN_ERROR);
+   } else { 
+   printf("\n*******var->dataType %d\n", var->dataType);
+   }
+   return var->dataType;
+}
+
+tVarDataType getDataType(tToken *token, tLinkedList *linkedL){
+   // tLinkedList *linkedL;
     switch (token->type)
     {
     case tInteger:
         return IntType;
         
     case tId:
+    case unknown_identifier:
+    printf("tID *****************:::::::::::::\n");
+        return getDatatypefromId(token, linkedL);
         
-        //L.first... = TableLLGetSingleVariable(linkedL, char* var);
     case tFloat:
         return Float64Type;
     case tString:
         return StringType;
 
+    default:    //not handled in switch
+    break;
+
     }
 }
 
 
-void _save_to_token(tToken *token, string *string, tState type, int end_index){
+void _save_to_token(tToken *token, string *string, tState type, int end_index, tLinkedList *list){
     token->text = malloc(sizeof(string));
     int str_len = strlen(string->str);
     token->text->str = malloc(str_len + 1);
@@ -29,12 +51,14 @@ void _save_to_token(tToken *token, string *string, tState type, int end_index){
     token->text->allocSize = string->allocSize;
     token->endIndex = end_index;
     token->type = type;
-    token->dataType = getDataType(token);
+    printf("///////////");
+    token->dataType = getDataType(token, list);
     printf("token datatyp %d sta %d\n", token->dataType, token->type);
 }
 
 void get_tokenExp(tToken* token, string *input, int startIndex){
     tState state = start;
+    tLinkedList *L;
     char c;
     int i = 0;
     string tokenText;
@@ -66,17 +90,17 @@ void get_tokenExp(tToken* token, string *input, int startIndex){
                 }
                 else if (c == '+') {
                     add_to_string(&tokenText, c);
-                    _save_to_token(token, &tokenText, tPlus, startIndex + i);
+                    _save_to_token(token, &tokenText, tPlus, startIndex + i, L);
                     return;
                 }
                 else if (c == '-') {
                     add_to_string(&tokenText, c);
-                    _save_to_token(token, &tokenText, tMinus, startIndex + i);
+                    _save_to_token(token, &tokenText, tMinus, startIndex + i, L);
                     return;
                 }
                 else if (c == '*') {
                     add_to_string(&tokenText, c);
-                    _save_to_token(token, &tokenText, tMultiply, startIndex + i);
+                    _save_to_token(token, &tokenText, tMultiply, startIndex + i, L);
                     return;
                 }
                 else if (c == '/') {
@@ -110,13 +134,13 @@ void get_tokenExp(tToken* token, string *input, int startIndex){
                 }
                 else if (c == '(') {
                     add_to_string(&tokenText, c);
-                    _save_to_token(token, &tokenText, tOpeningSimpleBrace, startIndex + i);
+                    _save_to_token(token, &tokenText, tOpeningSimpleBrace, startIndex + i, L);
                     return;
 
                 }
                 else if (c == ')') {
                     add_to_string(&tokenText, c);
-                    _save_to_token(token, &tokenText, tClosingSimpleBrace, startIndex + i);
+                    _save_to_token(token, &tokenText, tClosingSimpleBrace, startIndex + i, L);
                     return;
                 }
                 else if (c == '{') {
@@ -127,36 +151,36 @@ void get_tokenExp(tToken* token, string *input, int startIndex){
                 }
                 else if (c == EOF) {
                     add_to_string(&tokenText, '$');
-                    _save_to_token(token, &tokenText, tEOF, startIndex + i);;
+                    _save_to_token(token, &tokenText, tEOF, startIndex + i, L);;
                     return;
                 }
                 break;
             case tBiggerThan:
                 if (c == '=') {
                     add_to_string(&tokenText, c);
-                    _save_to_token(token, &tokenText, tBiggerOrEqual, startIndex + i);
+                    _save_to_token(token, &tokenText, tBiggerOrEqual, startIndex + i, L);
                     return;
                 }
                 else if (!comparison_assumption(c)) {
                     exit(LEX_ERROR);
                 }
-                _save_to_token(token, &tokenText, tBiggerThan, startIndex + i);
+                _save_to_token(token, &tokenText, tBiggerThan, startIndex + i, L);
                     return;
             case tSmallerThan:
                 if (c == '=') {
                     add_to_string(&tokenText, c);
-                    _save_to_token(token, &tokenText, tSmallerOrEqual, startIndex + i);
+                    _save_to_token(token, &tokenText, tSmallerOrEqual, startIndex + i, L);
                     return;
                 }
                 else if (!comparison_assumption(c)) {
                     exit(LEX_ERROR);
                 }
-                _save_to_token(token, &tokenText, tSmallerThan, startIndex + i);
+                _save_to_token(token, &tokenText, tSmallerThan, startIndex + i, L);
                 return;
             case tAssignment:
                 if (c == '=') {
                     add_to_string(&tokenText, c);
-                    _save_to_token(token, &tokenText, tEqual, startIndex + i);
+                    _save_to_token(token, &tokenText, tEqual, startIndex + i, L);
                     return;
                 }
                 else {
@@ -166,13 +190,14 @@ void get_tokenExp(tToken* token, string *input, int startIndex){
             case tNotEqual:
                 if (c == '=') {
                     add_to_string(&tokenText, c);
-                    _save_to_token(token, &tokenText, tNotEqual, startIndex + i);
+                    _save_to_token(token, &tokenText, tNotEqual, startIndex + i, L);
                     return;
                 }
                 exit(LEX_ERROR);
             case string_start:
                 if (c == '"') {
-                    _save_to_token(token, &tokenText, tString, startIndex + i - 1);
+                    _save_to_token(token, &tokenText, tString, startIndex + i, L);
+                    printf("save to %s\n", token->text->str);
                     return;
                 }
                 else if (c == '\\') {
@@ -234,7 +259,7 @@ void get_tokenExp(tToken* token, string *input, int startIndex){
                      exit(LEX_ERROR);
                 }
                 else {
-                    _save_to_token(token, &tokenText, tInteger, startIndex + i - 1);
+                    _save_to_token(token, &tokenText, tInteger, startIndex + i - 1, L);
                     return;
                 }
                 break;
@@ -258,7 +283,7 @@ void get_tokenExp(tToken* token, string *input, int startIndex){
                     state = float_exponent;
                 }
                 else {
-                    _save_to_token(token, &tokenText, tFloat, startIndex + i - 1);
+                    _save_to_token(token, &tokenText, tFloat, startIndex + i - 1, L);
                     return;
                 }
                 break;
@@ -276,7 +301,7 @@ void get_tokenExp(tToken* token, string *input, int startIndex){
                     exit(LEX_ERROR);
                 }
                 else {
-                    _save_to_token(token, &tokenText, tFloat, startIndex + i - 1);
+                    _save_to_token(token, &tokenText, tFloat, startIndex + i - 1, L);
                     return;
                 }
                 break;
@@ -289,7 +314,7 @@ void get_tokenExp(tToken* token, string *input, int startIndex){
                     exit(LEX_ERROR);
                 }
                 else {
-                    _save_to_token(token, &tokenText, tFloat, startIndex + i - 1);
+                    _save_to_token(token, &tokenText, tFloat, startIndex + i - 1, L);
                     return;
                 }
                 break;
@@ -308,7 +333,7 @@ void get_tokenExp(tToken* token, string *input, int startIndex){
                     add_to_string(&tokenText, c);
                 }
                 else {
-                    _save_to_token(token, &tokenText, tFloat, startIndex + i - 1);
+                    _save_to_token(token, &tokenText, tFloat, startIndex + i - 1, L);
                     return;
                 }
                 break;
@@ -330,7 +355,9 @@ void get_tokenExp(tToken* token, string *input, int startIndex){
                         state = tId;
                         
                     }
-                    _save_to_token(token, &tokenText, tInteger, startIndex + i - 1);
+                    printf("save\n");
+                    _save_to_token(token, &tokenText, state, startIndex + i - 1, L);
+                    printf("notsave\n");
                     return;
                 }
                 break;
@@ -339,7 +366,7 @@ void get_tokenExp(tToken* token, string *input, int startIndex){
                     add_to_string(&tokenText, c);
                 }
                 else{
-                    _save_to_token(token, &tokenText, tId, startIndex + i - 1);
+                    _save_to_token(token, &tokenText, tId, startIndex + i - 1, L);
                     return;
 
                 }
@@ -353,7 +380,7 @@ void get_tokenExp(tToken* token, string *input, int startIndex){
                     
                 }
                 else {
-                    _save_to_token(token, &tokenText, tDivide, startIndex + i - 1);
+                    _save_to_token(token, &tokenText, tDivide, startIndex + i - 1, L);
                     return;
                     
                 }
@@ -362,7 +389,9 @@ void get_tokenExp(tToken* token, string *input, int startIndex){
                 continue;
         }
         i++;
+        
     }
+    
 } 
 
 void TokenLLInsert(tLinkedList *L, tToken *token){
@@ -372,12 +401,13 @@ void TokenLLInsert(tLinkedList *L, tToken *token){
     ((tToken*)new_node->Content)->text = token->text;
     ((tToken*)new_node->Content)->endIndex = token->endIndex;
     ((tToken*)new_node->Content)->type = token->type;
+    ((tToken*)new_node->Content)->dataType = token->dataType;
 
     new_node->nextItem = NULL;
     
     if (!L->first){
         L->first = new_node;
-//        printf("Token test %s\n", token->text.str);
+      //  printf("Token test %s\n", token->text->str);
  //   printf("first %s\n", ((tToken*)(L->first->Content))->text.str);
         return;
     }
@@ -397,10 +427,13 @@ tLinkedList* get_tokens(string *s){
     int i = 0;  
     tToken *t = malloc(sizeof(tToken));
     do {
-        printf("index %d\n", i);
+        printf("index %d %s\n", i, s->str);
         get_tokenExp(t, s, i);
+        printf("BEFOREINSERT---\n");
         TokenLLInsert(L, t);
+        //printf("------tdatatype %d\n", t->dataType);
         i = t->endIndex + 1;
+        printf("endindex %d, s.len %d\n", t->endIndex, s->length);
         
         //printf("%s %d %d %d\n", t.text.str, t.type, t.endIndex, s->length);
     } while (t->endIndex + 1 < s->length);

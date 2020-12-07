@@ -26,11 +26,11 @@ int getTokenTableIndex(tState type);
 void precedencSA(string* input, tExpressionList *expL, tLinkedList *linkedL);
 tToken* findTerminalToken(ptrStack* topOfStack);
 void pushOpenTokenToStack(ptrStack* topOfStack, tToken* exprOpenToken);
-tExpressionRule applyrule(ptrStack *stack, tExpressionRule rule);
+tExpressionRule applyrule(ptrStack *stack, tExpressionRule rule, tLinkedList *L);
 tExpressionRule extractexpression(ptrStack *stack);
 void printRule(tExpressionRule rule);
 void printStack(ptrStack* topStack);
 void printList(tExpressionList *List, tExpressionRule rule);
 //void CreateEXPList(tExpressionList *L , /*tExpressionRule *rule*/ tToken *leftToken, tToken *rightToken, int counter);
-void InserList(tExpressionRule rule, tExpressionList *expL, tLinkedList *linkedL);
+void InsertList(tExpressionRule rule, tExpressionList *expL, tLinkedList *linkedL);
 #endif

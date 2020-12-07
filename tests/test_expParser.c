@@ -6,7 +6,11 @@ int main(){
     tToken* myToken;
     string s;
     init_string(&s);
-    adds_to_string(&s, "b-(c*d)");
+    adds_to_string(&s, "\"hej\" != \"op\""); //"\"hej\" != \"op\""
+    printf("delka str %d\n", s.length);
+    for(int i = 0; i < 18; i++){
+        printf("++---%d %c\n", i, s.str[i]);
+    }
 
     int i = 0;
    /* int index = 0;
@@ -34,6 +38,7 @@ int main(){
         printf("I %d %s\n", i, (myToken->text)->str);
 
     }
+    
     return 0;
 
 }

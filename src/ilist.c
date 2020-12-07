@@ -172,6 +172,7 @@ int TableLLGetNumOfNests(tLinkedList *func_variable_list, char* var){
 }
 
 tDataVariable* TableLLGetSingleVariable(tLinkedList *func_variable_list, char* var){
+    printf("%s var\n", var);
     if (!func_variable_list || !func_variable_list->first){
         return NULL;
     }
