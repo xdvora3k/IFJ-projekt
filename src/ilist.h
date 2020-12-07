@@ -2,6 +2,7 @@
  * IFJ project 2020
  * Author: xdvora3k, Jakub Dvorak
  *         xkvasn14, Jaroslav Kvasnicka
+ *         xkuzel08, Marie Kuzelova
  */
 
 #ifndef IFJ_PROJEKT_ILIST_H
@@ -19,7 +20,7 @@ typedef enum{
     expMINUSepx,//E -> E - E;
     expMULepx,//E -> E * E;
     expDIVepx, //E -> E / E;
-    expOPepx, //E -> E o E;
+    expOPepx, //E -> E o E: E < E || E > E || E == E || E != E || E <= E || E >= E
     expBrackets, //E -> (E);
     expIdentity //E -> i;
 }ruleType;

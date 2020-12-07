@@ -172,7 +172,6 @@ int TableLLGetNumOfNests(tLinkedList *func_variable_list, char* var){
 }
 
 tDataVariable* TableLLGetSingleVariable(tLinkedList *func_variable_list, char* var){
-    printf("%s var\n", var);
     if (!func_variable_list || !func_variable_list->first){
         return NULL;
     }
@@ -229,10 +228,8 @@ tToken* _insert_token_to_node(tToken *token){
 }
 
 void ExprLLInsertExprToLastNode(tExpressionList *L, tToken *leftOperand, tToken* rightOperand, tToken* operator, tToken* placeHolder, ruleType typeOfRule){
-    printf("insertLast\n");
     tExpressionNode *last_node = L->first;
     if (last_node) {
-        printf("insertLast2\n");
         while (last_node->next_node) {
             last_node = last_node->next_node;
         }
