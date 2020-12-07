@@ -6,7 +6,6 @@
 
 #include "ilist.h"
 
-extern FRAME currentFrame;
 
 void StrLLInit(tLinkedList *L){
     L->first = NULL;
@@ -889,7 +888,7 @@ void Print_BuiltIn_Functions()
     printf("LABEL $int2float\n"
            "PUSHFRAME\n"
            "DEFVAR LF@retval\n"
-           "INT2FLOAT LF@retval LF@i\n"
+           "INT2FLOAT LF@retval LF@-i\n"
            "POPFRAME\n"
            "RETURN\n");
     fflush(stdout);
@@ -898,7 +897,7 @@ void Print_BuiltIn_Functions()
     printf("LABEL $float2int\n"
            "PUSHFRAME\n"
            "DEFVAR LF@retval\n"
-           "FLOAT2INT LF@retval LF@f\n"
+           "FLOAT2INT LF@retval LF@-f\n"
            "POPFRAME\n"
            "RETURN\n");
     fflush(stdout);
@@ -1027,7 +1026,6 @@ void print_Mainframe_begin()
     fflush(stdout);
     //printf("PUSHFRAME\n");
     //fflush(stdout);
-    currentFrame = Frame_TF;
 }
 
 void print_Mainframe_end()

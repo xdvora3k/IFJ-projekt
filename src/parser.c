@@ -9,6 +9,7 @@ tSymtable *GlobalFuncRoot;
 tLinkedList *GlobalInstr;
 tState token;
 string attr;
+tFinalList *final_variables;
 
 int for_header_state;
 int func_has_return;
@@ -635,8 +636,6 @@ void _process_function_call(tLinkedList *func_variable_list, tLinkedList *left_v
         }
         // TODO: call `print` or custom non-return type function
 
-        print_print_Expression(right_side);
-        fflush(stdout);
     }
 }
 
@@ -981,6 +980,11 @@ void skip_func_declaration(){
     }
 }
 
+void _print_function_defvar_param(char* var_name, char* func_name, tLinkedList *func_variable_list){
+    char* var_real_name = VarLLInsert(final_variables, var_name, func_name, func_variable_list);
+    printf("DEFVAR LF@%s\n", var_real_name);
+}
+
 void func_definition(){
     tBSTNodePtr func_node = SymTableSearch(GlobalFuncRoot, FUNC_NAME.str);
     tSymtable local_variables;
@@ -1004,6 +1008,24 @@ void func_definition(){
         tListItem *var_item = StrLLLocateNthElem(&((tDataFunction*) func_node->Content)->paramNames, i);
         tBSTNodePtr var_node = SymTableInsertVariable(&local_variables, (char*) var_item->Content);
         _insert_var_datatype(var_node, ((tDataFunction*) func_node->Content)->params.str[i]);
+        _print_function_defvar_param(var_node->Key, FUNC_NAME.str, &func_variable_list);
+    }
+
+    int num_of_return_types = ((tDataFunction*) func_node->Content)->returnType.length;
+    for (int i = 0; i < num_of_return_types; i++){
+        switch (((tDataFunction*) func_node->Content)->returnType.str[i]){
+            case 'i':
+                printf("DEFVAR LF@-retvalInt_%s_%d\n", FUNC_NAME.str, i);
+                break;
+            case 's':
+                printf("DEFVAR LF@-retvalString_%s_%d\n", FUNC_NAME.str, i);
+                break;
+            case 'f':
+                printf("DEFVAR LF@-retvalFloat_%s_%d\n", FUNC_NAME.str, i);
+                break;
+            default:
+                free_and_exit(INTERNAL_ERROR, &func_variable_list, NULL);
+        }
     }
 
     // Proceeding with parsing function body
@@ -1113,6 +1135,8 @@ void program(){
     first_pass(); // declare functions
     check_package_main();
     // Proceeding with function def
+    final_variables = malloc(sizeof(tFinalList));
+    VarLLInit(final_variables);
     token = get_token_with_handle_EOL(&attr);
     while (token != tEOF){
         parse_func();

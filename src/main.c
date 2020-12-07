@@ -8,7 +8,6 @@
 #include "symtable.h"
 #include "parser.h"
 
-FRAME currentFrame = Frame_GF;
 tLinkedList *final_variables;
 
 int main() {
