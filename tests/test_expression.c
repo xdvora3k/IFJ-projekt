@@ -9,10 +9,10 @@ int main(){
   ExprLLInit(L);
   //TableLLInit(list);
   printf("here\n");
-  string input;
+  string input;         //noda a node b = a+9 , t*5-9
    init_string(&input);
    printf("\n");
-   adds_to_string(&input, "0");   //a+v*c //"58-o+1+9"
+   adds_to_string(&input, "8<0");   //a+v*c //"58-o+1+9" //8-9+5*8/(86+9)
    printf("input %s . %d\n", input.str, input.length);
   // L->first->data_type = IntType;
    precedencSA(&input, L ,list);

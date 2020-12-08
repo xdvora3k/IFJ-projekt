@@ -164,7 +164,7 @@ void get_tokenExp(tToken* token, string *input, int startIndex){
                 else if (!comparison_assumption(c)) {
                     exit(LEX_ERROR);
                 }
-                _save_to_token(token, &tokenText, tBiggerThan, startIndex + i, L);
+                _save_to_token(token, &tokenText, tBiggerThan, startIndex + i - 1, L);
                     return;
             case tSmallerThan:
                 if (c == '=') {
@@ -175,7 +175,7 @@ void get_tokenExp(tToken* token, string *input, int startIndex){
                 else if (!comparison_assumption(c)) {
                     exit(LEX_ERROR);
                 }
-                _save_to_token(token, &tokenText, tSmallerThan, startIndex + i, L);
+                _save_to_token(token, &tokenText, tSmallerThan, startIndex + i - 1, L);
                 return;
             case tAssignment:
                 if (c == '=') {
