@@ -2,6 +2,7 @@
  * IFJ project 2020
  * Author: xdvora3k, Jakub Dvorak
  *         xkvasn14, Jaroslav Kvasnicka
+ *         xkuzel08, Marie Kuzelova
  */
 
 #ifndef IFJ_PROJEKT_ILIST_H
@@ -12,7 +13,18 @@
 #include <string.h>
 #include "symtable.h"
 #include "str.h"
-#include "expression.h"
+#include "scanner.h"
+
+typedef enum{
+    expPLUSepx,//E -> E + E;
+    expMINUSepx,//E -> E - E;
+    expMULepx,//E -> E * E;
+    expDIVepx, //E -> E / E;
+    expOPepx, //E -> E o E: E < E || E > E || E == E || E != E || E <= E || E >= E
+    expBrackets, //E -> (E);
+    expIdentity //E -> i;
+}ruleType;
+
 
 typedef enum{
     Frame_GF,
@@ -94,6 +106,13 @@ typedef enum {
     Unknown_type,
     UnderscoreType = -1// nilType
 } tVarDataType;
+
+typedef struct{
+    string *text;
+    tState type;
+    int endIndex;
+    tVarDataType dataType;
+} tToken;
 
 typedef struct tDataVariable {
     tVarDataType dataType;
