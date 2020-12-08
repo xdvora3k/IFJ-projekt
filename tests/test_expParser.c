@@ -20,8 +20,9 @@ int main(){
     index = 1;
     myToken = get_tokenExp(&s, index);
     printf("%s and %d\n", myToken.text->str, myToken.type);*/
-
-    tLinkedList *List = get_tokens(&s);
+    tLinkedList *L = malloc(sizeof(tLinkedList));
+    StrLLInit(L);
+    tLinkedList *List = get_tokens(&s, L);
     //printf("%s %s", ((tToken*)List.first->Content)->text.str, "a");
     //printf("\n N\n");
     tListItem* listItem = List->first;

@@ -67,7 +67,7 @@ int getTokenTableIndex(tState type)
 
 void precedencSA(string *input, tExpressionList *expL, tLinkedList *linkedL)
 {
-    tLinkedList *tokens = get_tokens(input);
+    tLinkedList *tokens = get_tokens(input, linkedL);
 
 
     ptrStack topOfStack;
