@@ -18,18 +18,18 @@ int main(){
    printf("\n");
 
  /* string errorstr;    //SEM_GET_DATATYPE_ERROR test
-  int i;
+ // int i;
    init_string(&errorstr);
    printf("\n");
    adds_to_string(&errorstr, "8+9.2");   //a+v*c //"58-o+1+9"
    printf("input %s . %d\n", errorstr.str, errorstr.length);
   // L->first->data_type = IntType;
-  list = get_tokens(&errorstr);
+  list = get_tokens(&errorstr, list);
       tListItem* listItem = list->first;
    tToken* myToken = (tToken*)listItem->Content;
-    //printf("List: %s", myToken.text->str);
+   
     printf("I %d %s \n", i, (myToken->text)->str);
-   // printf("Index = 2\n");//%d and %s\n", i, (myToken->text).str);
+   
 
     while (listItem->nextItem)
     {
@@ -50,6 +50,14 @@ int main(){
    adds_to_string(&input3, "8*9-7"); //e*d-3
    printf("Input3 %s . %d\n", input3.str, input3.length);
    precedencSA(&input3, L ,list);
+   printf("\n");
+
+      string input35;
+   init_string(&input35);
+   printf("\n");
+   adds_to_string(&input35, "8*9-(7*9)"); //e*d-3
+   printf("Input3 %s . %d\n", input35.str, input35.length);
+   precedencSA(&input35, L ,list);
    printf("\n");
 
 
