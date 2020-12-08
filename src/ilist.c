@@ -237,6 +237,7 @@ void ExprLLInsertExprToLastNode(tExpressionList *L, tToken *leftOperand, tToken*
             last_node = last_node->next_node;
         }
     }
+    printf("hhajajaja\n");
     tExpressionRule *last_rule = last_node->first;
     
     if (last_rule) {
@@ -244,10 +245,12 @@ void ExprLLInsertExprToLastNode(tExpressionList *L, tToken *leftOperand, tToken*
             last_rule = last_rule->next;
         }
     }
+    printf("koiijiij\n");
     tExpressionRule *new_rule = malloc(sizeof(tExpressionRule));
     if(leftOperand != NULL){ 
     new_rule->leftOperand = _insert_token_to_node(leftOperand);
     }
+    printf("ttttt\n");
     new_rule->rightOperand = _insert_token_to_node(rightOperand);
     if(operator != NULL){ 
     new_rule->operator = _insert_token_to_node(operator);
@@ -257,7 +260,7 @@ void ExprLLInsertExprToLastNode(tExpressionList *L, tToken *leftOperand, tToken*
     }
     new_rule->typeOfRule = typeOfRule;
     new_rule->next = NULL;
-    
+    printf("hereeeee\n");
     if (!last_node->first){
         last_node->first = new_rule;
         return;

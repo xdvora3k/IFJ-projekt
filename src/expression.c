@@ -141,12 +141,18 @@ void precedencSA(string *input, tExpressionList *expL, tLinkedList *linkedL)
             case '<':
                 //zamen a za a<
                 printf("<<<<<<<<<<<<<<<<\n");
-                if(rule.leftOperand != NULL){
+                printf("rrrr %d %d\n", rule.rightOperand->dataType, rule.rightOperand->type);
+                /*if(rule.leftOperand == NULL){
+                    printf("nonononoo\n");
+                    expL->first->first->rightOperand = rule.rightOperand;
+                    //ruleInit(rule);
+
                     printf("here am %d\n", rule.rightOperand->type);
+                    printf("here am %p\n", rule.leftOperand);
                     printf("type %d\n", rule.typeOfRule); 
                     ExprLLInsertExprToLastNode(expL, rule.leftOperand, rule.operator, rule.placeHolder, rule.rightOperand, rule.typeOfRule);
                     printf("padne?\n");
-                }
+                }*/
                 pushOpenTokenToStack(&topOfStack, &exprOpenToken);
                 StackPush(&topOfStack, inputToken);
                 //  printStack(&topOfStack);
@@ -206,7 +212,7 @@ void precedencSA(string *input, tExpressionList *expL, tLinkedList *linkedL)
    ExprLLInit(&justTestingList);
    justTestingList = InsertList(rule);*/
    //printf("rightOperand %s\n", expL->first->next_node->first->rightOperand->text->str);
-
+    printf("hejj %d\n", rule.rightOperand->dataType);
     // justTestingList.first->data_type = IntType;
     tLinkedList list;
     StrLLInit(&list);
@@ -221,6 +227,10 @@ void precedencSA(string *input, tExpressionList *expL, tLinkedList *linkedL)
     printf("next %s\n", expL->first->first->next->rightOperand->text->str);
     printf("nn %s\n", expL->first->first->next->operator->text->str);
     printf("nn %s\n", expL->first->first->next->leftOperand->text->str);*/
+
+    if(rule.rightOperand != NULL && rule.leftOperand == NULL){
+        printf("lolololo %d\n", rule.rightOperand->dataType);
+    }
 
 }
 
@@ -521,6 +531,7 @@ void printStack(ptrStack *topStack)
 //}
 
 void CreateNode(tExpressionRule rule, tExpressionList *expL){
+
     if (rule.typeOfRule == expBrackets)
     {
         printf("Nono\n");
@@ -531,7 +542,8 @@ void CreateNode(tExpressionRule rule, tExpressionList *expL){
         printf("DODOD\n");
         ExprLLCreateNextNode(expL, rule.rightOperand->dataType);
     }
-
+    printf("hetttt\n");
+    printf("hereee %p\n", rule.leftOperand);
 }
 void InsertList(tExpressionRule rule, tExpressionList *expL, tLinkedList *linkedL)
 {
