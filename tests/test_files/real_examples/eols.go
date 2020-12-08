@@ -7,9 +7,13 @@ func add(i /*zde se nesmi odradkovat*/ int,
 }
 
 func main() /*zde se nesmi odradkovat*/ {
-	i := 0
+    f := 10.0 + 1.2
+     a := "str" + "str"
+	i := 1 + 1
+	f = int2float(5)
+	a,i = inputs()
 	i = add( /* zde muzeme odradkovavat*/
-		1, /*pred carkou se nesmi, za carkou muze odradkovat*/
+		a, /*pred carkou se nesmi, za carkou muze odradkovat*/
 		1 /*zde se nesmi odradkovat*/)
 	print(i, "\n")
 	i = /* zde muzeme odradkovavat*/
