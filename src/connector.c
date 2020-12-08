@@ -69,14 +69,16 @@ char* VarLLGetRealName(tFinalList *L, char* name, char* func_name, tLinkedList *
     if (!func_name){
         func_name = FUNC_NAME.str;
     }
+    int nests;
     char *key = malloc(strlen(name) + 10);
-    int nests = TableLLGetNumOfNests(func_variable_list, name);
+    if (func_variable_list) {
+        nests = TableLLGetNumOfNests(func_variable_list, name);
+    }
+    else {
+        nests = 1;
+    }
     if ((!strcmp(name, "-if") || !strcmp(name, "-else") || !strcmp(name,"-ifend") || !strcmp(name,"-forbegin") || !strcmp(name,"-forend")) && !nests){
         nests = TableLLLen(func_variable_list) - 1;
-//        if(!strcmp(name,"-forbegin") || !strcmp(name,"-forend"))
-//        {
-//            nests--;
-//        }
     }
     snprintf(key, strlen(name) + 10, "%s_%s_%d", name, func_name, nests);
     tFinalVariable *var = _search_for_variable(L, key);
@@ -90,9 +92,9 @@ char* VarLLGetReturnRealName(char* func_name, int index){
     if (!func_name){
         func_name = FUNC_NAME.str;
     }
-    tDataFunction *func_node = (tDataFunction*) SymTableSearch(GlobalFuncRoot, func_name);
+    tBSTNodePtr func_node = SymTableSearch(GlobalFuncRoot, func_name);
     char* retval = malloc(strlen(func_name) + 20);
-    switch (func_node->returnType.str[index]){
+    switch (((tDataFunction*) func_node->Content)->returnType.str[index]){
         case 'i':
             snprintf(retval, strlen(func_name) + 20, "-retvalInt_%s_%d", func_name, index);
             break;
@@ -130,19 +132,19 @@ void print_variable_declaration_Expression(tLinkedList *leftside, tExpressionLis
 
     if(rightside->first->data_type == IntType)
     {
-        printfS = Calc_Int_Expression(rightside->first);
+        printfS = Calc_Int_Expression(rightside->first,func_variable_list);
         left = ChangeOperand(left,VarLLInsert(final_variables,leftside->first->Content, NULL, func_variable_list),"",IntType,Frame_LF);
         right = ChangeOperand(right,printfS,"",IntType,Frame_LF);
     }
     else if(rightside->first->data_type == Float64Type)
     {
-        printfS = Calc_Float_Expression(rightside->first);
+        printfS = Calc_Float_Expression(rightside->first,func_variable_list);
         left = ChangeOperand(left,VarLLInsert(final_variables,leftside->first->Content, NULL, func_variable_list),"",Float64Type,Frame_LF);
         right = ChangeOperand(right,printfS,"",Float64Type,Frame_LF);
     }
     else if(rightside->first->data_type == StringType)
     {
-        printfS = Calc_String_Expression(rightside->first);
+        printfS = Calc_String_Expression(rightside->first,func_variable_list);
         left = ChangeOperand(left,VarLLInsert(final_variables,leftside->first->Content, NULL, func_variable_list),"",StringType,Frame_LF);
         right = ChangeOperand(right,printfS,"",StringType,Frame_LF);
     }
@@ -168,34 +170,31 @@ void print_return_assignment( tExpressionList *rightside, char* funcName, tLinke
     for(int i = 0 ; i < numberOReturns ; i++)
     {
         char*  returnVars = VarLLGetReturnRealName(funcName,i);
+        fflush(stdout);
 
         tExpressionNode *RightItem = ExprLLGetNthNode(rightside,i);
         tInstructionOperand *opVar = CreateOperand("","",Unknown_type,Frame_NaN);
         tInstructionOperand *opVal = CreateOperand("","",Unknown_type,Frame_NaN);
 
-        int expresionLength = ExprLLRuleRuleLen(RightItem);
 
-        for(int j = 0; j < expresionLength; j++)
-        {
-            tExpressionRule *rule = ExprLLGetNthRuleRule(RightItem,j);
-            if(rule->rightOperand->type == tId)
-                rule->rightOperand->text->str = VarLLGetRealName(final_variables,rule->rightOperand->text->str, NULL, func_variable_list);
-        }
+
+
+
 
         switch(RightItem->data_type)
         {
             case IntType:
-                printfS = Calc_Int_Expression(RightItem);
+                printfS = Calc_Int_Expression(RightItem,func_variable_list);
                 opVar = ChangeOperand(opVar,returnVars,"",IntType,Frame_LF);
                 opVal = ChangeOperand(opVal,printfS,"",IntType,Frame_LF);
                 break;
             case Float64Type:
-                printfS = Calc_Int_Expression(RightItem);
+                printfS = Calc_Float_Expression(RightItem,func_variable_list);
                 opVar = ChangeOperand(opVar,returnVars,"",Float64Type,Frame_LF);
                 opVal = ChangeOperand(opVal,printfS,"",Float64Type,Frame_LF);
                 break;
             case StringType:
-                printfS = Calc_String_Expression(RightItem);
+                printfS = Calc_String_Expression(RightItem,func_variable_list);
                 opVar = ChangeOperand(opVar,returnVars,"",StringType,Frame_LF);
                 opVal = ChangeOperand(opVal,printfS,"",StringType,Frame_LF);
                 break;
@@ -238,17 +237,17 @@ void print_variable_assigment_Expression(tLinkedList *leftside,tExpressionList *
         switch(RightItem->data_type)
         {
             case IntType:
-                printfS = Calc_Int_Expression(RightItem);
+                printfS = Calc_Int_Expression(RightItem,func_variable_list);
                 opVar = ChangeOperand(opVar,VarLLGetRealName(final_variables,LeftItem->Content, NULL, func_variable_list),"",IntType,Frame_LF);
                 opVal = ChangeOperand(opVal,printfS,"",IntType,Frame_LF);
                 break;
             case Float64Type:
-                printfS = Calc_Int_Expression(RightItem);
+                printfS = Calc_Float_Expression(RightItem,func_variable_list);
                 opVar = ChangeOperand(opVar,VarLLGetRealName(final_variables,LeftItem->Content, NULL, func_variable_list),"",Float64Type,Frame_LF);
                 opVal = ChangeOperand(opVal,printfS,"",Float64Type,Frame_LF);
                 break;
             case StringType:
-                printfS = Calc_String_Expression(RightItem);
+                printfS = Calc_String_Expression(RightItem,func_variable_list);
                 opVar = ChangeOperand(opVar,VarLLGetRealName(final_variables,LeftItem->Content, NULL, func_variable_list),"",StringType,Frame_LF);
                 opVal = ChangeOperand(opVal,printfS,"",StringType,Frame_LF);
                 break;
@@ -264,7 +263,7 @@ void print_variable_assigment_Expression(tLinkedList *leftside,tExpressionList *
 
 }
 
-char* Calc_Int_Expression(tExpressionNode *Rules)
+char* Calc_Int_Expression(tExpressionNode *Rules,tLinkedList *func_variable_list)
 {
     tExpressionRule *rule;
     int expLength = ExprLLRuleRuleLen(Rules);
@@ -281,6 +280,16 @@ char* Calc_Int_Expression(tExpressionNode *Rules)
     for(int i = 0; i < expLength; i++)
     {
         rule = ExprLLGetNthRuleRule(Rules,i);
+
+        string ruleLeftStr; init_string(&ruleLeftStr);
+        string ruleRightStr; init_string(&ruleRightStr);
+        adds_to_string(&ruleLeftStr,rule->leftOperand->text->str);
+        adds_to_string(&ruleRightStr,rule->rightOperand->text->str);
+        clear_str(rule->leftOperand->text);
+        clear_str(rule->rightOperand->text);
+        adds_to_string(rule->leftOperand->text,VarLLGetRealName(final_variables,ruleLeftStr.str,NULL,func_variable_list));
+        adds_to_string(rule->rightOperand->text,VarLLGetRealName(final_variables,ruleRightStr.str,NULL,func_variable_list));
+
         if(rule->leftOperand->type == tId)
         {
 
@@ -383,7 +392,7 @@ char* Calc_Int_Expression(tExpressionNode *Rules)
     return opV->name;
 }
 
-char* Calc_Float_Expression(tExpressionNode *Rules)
+char* Calc_Float_Expression(tExpressionNode *Rules,tLinkedList *func_variable_list)
 {
     tExpressionRule *rule;
     int expLength = ExprLLRuleRuleLen(Rules);
@@ -399,6 +408,17 @@ char* Calc_Float_Expression(tExpressionNode *Rules)
     for(int i = 0; i < expLength; i++)
     {
         rule = ExprLLGetNthRuleRule(Rules,i);
+
+        string ruleLeftStr; init_string(&ruleLeftStr);
+        string ruleRightStr; init_string(&ruleRightStr);
+        adds_to_string(&ruleLeftStr,rule->leftOperand->text->str);
+        adds_to_string(&ruleRightStr,rule->rightOperand->text->str);
+        clear_str(rule->leftOperand->text);
+        clear_str(rule->rightOperand->text);
+        adds_to_string(rule->leftOperand->text,VarLLGetRealName(final_variables,ruleLeftStr.str,NULL,func_variable_list));
+        adds_to_string(rule->rightOperand->text,VarLLGetRealName(final_variables,ruleRightStr.str,NULL,func_variable_list));
+
+
         if(rule->leftOperand->type == tId)
         {opL = ChangeOperand(opL,rule->leftOperand->text->str,"",Float64Type,Frame_LF);}
         else
@@ -495,7 +515,7 @@ char* Calc_Float_Expression(tExpressionNode *Rules)
     return opV->name;
 }
 
-char* Calc_String_Expression(tExpressionNode *Rules)
+char* Calc_String_Expression(tExpressionNode *Rules,tLinkedList *func_variable_list)
 {
     tExpressionRule *rule;
     int expLength = ExprLLRuleRuleLen(Rules);
@@ -511,6 +531,17 @@ char* Calc_String_Expression(tExpressionNode *Rules)
     for(int i = 0; i < expLength; i++)
     {
         rule = ExprLLGetNthRuleRule(Rules,i);
+
+        string ruleLeftStr; init_string(&ruleLeftStr);
+        string ruleRightStr; init_string(&ruleRightStr);
+        adds_to_string(&ruleLeftStr,rule->leftOperand->text->str);
+        adds_to_string(&ruleRightStr,rule->rightOperand->text->str);
+        clear_str(rule->leftOperand->text);
+        clear_str(rule->rightOperand->text);
+        adds_to_string(rule->leftOperand->text,VarLLGetRealName(final_variables,ruleLeftStr.str,NULL,func_variable_list));
+        adds_to_string(rule->rightOperand->text,VarLLGetRealName(final_variables,ruleRightStr.str,NULL,func_variable_list));
+
+
         if(rule->leftOperand->type == tId)
         {opL = ChangeOperand(opL,rule->leftOperand->text->str,"",StringType,Frame_LF);}
         else
@@ -916,7 +947,7 @@ void print_function_assigment(tLinkedList *leftside, char* funcName,tPassedSide*
             tPassedNode *InputParameter = PassedLLGetNode(params,i);
 
             tInstructionOperand *varI = CreateOperand(VarLLGetRealName(final_variables,InputVariable->value,NULL, func_variable_list),"",InputVariable->data_type,Frame_LF);
-            tInstructionOperand *parI = CreateOperand(VarLLGetRealName(final_variables,InputParameter->value,NULL, func_variable_list),"",InputParameter->data_type,Frame_LF);
+            tInstructionOperand *parI = CreateOperand(VarLLGetRealName(final_variables,InputParameter->value,NULL, NULL),"",InputParameter->data_type,Frame_LF);
             Instruction2(I_MOVE,*varI,*parI);
         }
 
@@ -943,13 +974,13 @@ void print_if_begin(tExpressionNode* expList, tLinkedList *func_variable_list)
     switch (expList->data_type)
     {
         case IntType:
-            adds_to_string(&ifExpression,Calc_Int_Expression(expList));
+            adds_to_string(&ifExpression,Calc_Int_Expression(expList,func_variable_list));
             break;
         case Float64Type:
-            adds_to_string(&ifExpression,Calc_Float_Expression(expList));
+            adds_to_string(&ifExpression,Calc_Float_Expression(expList,func_variable_list));
             break;
         case StringType:
-            adds_to_string(&ifExpression,Calc_String_Expression(expList));
+            adds_to_string(&ifExpression,Calc_String_Expression(expList,func_variable_list));
             break;
         case UnderscoreType:
             break;
@@ -1118,13 +1149,13 @@ void print_for_begin(tExpressionNode* expList, tLinkedList *leftsideAssigment, t
     switch (expList->data_type)
     {
         case IntType:
-            adds_to_string(&ifExpression,Calc_Int_Expression(expList));
+            adds_to_string(&ifExpression,Calc_Int_Expression(expList,func_variable_list));
             break;
         case Float64Type:
-            adds_to_string(&ifExpression,Calc_Float_Expression(expList));
+            adds_to_string(&ifExpression,Calc_Float_Expression(expList,func_variable_list));
             break;
         case StringType:
-            adds_to_string(&ifExpression,Calc_String_Expression(expList));
+            adds_to_string(&ifExpression,Calc_String_Expression(expList,func_variable_list));
             break;
         case UnderscoreType:
             break;

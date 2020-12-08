@@ -26,7 +26,7 @@ typedef enum
 }   IndexOfPrecedentTable;
 
 int getTokenTableIndex(tState type);
-void precedencSA(string* input, tExpressionList *expL, tLinkedList *linkedL);
+tExpressionList* precedencSA(string *input, tExpressionList *expL, tLinkedList *linkedL);
 tToken* findTerminalToken(ptrStack* topOfStack);
 void pushOpenTokenToStack(ptrStack* topOfStack, tToken* exprOpenToken);
 tExpressionRule applyrule(ptrStack *stack, tExpressionRule rule, tLinkedList *L);

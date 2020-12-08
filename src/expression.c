@@ -64,7 +64,7 @@ int getTokenTableIndex(tState type)
     return -1;
 }
 
-void precedencSA(string *input, tExpressionList *expL, tLinkedList *linkedL)
+tExpressionList* precedencSA(string *input, tExpressionList *expL, tLinkedList *linkedL)
 {
     tLinkedList *tokens = get_tokens(input, linkedL);
 
@@ -162,6 +162,7 @@ void precedencSA(string *input, tExpressionList *expL, tLinkedList *linkedL)
      // printf("\n !!!!!!rule l: %s %s r:%s\n", rule.leftOperand->text->str, rule.operator->text->str, rule.rightOperand->text->str);
 
     counter = 0;
+    return expL;
 }
 
 void pushOpenTokenToStack(ptrStack *topOfStack, tToken *exprOpenToken)
