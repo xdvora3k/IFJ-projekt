@@ -1,8 +1,8 @@
 /*
  * IFJ project 2020
- * Author: xkuzel08, Marie Kuzelova
- *         
+ * Author: xkuzel08, Marie Kuzelova        
  */
+
 #ifndef IFJ_PROJEKT_EXPRESSION_PARSER_H
 #define IFJ_PROJEKT_EXPRESSION_PARSER_H
 

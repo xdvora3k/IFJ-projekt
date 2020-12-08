@@ -1,14 +1,16 @@
 /*
  * IFJ project 2020
- * Author: xkuzel08, Marie Kuzelova
- *         
+ * Author: xkuzel08, Marie Kuzelova       
  */
 #include "expressionParser.h"
 
 tVarDataType getDatatypefromId(tToken *token, tLinkedList *linkedL)
 {
     tDataVariable *var;
-    var = TableLLGetSingleVariable(linkedL, token->text->str);
+    if (token == NULL)
+    {
+    }
+    var = TableLLGetSingleVariable(linkedL, token->text->str); //or just token
 
     if (var == NULL)
     {
@@ -19,7 +21,7 @@ tVarDataType getDatatypefromId(tToken *token, tLinkedList *linkedL)
 
 tVarDataType getDataType(tToken *token, tLinkedList *linkedL)
 {
-
+    // tLinkedList *linkedL;
     switch (token->type)
     {
     case tInteger:
@@ -175,7 +177,6 @@ void get_tokenExp(tToken *token, string *input, int startIndex, tLinkedList *L)
             {
                 add_to_string(&tokenText, '$');
                 _save_to_token(token, &tokenText, tEOF, startIndex + i, L);
-                
                 return;
             }
             break;
@@ -190,7 +191,7 @@ void get_tokenExp(tToken *token, string *input, int startIndex, tLinkedList *L)
             {
                 exit(LEX_ERROR);
             }
-            _save_to_token(token, &tokenText, tBiggerThan, startIndex + i, L);
+            _save_to_token(token, &tokenText, tBiggerThan, startIndex + i - 1, L);
             return;
         case tSmallerThan:
             if (c == '=')
@@ -203,7 +204,7 @@ void get_tokenExp(tToken *token, string *input, int startIndex, tLinkedList *L)
             {
                 exit(LEX_ERROR);
             }
-            _save_to_token(token, &tokenText, tSmallerThan, startIndex + i, L);
+            _save_to_token(token, &tokenText, tSmallerThan, startIndex + i - 1, L);
             return;
         case tAssignment:
             if (c == '=')
@@ -502,6 +503,5 @@ tLinkedList *get_tokens(string *s, tLinkedList *List)
         //printf("endindex %d, s.len %d\n", t->endIndex, s->length);
 
     } while (t->endIndex + 1 < s->length);
-
     return L;
 }

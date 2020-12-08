@@ -5,31 +5,32 @@
 
 int main(){
   tExpressionList *L = malloc(sizeof(tExpressionList));
-  tLinkedList *list = malloc(sizeof(tLinkedList));
-  StrLLInit(list);
+  tLinkedList *list = malloc(sizeof(tLinkedList));;
   ExprLLInit(L);
   //TableLLInit(list);
-  string input;
+  string input;         //noda a node b = a+9 , t*5-9
    init_string(&input);
    printf("\n");
-   adds_to_string(&input, "15.1+2.1+5.2");   //a+v*c //"58-o+1+9"
+   adds_to_string(&input, "8<0");   //a+v*c //"58-o+1+9" //8-9+5*8/(86+9)
    printf("input %s . %d\n", input.str, input.length);
+  // L->first->data_type = IntType;
    precedencSA(&input, L ,list);
    printf("\n");
 
- /* string errorstr;    //SEM_GET_DATATYPE_ERROR test
- // int i;
+ /* string errorstr;
+  int i;
    init_string(&errorstr);
    printf("\n");
    adds_to_string(&errorstr, "8+9.2");   //a+v*c //"58-o+1+9"
    printf("input %s . %d\n", errorstr.str, errorstr.length);
   // L->first->data_type = IntType;
-  list = get_tokens(&errorstr, list);
+  list = get_tokens(&errorstr);
       tListItem* listItem = list->first;
    tToken* myToken = (tToken*)listItem->Content;
-   
+    //printf("List: %s", myToken.text->str);
     printf("I %d %s \n", i, (myToken->text)->str);
-   
+   // printf("Index = 2\n");//%d and %s\n", i, (myToken->text).str);
+
 
     while (listItem->nextItem)
     {
@@ -44,23 +45,20 @@ int main(){
    precedencSA(&errorstr, L ,list);
    printf("\n");*/
 
-   string input3;
+   /*string input3;
    init_string(&input3);
    printf("\n");
-   adds_to_string(&input3, "8*9-7"); //e*d-3
+   adds_to_string(&input3, "e*d-3");
    printf("Input3 %s . %d\n", input3.str, input3.length);
    precedencSA(&input3, L ,list);
-   printf("\n");
+   printf("\n");*/
 
-      string input35;
-   init_string(&input35);
-   printf("\n");
-   adds_to_string(&input35, "8*9-(7*9)"); //e*d-3
-   printf("Input3 %s . %d\n", input35.str, input35.length);
-   precedencSA(&input35, L ,list);
-   printf("\n");
-
-
+/*   string input4;
+   init_string(&input4);
+   adds_to_string(&input4, "b+4, r*t, 4-8");
+   printf("Input4 %s . %d\n", input4.str, input4.length);
+   precedencSA(&input4);
+*/
    /*string input5;
    init_string(&input5);
    printf("\n");
@@ -103,23 +101,20 @@ int main(){
    printf("Input2 %s . %d\n", input11.str, input11.length);
    precedencSA(&input11);
 */
- /* tToken * tok = malloc(sizeof(tToken));
-  string testinp;
-  init_string(&testinp);
-  adds_to_string(&testinp, "p");
+/*tToken * tok;
+string testinp;
+init_string(&testinp);
+add_to_string(&testinp, "p");
+tok->text = &testinp;
+    StrLLInsert(list, tok->text);*/
 
-  
-  tok->text->str = &testinp;
-  printf("test token %s\n", tok->text->str);*/
- // StrLLInsert(list, tok->text->str);
 
-/*
    string input12;
    init_string(&input12);
    printf("\n");
-   adds_to_string(&input12, "+p = 9"); //error   
+   adds_to_string(&input12, "+8 = 9"); //error   
    printf("Input2 %s . %d\n", input12.str, input12.length);
-   precedencSA(&input12,L, list);*/
+   precedencSA(&input12,L, list);
 /*
   string input13;
    init_string(&input13);
@@ -128,12 +123,12 @@ int main(){
    printf("Input2 %s . %d\n", input13.str, input13.length);
    precedencSA(&input13, L, list);*/
    
-  string inputa;
+ /* string inputa;
    init_string(&inputa);
    printf("\n");
    adds_to_string(&inputa, "\"hej\" != \"op\"");    
    printf("Input2 %s . %d\n", inputa.str, inputa.length);
    precedencSA(&inputa, L, list);
-
+*/
    return 0;
 }

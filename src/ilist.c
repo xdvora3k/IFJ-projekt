@@ -220,6 +220,7 @@ tToken* _insert_token_to_node(tToken *token){
     ret->text = malloc(sizeof(string));
     ret->text->allocSize = token->text->allocSize;
     ret->text->length = token->text->length;
+    ret->dataType = token->dataType;
     int str_len = strlen(token->text->str);
     ret->text->str = malloc(str_len + 1);
     strncpy(ret->text->str, token->text->str, str_len);
@@ -228,12 +229,15 @@ tToken* _insert_token_to_node(tToken *token){
 }
 
 void ExprLLInsertExprToLastNode(tExpressionList *L, tToken *leftOperand, tToken* rightOperand, tToken* operator, tToken* placeHolder, ruleType typeOfRule){
+    
     tExpressionNode *last_node = L->first;
     if (last_node) {
+      
         while (last_node->next_node) {
             last_node = last_node->next_node;
         }
     }
+
     tExpressionRule *last_rule = last_node->first;
     
     if (last_rule) {
