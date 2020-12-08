@@ -475,6 +475,10 @@ void CreateInstruction(INSTRUCTION InstrType, char *addr1, char *addr2, char *ad
 
 tInstructionOperand* CreateOperand(char* name, char* value, tVarDataType type, FRAME f)
 {
+    if(!name)
+    {
+        return NULL;
+    }
     tInstructionOperand *o = malloc(sizeof(tInstructionOperand));
     int str_len_name = strlen(name);
     int str_len_value = strlen(value);
@@ -491,6 +495,7 @@ tInstructionOperand* CreateOperand(char* name, char* value, tVarDataType type, F
 
 tInstructionOperand* ChangeOperand (tInstructionOperand *op, char* name,char* value, tVarDataType type,FRAME f)
 {
+    //printf("%s , %s\n",name,value);
     int str_len_name = strlen(name);
     int str_len_value = strlen(value);
     op->name = realloc(op->name,str_len_name + 1);
