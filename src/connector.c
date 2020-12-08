@@ -159,16 +159,10 @@ void print_return_assignment( tExpressionList *rightside, char* funcName, tLinke
     for(int i = 0 ; i < numberOReturns ; i++)
     {
         char*  returnVars = VarLLGetReturnRealName(funcName,i);
-        fflush(stdout);
 
         tExpressionNode *RightItem = ExprLLGetNthNode(rightside,i);
         tInstructionOperand *opVar = CreateOperand("","",Unknown_type,Frame_NaN);
         tInstructionOperand *opVal = CreateOperand("","",Unknown_type,Frame_NaN);
-
-
-
-
-
 
         switch(RightItem->data_type)
         {
@@ -260,7 +254,8 @@ char* Calc_Int_Expression(tExpressionNode *Rules,tLinkedList *func_variable_list
         rule = ExprLLGetNthRuleRule(Rules,i);
         string ruleLeftStr; init_string(&ruleLeftStr);
         string ruleRightStr; init_string(&ruleRightStr);
-
+        printf("********* %p\n", (void*) rule->leftOperand);
+        fflush(stdout);
         if(rule->leftOperand->type == tId)
         {
             adds_to_string(&ruleLeftStr,rule->leftOperand->text->str);

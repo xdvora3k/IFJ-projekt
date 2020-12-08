@@ -12,10 +12,16 @@ int main(){
   string input;
    init_string(&input);
    printf("\n");
-   adds_to_string(&input, "15.1+2.1+5.2");   //a+v*c //"58-o+1+9"
+   adds_to_string(&input, "5+5");   //a+v*c //"58-o+1+9"
    printf("input %s . %d\n", input.str, input.length);
-   precedencSA(&input, L ,list);
+   L = precedencSA(&input, L ,list);
    printf("\n");
+
+    printf("right: %p\n", (void*) L->first->first->rightOperand);
+    printf("left: %p\n", (void*) L->first->first->leftOperand);
+    printf("op: %p\n", (void*) L->first->first->operator);
+    printf("place: %p\n", (void*) L->first->first->placeHolder);
+
 
  /* string errorstr;    //SEM_GET_DATATYPE_ERROR test
  // int i;
@@ -49,7 +55,7 @@ int main(){
    printf("\n");
    adds_to_string(&input3, "8*9-7"); //e*d-3
    printf("Input3 %s . %d\n", input3.str, input3.length);
-   precedencSA(&input3, L ,list);
+   L = precedencSA(&input3, L ,list);
    printf("\n");
 
       string input35;
@@ -57,7 +63,7 @@ int main(){
    printf("\n");
    adds_to_string(&input35, "8*9-(7*9)"); //e*d-3
    printf("Input3 %s . %d\n", input35.str, input35.length);
-   precedencSA(&input35, L ,list);
+   L = precedencSA(&input35, L ,list);
    printf("\n");
 
 

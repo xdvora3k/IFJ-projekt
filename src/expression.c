@@ -6,60 +6,62 @@
 #include "expression.h"
 
 int counter = 0;
+int node_created = FALSE;
 
-int precedentTable[8][8] = 
-    {
-        
-    //  | +- | */ | \ |  o |  ( |  ) |  i |  $ |    ->Vstupni token
-        {'>', '<', '<', '>', '<', '>', '<', '>'}, // +-
-        {'>', '>', '>', '>', '<', '>', '<', '>'}, // */
-        {'>', '<', '>', '>', '<', '>', '<', '>'}, /* \ */
-        {'<', '<', '<', 'E', '<', '>', '<', '>'}, // o (operators) <= < > >= == !=    -> vrchol zasobniku
-        {'<', '<', '<', '<', '<', '=', '<', 'E'}, // (
-        {'>', '>', '>', '>', 'E', '>', 'E', '>'}, // )
-        {'>', '>', '>', '>', 'E', '>', 'E', '>'}, // i
-        {'<', '<', '<', '<', '<', 'E', '<', 'E'}  // $
-                                                  // nepovolene kombinace i( a )i )(, ($ a $), i(, ii a )i, $), ($ a $$
-                                                  //'E' -> error/nepovolena kombinace
-};
+int precedentTable[8][8] = //> za | < pred
+        {
+                //asociativita -- Leva -> zasobnikovy operand > vstupni operand
+
+                //  | +- |  */ |   \   | o |   ( |   ) |   i |   $ |    ->Vstupni token
+                {'>', '<', '<', '>', '<', '>', '<', '>'}, // +-
+                {'>', '>', '>', '>', '<', '>', '<', '>'}, // */
+                {'>', '<', '>', '>', '<', '>', '<', '>'}, /* \ */
+                {'<', '<', '<', 'E', '<', '>', '<', '>'}, // o (operators) (=) <> <= < > >= == !=    -> vrchol zasobniku
+                {'<', '<', '<', '<', '<', '=', '<', 'E'}, // (
+                {'>', '>', '>', '>', 'E', '>', 'E', '>'}, // )
+                {'>', '>', '>', '>', 'E', '>', 'E', '>'}, // i
+                {'<', '<', '<', '<', '<', 'E', '<', 'E'}  // $
+                // nepovolene kombinace i( a )i )(, ($ a $), i(, ii a )i, $), ($ a $$
+                //'E' -> error/nepovolena kombinace
+        };
 
 int getTokenTableIndex(tState type)
 {
     switch (type)
     {
-    case tPlus:
-    case tMinus:
-        return plusMinusIndex;
-    case tMultiply:
-    case tDivide:
-        return mulDivIndex;
-    case tOpeningSimpleBrace:
-        return leftBracketIndex;
-    case tClosingSimpleBrace:
-        return rightBracketIndex;
+        case tPlus:
+        case tMinus:
+            return plusMinusIndex;
+        case tMultiply:
+        case tDivide:
+            return mulDivIndex;
+        case tOpeningSimpleBrace:
+            return leftBracketIndex;
+        case tClosingSimpleBrace:
+            return rightBracketIndex;
 
-    case tAssignment:
-    case tEqual:
-    case tNotEqual:
-    case tBiggerThan:
-    case tSmallerThan:
-    case tBiggerOrEqual:
-    case tSmallerOrEqual:
-        return operatorsIndex;
-        // break;
-    case EOL:
-    case tEOF:
-        return DollarIndex;
+        case tAssignment:
+        case tEqual:
+        case tNotEqual:
+        case tBiggerThan:
+        case tSmallerThan:
+        case tBiggerOrEqual:
+        case tSmallerOrEqual:
+            return operatorsIndex;
+            // break;
+        case EOL:
+        case tEOF:
+            return DollarIndex;
 
-    case tInteger:
-    case tId:
-    case tString:
-    case tFloat:
-    case tExprPlaceholder:
-        return identificatorIndex;
-    default:
-        //return DollarIndex;
-        break;
+        case tInteger:
+        case tId:
+        case tString:
+        case tFloat:
+        case tExprPlaceholder:
+            return identificatorIndex;
+        default:
+            //return DollarIndex;
+            break;
     }
     return -1;
 }
@@ -67,6 +69,7 @@ int getTokenTableIndex(tState type)
 tExpressionList* precedencSA(string *input, tExpressionList *expL, tLinkedList *linkedL)
 {
     tLinkedList *tokens = get_tokens(input, linkedL);
+
 
     ptrStack topOfStack;
     StackInit(&topOfStack);
@@ -87,79 +90,84 @@ tExpressionList* precedencSA(string *input, tExpressionList *expL, tLinkedList *
 
     StackPush(&topOfStack, &endToken);
 
-    expL = malloc(sizeof(tExpressionList));
-    ExprLLInit(expL);
-
     tExpressionRule rule;
     int index = 0;
     tToken *topToken;
     tToken *inputToken = (tToken *)(StrLLLocateNthElem(tokens, index)->Content);
+
+    topToken = findTerminalToken(&topOfStack);
     do
     {
-        topToken = findTerminalToken(&topOfStack);
 
         int firstIndex = getTokenTableIndex(topToken->type);
+
         int secondIndex = getTokenTableIndex(inputToken->type);
 
         if (inputToken->type != tEOF || topToken->type != tEOF)
         {
             switch (precedentTable[firstIndex][secondIndex])
             {
-            case '>': //zamen <y
-                rule = extractexpression(&topOfStack);
-                rule = applyrule(&topOfStack, rule, linkedL);
-                if (rule.operator!= NULL)
-                {
-                    InsertList(rule, expL);
-                    //printList(expL, rule);
-                }
+                case '>': //zamen <y
+                    rule = extractexpression(&topOfStack);
+                    rule = applyrule(&topOfStack, rule, linkedL);
+                    if (!node_created) {
+                        CreateNode(&rule, expL);
+                        node_created = TRUE;
+                    }
+                    if (rule.operator!= NULL || rule.typeOfRule == expIdentity)
+                    {
+                        InsertList(rule, expL);
 
-               // printRule(rule);
-               // printStack(&topOfStack);
-                break;
+                    }
 
-            case '<':
-                //zamen a za a<
-                pushOpenTokenToStack(&topOfStack, &exprOpenToken);
-                StackPush(&topOfStack, inputToken);
-                index++;
-                tListItem *listItem = StrLLLocateNthElem(tokens, index);
+                    //printRule(rule);
+                    //printStack(&topOfStack);
+                    break;
+//  0
+                case '<':
+                    //zamen a za a<
 
-                //take next, if not available, return $
-                if (listItem == NULL)
-                {
-                    inputToken = &endToken;
-                }
-                else
-                {
-                    inputToken = (tToken *)(listItem->Content);
-                }
+                    pushOpenTokenToStack(&topOfStack, &exprOpenToken);
+                    StackPush(&topOfStack, inputToken);
+                    //  printStack(&topOfStack);
+                    index++;
+                    tListItem *listItem = StrLLLocateNthElem(tokens, index);
 
-                break;
+                    //take next, if not available, return $
+                    if (listItem == NULL)
+                    {
+                        inputToken = &endToken;
+                    }
+                    else
+                    {
+                        inputToken = (tToken *)(listItem->Content);
+                    }
 
-            case '=':
-                StackPush(&topOfStack, inputToken);
-                index++;
-                tListItem *lItem = StrLLLocateNthElem(tokens, index);
-                if (lItem == NULL)
-                {
-                    inputToken = &endToken;
-                }
-                else
-                {
-                    inputToken = (tToken *)(lItem->Content);
-                }
+                    break;
 
-                break;
-            case 'E':
-                exit(SYN_ERROR);
-                break;
+                case '=':
+                    StackPush(&topOfStack, inputToken);
+                    index++;
+
+                    tListItem *lItem = StrLLLocateNthElem(tokens, index);
+                    if (lItem == NULL)
+                    {
+                        inputToken = &endToken;
+                    }
+                    else
+                    {
+                        inputToken = (tToken *)(lItem->Content);
+                    }
+
+                    break;
+                case 'E':
+                    exit(SYN_ERROR);
+                    break;
             }
         }
+        topToken = findTerminalToken(&topOfStack);
 
-    } while (inputToken->type != tEOF || topToken->type != tEOF); 
-     // printf("inputtoken type %d  toptokentype %d\n", inputToken->type, topToken->type);
-     // printf("\n !!!!!!rule l: %s %s r:%s\n", rule.leftOperand->text->str, rule.operator->text->str, rule.rightOperand->text->str);
+    } while (inputToken->type != tEOF || topToken->type != tEOF); // || topToken-> type != tComma
 
     counter = 0;
     return expL;
@@ -221,7 +229,7 @@ tExpressionRule extractexpression(ptrStack *stack)
     exp.operator= NULL;
     exp.rightOperand = NULL;
     exp.placeHolder = NULL;
-    // printStack(stack);
+    //printStack(stack);
     tToken *topToken = ((tToken *)stack->top_stack->value);
     if (topToken->type != tExprOpen)
     {
@@ -245,19 +253,17 @@ tExpressionRule extractexpression(ptrStack *stack)
         StackPop(stack);
         topToken = ((tToken *)stack->top_stack->value);
     }
-    if (exp.operator!= NULL)
+    if (exp.operator!= NULL && exp.leftOperand != NULL)
     {
-        /*printf("%s left %s %s right %s\n", topToken->text->str, exp.leftOperand->text->str, exp.operator->text->str,
-               exp.rightOperand->text->str);
-        printf("typ: %d\n", topToken->type);*/
+        // printf("%s left %s %s right %s\n", topToken->text->str, exp.leftOperand->text->str, exp.operator->text->str,
+        // exp.rightOperand->text->str);
+
     }
-    //printStack(stack);
     if (topToken->type != tExprOpen)
     {
         exit(SYN_ERROR);
     }
     StackPop(stack); //removing '<' from stack
-
     return exp;
 }
 
@@ -266,22 +272,22 @@ tVarDataType determinePlaceholderDatatype(tExpressionRule rule)
     tVarDataType result;
     switch (rule.typeOfRule)
     {
-    case expIdentity:
-        result = rule.rightOperand->dataType;
-        break;
-    case expBrackets:
-        result = rule.operator->dataType;
-        break;
-    case expPLUSepx:
-    case expMINUSepx:
-    case expMULepx:
-    case expDIVepx:
-    case expOPepx:
-        if (rule.leftOperand->dataType != rule.rightOperand->dataType)
-        {
-            exit(SEM_GET_DATATYPE_ERROR);
-        }
-        result = rule.rightOperand->dataType;
+        case expIdentity:
+            result = rule.rightOperand->dataType;
+            break;
+        case expBrackets:
+            result = rule.operator->dataType;
+            break;
+        case expPLUSepx:
+        case expMINUSepx:
+        case expMULepx:
+        case expDIVepx:
+        case expOPepx:
+            if (rule.leftOperand->dataType != rule.rightOperand->dataType)
+            {
+                exit(SEM_GET_DATATYPE_ERROR);
+            }
+            result = rule.rightOperand->dataType;
     }
     return result;
 }
@@ -313,51 +319,46 @@ tExpressionRule applyrule(ptrStack *stack, tExpressionRule rule, tLinkedList *L)
             if (rule.operator->type == tPlus)
             {
                 rule.typeOfRule = expPLUSepx;
-
-                //printf("rule E+E");
-                //printStack(stack);
+                // printf("rule E+E");
+                // printStack(stack);
             }
             if (rule.operator->type == tMinus)
             {
                 rule.typeOfRule = expMINUSepx;
+                // printf("rule E-E");
 
-                //printf("rule E-E");
-
-                //printStack(stack);
+                //  printStack(stack);
             }
             if (rule.operator->type == tDivide)
             {
                 rule.typeOfRule = expDIVepx;
+                //  printf("rule E/E");
 
-                //printf("rule E/E");
-
-                //printStack(stack);
+                //  printStack(stack);
             }
             if (rule.operator->type == tMultiply)
             {
                 rule.typeOfRule = expMULepx;
-
-                //printf("rule E*E");
-                //printStack(stack);
+                //  printf("rule E*E");
+                //  printStack(stack);
             }
             if (rule.operator->type == tBiggerOrEqual || rule.operator->type == tBiggerThan ||
                 rule.
-                operator->type == tSmallerOrEqual || rule.
-                operator->type == tSmallerThan ||
+                        operator->type == tSmallerOrEqual || rule.
+                    operator->type == tSmallerThan ||
                 rule.
-                operator->type == tEqual || rule.
-                operator->type == tNotEqual)
+                        operator->type == tEqual || rule.
+                    operator->type == tNotEqual)
             {
                 rule.typeOfRule = expOPepx;
-
-                //printf("rule E op E");
-                //printStack(stack);
+                //  printf("rule E op E");
+                //  printStack(stack);
             }
             counter++;
             string placeholderText;
             init_string(&placeholderText);
             //add_to_string(&placeholderText, '{');
-            adds_to_string(&placeholderText, "tmp");
+            adds_to_string(&placeholderText, "-tmp");
             add_to_string(&placeholderText, counter + '0');
             // add_to_string(&placeholderText, '}');
 
@@ -370,42 +371,39 @@ tExpressionRule applyrule(ptrStack *stack, tExpressionRule rule, tLinkedList *L)
     }
     return rule;
 }
-void printList(tExpressionList *List, tExpressionRule rule)
+/*void printList(tExpressionList *List)
 {
     printf("-------------------List: ");
     tExpressionNode *last_node = List->first;
     if (last_node)
     {
-        while (last_node->next_node)
+        while (!last_node)
         {
-            last_node = last_node->next_node;
+            if (last_node->first->leftOperand)
+            {
+              if(List->first->next_node){
+            printf("%s", List->first->next_node->first->leftOperand->text->str);
+            } else
+            {
+                printf("%s", last_node->first->leftOperand->text->str);
+            }
+            if (last_node->first->operator)
+            {
+                printf("%s", last_node->first->operator->text->str);
+            }
+            if (last_node->first->rightOperand)
+            {
+                printf("%s", last_node->first->rightOperand->text->str);
+            }
+            if (last_node->first->placeHolder)
+            {
+                printf(" ListPlace: %s", last_node->first->placeHolder->text->str);
+            }
+            last_node = last_node->first;
         }
     }
-    if (rule.leftOperand)
-    {
-        /*  if(List->first->next_node){
-            printf("%s", List->first->next_node->first->leftOperand->text->str);
-        } else
-        {*/
-        printf("%s", last_node->first->leftOperand->text->str);
-    }
-    if (rule.operator)
-    {
-
-        printf("%s", last_node->first->operator->text->str);
-    }
-    if (rule.rightOperand)
-    {
-
-        printf("%s", last_node->first->rightOperand->text->str);
-    }
-    if (rule.placeHolder)
-    {
-
-        printf(" ListPlace: %s", last_node->first->placeHolder->text->str);
-    }
     printf("*************************\n");
-}
+}*/
 
 void printRule(tExpressionRule rule)
 {
@@ -441,16 +439,23 @@ void printStack(ptrStack *topStack)
     } while (actual != NULL);
     printf("\n");
 }
+// return expList;
+//}
 
-void InsertList(tExpressionRule rule, tExpressionList *expL)
-{
-    if (rule.typeOfRule == expBrackets)
+void CreateNode(tExpressionRule *rule, tExpressionList *expL){
+
+    if (rule->typeOfRule == expBrackets)
     {
-        ExprLLCreateNextNode(expL, rule.operator->dataType);
+        ExprLLCreateNextNode(expL, rule->operator->dataType);
     }
     else
     {
-        ExprLLCreateNextNode(expL, rule.rightOperand->dataType);
+        ExprLLCreateNextNode(expL, rule->rightOperand->dataType);
     }
+
+}
+void InsertList(tExpressionRule rule, tExpressionList *expL)
+{
     ExprLLInsertExprToLastNode(expL, rule.leftOperand, rule.rightOperand, rule.operator, rule.placeHolder, rule.typeOfRule);
+    //ExprLLInsertExprToLastNode(L, rule.leftOperand, rule.rightOperand, rule.operator, rule.placeHolder, rule.typeOfRule);
 }

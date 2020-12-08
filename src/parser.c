@@ -376,8 +376,16 @@ tExpressionList* get_expressions(tLinkedList *func_variable_list, char* first, i
         }
         first = NULL;
         expr_list = precedencSA(&expr, expr_list, func_variable_list);
+        printf("string: %s\n", expr.str);
+        fflush(stdout);
         clear_str(&expr);
     } while (token == tComma && !is_condition);
+    printf("right: %p\n", (void*) expr_list->first->first->rightOperand);
+    printf("left: %p\n", (void*) expr_list->first->first->leftOperand);
+    printf("op: %p\n", (void*) expr_list->first->first->operator);
+    printf("place: %p\n", (void*) expr_list->first->first->placeHolder);
+    fflush(stdout);
+
 
     return expr_list;
 }
@@ -922,7 +930,8 @@ void _process_one_line_and_follow(tLinkedList *func_variable_list){
     string name;
     init_string(&name);
     adds_to_string(&name, attr.str);
-
+    printf("- %s\n", name.str);
+    fflush(stdout);
     switch (token){
         case tId:
             token = get_adjusted_token(&attr);

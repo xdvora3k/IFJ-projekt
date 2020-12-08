@@ -1,7 +1,6 @@
 /*
  * IFJ project 2020
  * Author: xkuzel08, Marie Kuzelova
- *         
  */
 #ifndef IFJ_PROJEKT_EXPRESSION_H
 #define IFJ_PROJEKT_EXPRESSION_H
@@ -9,10 +8,9 @@
 #include "stack.h"
 #include "ilist.h"
 #include "scanner.h"
-#include "expression.h"
 #include "expressionParser.h"
 
-typedef enum 
+typedef enum
 {
     //  | +- |  */ | \ | o |   ( |   ) |   i |   $ |
     plusMinusIndex, //0
@@ -26,13 +24,15 @@ typedef enum
 }   IndexOfPrecedentTable;
 
 int getTokenTableIndex(tState type);
-tExpressionList* precedencSA(string *input, tExpressionList *expL, tLinkedList *linkedL);
+tExpressionList* precedencSA(string* input, tExpressionList *expL, tLinkedList *linkedL);
 tToken* findTerminalToken(ptrStack* topOfStack);
 void pushOpenTokenToStack(ptrStack* topOfStack, tToken* exprOpenToken);
 tExpressionRule applyrule(ptrStack *stack, tExpressionRule rule, tLinkedList *L);
 tExpressionRule extractexpression(ptrStack *stack);
 void printRule(tExpressionRule rule);
 void printStack(ptrStack* topStack);
-void printList(tExpressionList *List, tExpressionRule rule);
+void printList(tExpressionList *List);
+//void CreateEXPList(tExpressionList *L , /*tExpressionRule *rule*/ tToken *leftToken, tToken *rightToken, int counter);
 void InsertList(tExpressionRule rule, tExpressionList *expL);
+void CreateNode(tExpressionRule *rule, tExpressionList *expL);
 #endif
