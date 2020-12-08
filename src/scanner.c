@@ -250,11 +250,9 @@ int get_token(string *attr){
                     add_to_string(attr, c);
                     state = float_singed_exponent;
                 }
-                else if (!number_ending(c)) {
-                    return tLEX_ERROR;
-                }
                 else {
-                    return tFloat;
+                    ungetc(c, source);
+                    return tLEX_ERROR;
                 }
                 break;
             case float_exponent_number:
@@ -266,6 +264,7 @@ int get_token(string *attr){
                     return tLEX_ERROR;
                 }
                 else {
+                    ungetc(c, source);
                     return tFloat;
                 }
                 break;
@@ -284,6 +283,7 @@ int get_token(string *attr){
                     add_to_string(attr, c);
                 }
                 else {
+                    ungetc(c, source);
                     return tFloat;
                 }
                 break;
@@ -311,6 +311,7 @@ int get_token(string *attr){
                     add_to_string(attr, c);
                 }
                 else{
+                    ungetc(c, source);
                     return tId;
                 }
                 break;
@@ -322,13 +323,17 @@ int get_token(string *attr){
                     state = line_comment;
                 }
                 else {
+                    ungetc(c, source);
                     return tDivide;
                 }
                 break;
             case line_comment:
-                if (c == '\n' || c == EOF) {
+                if (c == EOF) {
                     state = start;
                     clear_str(attr);
+                }
+                else if (c == '\n'){
+                    return EOL;
                 }
                 break;
             case block_comment:

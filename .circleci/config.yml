@@ -18,10 +18,29 @@ jobs:
     steps:
       - checkout
       - run: tests/bin/test_ilist
+  run-symtable-test:
+    docker:
+      - image: cimg/base:2020.01
+    steps:
+      - checkout
+      - run: tests/bin/test_symtable
+  run-parser-on-code:
+    docker:
+      - image: cimg/base:2020.01
+    steps:
+      - checkout
+      - run: tests/bin/test_parser_on_final_code
 
 workflows:
   compile:
     jobs:
       - compile-main
+  run-tests:
+    jobs:
       - run-scanner-test
       - run-ilist-test
+      - run-symtable-test
+  run-final-code-tests:
+    jobs:
+      - run-parser-on-code
+

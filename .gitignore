@@ -58,3 +58,4 @@ test-ilist
 test-expression
 .vscode
 test-expParser
+test-symtable

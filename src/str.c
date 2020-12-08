@@ -1,3 +1,8 @@
+/*
+ * IFJ project 2020
+ * Author: xdvora3k, Jakub Dvorak
+ */
+
 #include "str.h"
 #include "error_codes.h"
 #include <stdio.h>
@@ -33,13 +38,14 @@ int adds_to_string(string *string, char* S){
     if (!S){
         return NO_ERROR;
     }
-    for (int i = 0; S[i] ; i++){
+    for (int i = 0; S[i]; i++){
         if (add_to_string(string, S[i]) == NO_ERROR){
             continue;
         }
         return INTERNAL_ERROR;
     }
     return NO_ERROR;
+
 }
 
 int is_whitespace(char c){

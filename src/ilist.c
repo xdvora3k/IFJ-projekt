@@ -6,6 +6,7 @@
 
 #include "ilist.h"
 
+
 void StrLLInit(tLinkedList *L){
     L->first = NULL;
 }
@@ -72,7 +73,7 @@ tListItem* StrLLLocateNthElem(tLinkedList *L, int index){
 }
 
 int StrLLLen(tLinkedList *L) {
-    if (!L->first) {
+    if (!L || !L->first) {
         return 0;
     }
     int i = 0;
@@ -96,22 +97,26 @@ void TableLLDeleteFirst(tLinkedList *L){
         return;
     }
     tListItem *to_delete = L->first;
-    L->first = L->first->nextItem;
+    L->first = to_delete->nextItem;
     SymTableDispose(to_delete->Content);
     free(to_delete);
 }
 
+void TableLLInsertFirstSeenVariable(tLinkedList *L, tLinkedList *variables, tExpressionList *expr_list){
+    tDataVariable *var = SymTableInsertVariable(L->first->Content, variables->first->Content)->Content;
+    var->dataType = expr_list->first->data_type;
+}
+
 void TableLLInsertFirst(tLinkedList *L, tSymtable *local_var_table){
     tListItem *new_node = malloc(sizeof(tListItem));
-    tSymtable *new_content = malloc(sizeof(tSymtable));
-    new_node->Content = local_var_table;
+    new_node->Content = malloc(sizeof(tSymtable));
     if (!L->first){
         new_node->nextItem = NULL;
     }
     else {
         new_node->nextItem = L->first;
     }
-    new_node->Content = new_content;
+    new_node->Content = local_var_table;
     L->first = new_node;
 }
 
@@ -136,6 +141,23 @@ int TableLLLen(tLinkedList *L){
     return i;
 }
 
+tDataVariable* TableLLGetSingleVariable(tLinkedList *func_variable_list, char* var){
+    if (!func_variable_list || !func_variable_list->first){
+        return NULL;
+    }
+    for (int i = 0; i < TableLLLen(func_variable_list); i++){
+        tSymtable *curr_table = (tSymtable*) TableLLLocateNthElem(func_variable_list, i)->Content;
+        if (!SymTableSearch(curr_table, var)){
+            continue;
+        }
+        tDataVariable *var_node = (tDataVariable*) SymTableSearch(curr_table, var)->Content;
+        if (var_node){
+            return var_node;
+        }
+    }
+    return NULL;
+}
+
 int TableLLFindAllVariables(tLinkedList *func_variable_list, tLinkedList *variables){
     if (!func_variable_list || !func_variable_list->first){
         return 100;
@@ -145,15 +167,12 @@ int TableLLFindAllVariables(tLinkedList *func_variable_list, tLinkedList *variab
     }
     int not_found = 0;
     for (int i = 0; i < StrLLLen(variables); i++){
-        for (int j = 0; j < TableLLLen(func_variable_list); j++){
-            tSymtable *curr_table = (tSymtable*) TableLLLocateNthElem(func_variable_list, j)->Content;
-            tListItem *var_node = StrLLLocateNthElem(variables, i);
-            if (SymTableSearch(curr_table, ((string*) var_node->Content)->str)){
-                continue;
-            }
+        char *var_name = StrLLLocateNthElem(variables, i)->Content;
+        if (!TableLLGetSingleVariable(func_variable_list, var_name) && strcmp(var_name, "_")){
+            not_found++;
         }
-        not_found++;
     }
+
     return not_found;
 }
 
@@ -171,21 +190,81 @@ int TableLLGetNumOfNests(tLinkedList *func_variable_list, char* var){
     return -1;
 }
 
-tDataVariable* TableLLGetSingleVariable(tLinkedList *func_variable_list, char* var){
-    if (!func_variable_list || !func_variable_list->first){
-        return NULL;
+// Passed side list
+//---------------------------------------------------------
+
+void PassedLLInit(tPassedSide *L){
+    L->first = NULL;
+}
+
+void PassedLLInsert(tPassedSide *L, char* value, int is_variable, tVarDataType data_type){
+    tPassedNode *new_node = malloc(sizeof(tPassedNode));
+    new_node->is_variable = is_variable;
+    int str_len;
+    if (value) {
+        str_len = strlen(value);
     }
-    for (int i = 0; i < TableLLLen(func_variable_list); i++){
-        tSymtable *curr_table = (tSymtable*) TableLLLocateNthElem(func_variable_list, i)->Content;
-        if (!SymTableSearch(curr_table, var)){
+    else {
+        str_len = 0;
+    }
+    new_node->value = malloc(str_len + 1);
+    strncpy(new_node->value, value, str_len);
+    new_node->value[str_len] = '\0';
+    new_node->data_type = data_type;
+    new_node->nextItem = NULL;
+
+    if (!L->first){
+        L->first = new_node;
+        return;
+    }
+
+    tPassedNode *item = L->first;
+    while (item->nextItem){
+        item = item->nextItem;
+    }
+    item->nextItem = new_node;
+}
+
+void PassedLLDeleteLast(tPassedSide *L){
+    if (!L->first){
+        return;
+    }
+
+    tPassedNode **to_delete = &L->first;
+    while ((*to_delete)->nextItem){
+        to_delete = &(*to_delete)->nextItem;
+    }
+
+    free(*to_delete);
+    *to_delete = NULL;
+}
+
+void PassedLLDispose(tPassedSide *L){
+    while (L->first){
+        PassedLLDeleteLast(L);
+    }
+}
+
+int PassedLLLen(tPassedSide *L){
+    tPassedNode *node = L->first;
+    int i = 0;
+    while (node){
+        node = node->nextItem;
+        i++;
+    }
+    return i;
+}
+
+tPassedNode* PassedLLGetNode(tPassedSide *L, int index){
+    tPassedNode *node = L->first;
+    while (index){
+        node = node->nextItem;
+        if (!node){
             return NULL;
         }
-        tDataVariable *var_node = (tDataVariable*) SymTableSearch(curr_table, var)->Content;
-        if (var_node){
-            return var_node;
-        }
+        index--;
     }
-    return NULL;
+    return node;
 }
 
 // Expression List
@@ -202,10 +281,12 @@ void ExprLLCreateNextNode(tExpressionList *L, tVarDataType data_type){
             last_node = last_node->next_node;
         }
     }
+
     tExpressionNode *new_node = malloc(sizeof(tExpressionNode));
     new_node->first = NULL;
     new_node->data_type = data_type;
     new_node->next_node = NULL;
+
     if (!L->first){
         L->first = new_node;
         return;
@@ -235,26 +316,19 @@ void ExprLLInsertExprToLastNode(tExpressionList *L, tToken *leftOperand, tToken*
         }
     }
     tExpressionRule *last_rule = last_node->first;
-    
     if (last_rule) {
         while (last_rule->next) {
             last_rule = last_rule->next;
         }
     }
+
     tExpressionRule *new_rule = malloc(sizeof(tExpressionRule));
-    if(leftOperand != NULL){ 
     new_rule->leftOperand = _insert_token_to_node(leftOperand);
-    }
     new_rule->rightOperand = _insert_token_to_node(rightOperand);
-    if(operator != NULL){ 
     new_rule->operator = _insert_token_to_node(operator);
-    }
-    if(placeHolder != NULL){ 
     new_rule->placeHolder = _insert_token_to_node(placeHolder);
-    }
     new_rule->typeOfRule = typeOfRule;
     new_rule->next = NULL;
-    
     if (!last_node->first){
         last_node->first = new_rule;
         return;
@@ -287,6 +361,17 @@ int ExprLLRuleLen(tExpressionList *L, int index){
         rule = rule->next;
         i++;
     }
+
+    return i;
+}
+
+int ExprLLRuleRuleLen(tExpressionNode *L){
+    tExpressionRule *node = L->first;
+    int i = 0;
+    while (node){
+        node = node->next;
+        i++;
+    }
     return i;
 }
 
@@ -304,6 +389,22 @@ tExpressionNode* ExprLLGetNthNode(tExpressionList *L, int index){
 
 tExpressionRule* ExprLLGetNthRule(tExpressionList *L, int node_index, int rule_index){
     tExpressionNode *node = ExprLLGetNthNode(L, node_index);
+    if (!node){
+        return NULL;
+    }
+    tExpressionRule *rule = node->first;
+    while (rule_index){
+        rule = rule->next;
+        if (!rule){
+            return NULL;
+        }
+        rule_index--;
+    }
+    return rule;
+}
+
+tExpressionRule* ExprLLGetNthRuleRule(tExpressionNode *L,int rule_index){
+    tExpressionNode *node = L;
     if (!node){
         return NULL;
     }
@@ -372,70 +473,95 @@ void CreateInstruction(INSTRUCTION InstrType, char *addr1, char *addr2, char *ad
     free(Instruction.addr3);
 }
 
-tInstructionOperand CreateOperand(char* name, char* value, tVarDataType type, FRAME f)
+tInstructionOperand* CreateOperand(char* name, char* value, tVarDataType type, FRAME f)
 {
-    tInstructionOperand o;
+    if(!name)
+    {
+        return NULL;
+    }
+    tInstructionOperand *o = malloc(sizeof(tInstructionOperand));
     int str_len_name = strlen(name);
     int str_len_value = strlen(value);
-    o.name = malloc(str_len_name + 1);
-    strncpy(o.name, name, str_len_name);
-    o.name[str_len_name] = '\0';
-    o.value = malloc(str_len_value + 1);
-    strncpy(o.name, value, str_len_value);
-    o.name[str_len_value] = '\0';
-    o.type = type;
-    o.frame = f;
+    o->name = malloc(str_len_name + 1);
+    strncpy(o->name, name, str_len_name);
+    o->name[str_len_name] = '\0';
+    o->value = malloc(str_len_value + 1);
+    strncpy(o->value, value, str_len_value);
+    o->value[str_len_value] = '\0';
+    o->type = type;
+    o->frame = f;
     return o;
 }
+
+tInstructionOperand* ChangeOperand (tInstructionOperand *op, char* name,char* value, tVarDataType type,FRAME f)
+{
+    int str_len_name = strlen(name);
+    int str_len_value = strlen(value);
+    op->name = realloc(op->name,str_len_name + 1);
+    op->value = realloc(op->value,str_len_value + 1);
+    strncpy(op->name,name,str_len_name);
+    strncpy(op->value,value,str_len_value);
+    op->name[str_len_name] = '\0';
+    op->value[str_len_value] = '\0';
+    op->type = type;
+    op->frame = f;
+    return op;
+}
+
 void Instruction0(INSTRUCTION InstrType)
 {
     CreateInstruction(InstrType,"","","");
 }
 
 char* _process_operand(tInstructionOperand *op){
-    char* tmp;
+
+    string tmp;
+    init_string(&tmp);
+
     if(op->frame == Frame_NaN)
     {
         // func, konst, spec, labels
         if(op->type == Unknown_type)
         {
             // func or main, specs or labels
-            tmp = op->name;
+            adds_to_string(&tmp,op->name);
         }
         else
         {
             // konst
             switch(op->type) {
                 case IntType:
-                    tmp = "int@";
+                    adds_to_string(&tmp,"int@");
                     break;
                 case Float64Type:
-                    tmp = "float@";
+                    adds_to_string(&tmp,"float@");
                     break;
                 case StringType:
-                    tmp = "string@";
+                    adds_to_string(&tmp,"string@");
                     break;
                 case UnderscoreType:
-                    tmp = "nil@";
+                    adds_to_string(&tmp,"nil@");
                     break;
                 default:
-                    tmp = "";
+                    break;
             }
-            tmp = strcat(tmp,op->value);
+            adds_to_string(&tmp,op->value);
         }
     }
     else // if (op->frame != Frame_NaN)
     {
         //variables
         if(op->frame == Frame_GF)
-            tmp = "GF@";
+        adds_to_string(&tmp,"GF@");
         else if(op->frame == Frame_LF)
-            tmp = "LF@";
+            adds_to_string(&tmp,"LF@");
         else if(op->frame == Frame_TF)
-            tmp = "TF@";
-        tmp = strcat(tmp,op->name);
+            adds_to_string(&tmp,"TF@");
+
+        adds_to_string(&tmp,op->name);
     }
-    return tmp;
+    return tmp.str;
+
 }
 
 void Instruction1(INSTRUCTION InstrType, tInstructionOperand op)
@@ -481,74 +607,77 @@ char* _process_frame(tInstructionOperand *o){
 void inputi(tInstructionOperand o)
 {
     printf("READ %s@%s int\n", _process_frame(&o), o.name);
+    fflush(stdout);
 }
 
 void inputs(tInstructionOperand o)
 {
     printf("READ %s@%s int\n", _process_frame(&o), o.name);
+    fflush(stdout);
 }
 
 void inputf(tInstructionOperand o)
 {
     printf("READ %s@%s int\n", _process_frame(&o), o.name);
+    fflush(stdout);
 }
 
-void Instr_I_MOVE(tInstr i){            printf("MOVE %s %s\n",i.addr1,i.addr2);}
-void Instr_I_CREATEFRAME(){             printf("CREATEFRAME\n");}
-void Instr_I_PUSHFRAME(){               printf("PUSHFRAME\n");}
-void Instr_I_POPFRAME(){                printf("POPFRAME\n");}
-void Instr_I_DEFVAR(tInstr i){          printf("DEFVAR %s\n",i.addr1);}
-void Instr_I_CALL(tInstr i){            printf("LABEL %s\n",i.addr1);}
-void Instr_I_RETURN(){                  printf("RETURN\n");}
-void Instr_I_PUSHS(tInstr i){           printf("PUSHS %s\n",i.addr1);}
-void Instr_I_POPS(tInstr i){            printf("POPS %s\n",i.addr1);}
-void Instr_I_CLEARS(){                  printf("CLEARS\n");}
-void Instr_I_ADD(tInstr i){             printf("ADD %s %s %s\n",i.addr1,i.addr2,i.addr3);}
-void Instr_I_SUB(tInstr i){             printf("SUB %s %s %s\n",i.addr1,i.addr2,i.addr3);}
-void Instr_I_MUL(tInstr i){             printf("MUL %s %s %s\n",i.addr1,i.addr2,i.addr3);}
-void Instr_I_DIV(tInstr i){             printf("DIV %s %s %s\n",i.addr1,i.addr2,i.addr3);}
-void Instr_I_IDIV(tInstr i){            printf("IDIV %s %s %s\n",i.addr1,i.addr2,i.addr3);}
-void Instr_I_ADDS(){                    printf("ADDS\n");}
-void Instr_I_SUBS(){                    printf("SUBS\n");}
-void Instr_I_MULS(){                    printf("MULS\n");}
-void Instr_I_DIVS(){                    printf("DIVS\n");}
-void Instr_I_IDIVS(){                   printf("IDIVS\n");}
-void Instr_I_LT(tInstr i){              printf("LT %s %s %s\n",i.addr1,i.addr2,i.addr3);}
-void Instr_I_GT(tInstr i){              printf("GT %s %s %s\n",i.addr1,i.addr2,i.addr3);}
-void Instr_I_EQ(tInstr i){              printf("EQ %s %s %s\n",i.addr1,i.addr2,i.addr3);}
-void Instr_I_LTS(){                     printf("LTS\n");}
-void Instr_I_GTS(){                     printf("GTS\n");}
-void Instr_I_EQS(){                     printf("EQS\n");}
-void Instr_I_AND(tInstr i){             printf("AND %s %s %s\n",i.addr1,i.addr2,i.addr3);}
-void Instr_I_OR(tInstr i){              printf("OR %s %s %s\n",i.addr1,i.addr2,i.addr3);}
-void Instr_I_NOT(tInstr i){             printf("NOT %s %s %s\n",i.addr1,i.addr2,i.addr3);}
-void Instr_I_ANDS(){                    printf("ANDS\n");}
-void Instr_I_ORS(){                     printf("ORS\n");}
-void Instr_I_NOTS(){                    printf("NOTS\n");}
-void Instr_I_FLOAT2INT(tInstr i){       printf("FLOAT2INT %s %s\n",i.addr1,i.addr2);}
-void Instr_I_INT2FLOAT(tInstr i){       printf("INT2FLOAT %s %s\n",i.addr1,i.addr2);}
-void Instr_I_INT2CHAR(tInstr i){        printf("INT2CHAR %s %s\n",i.addr1,i.addr2);}
-void Instr_I_STRI2INT(tInstr i){        printf("STRI2INT %s %s %s\n",i.addr1,i.addr2,i.addr3);}
-void Instr_I_INT2FLOATS(){              printf("INT2FLOATS\n");}
-void Instr_I_FLOAT2INTS(){              printf("FLOAT2INTS\n");}
-void Instr_I_INT2CHARS(){               printf("INT2CHARS\n");}
-void Instr_I_STRI2INTS(){               printf("STRI2INTS\n");}
-void Instr_I_READ(tInstr i){            printf("READ %s %s\n",i.addr1,i.addr2);}
-void Instr_I_WRITE(tInstr i){           printf("WRITE %s",i.addr1);}
-void Instr_I_CONCAT(tInstr i){          printf("CONCAT %s %s %s\n",i.addr1,i.addr2,i.addr3);}
-void Instr_I_STRLEN(tInstr i){          printf("STRLEN %s %s\n",i.addr1,i.addr2);}
-void Instr_I_GETCHAR(tInstr i){         printf("GETCHAR %s %s %s\n",i.addr1,i.addr2,i.addr3);}
-void Instr_I_SETCHAR(tInstr i){         printf("SETCHAR %s %s %s\n",i.addr1,i.addr2,i.addr3);}
-void Instr_I_TYPE(tInstr i){            printf("TYPE %s %s\n",i.addr1,i.addr2);}
-void Instr_I_LABEL(tInstr i){           printf("LABEL %s\n",i.addr1);}
-void Instr_I_JUMP(tInstr i){            printf("JUMP %s\n",i.addr1);}
-void Instr_I_JUMPIFEQ(tInstr i){        printf("JUMPIFEQ %s %s %s\n",i.addr1,i.addr2,i.addr3);}
-void Instr_I_JUMPIFNEQ(tInstr i){       printf("JUMPIFNEQ %s %s %s\n",i.addr1,i.addr2,i.addr3);}
-void Instr_I_JUMPIFEQS(tInstr i){       printf("JUMPIFEQS %s\n",i.addr1);}
-void Instr_I_JUMPIFNEQS(tInstr i){      printf("JUMPIFNEQS %s\n",i.addr1);}
-void Instr_I_EXIT(tInstr i){            printf("EXIT %s\n",i.addr1);}
-void Instr_I_BREAK(){                   printf("BREAK\n");}
-void Instr_I_DPRINT(tInstr i){          printf("DPRINT %s\n",i.addr1);}
+void Instr_I_MOVE(tInstr i){            printf("MOVE %s %s\n",i.addr1,i.addr2);fflush(stdout);}
+void Instr_I_CREATEFRAME(){             printf("CREATEFRAME\n");fflush(stdout);}
+void Instr_I_PUSHFRAME(){               printf("PUSHFRAME\n");fflush(stdout);}
+void Instr_I_POPFRAME(){                printf("POPFRAME\n");fflush(stdout);}
+void Instr_I_DEFVAR(tInstr i){          printf("DEFVAR %s\n",i.addr1);fflush(stdout);}
+void Instr_I_CALL(tInstr i){            printf("LABEL %s\n",i.addr1);fflush(stdout);}
+void Instr_I_RETURN(){                  printf("RETURN\n");fflush(stdout);}
+void Instr_I_PUSHS(tInstr i){           printf("PUSHS %s\n",i.addr1);fflush(stdout);}
+void Instr_I_POPS(tInstr i){            printf("POPS %s\n",i.addr1);fflush(stdout);}
+void Instr_I_CLEARS(){                  printf("CLEARS\n");fflush(stdout);}
+void Instr_I_ADD(tInstr i){             printf("ADD %s %s %s\n",i.addr1,i.addr2,i.addr3);fflush(stdout);}
+void Instr_I_SUB(tInstr i){             printf("SUB %s %s %s\n",i.addr1,i.addr2,i.addr3);fflush(stdout);}
+void Instr_I_MUL(tInstr i){             printf("MUL %s %s %s\n",i.addr1,i.addr2,i.addr3);fflush(stdout);}
+void Instr_I_DIV(tInstr i){             printf("DIV %s %s %s\n",i.addr1,i.addr2,i.addr3);fflush(stdout);}
+void Instr_I_IDIV(tInstr i){            printf("IDIV %s %s %s\n",i.addr1,i.addr2,i.addr3);fflush(stdout);}
+void Instr_I_ADDS(){                    printf("ADDS\n");fflush(stdout);}
+void Instr_I_SUBS(){                    printf("SUBS\n");fflush(stdout);}
+void Instr_I_MULS(){                    printf("MULS\n");fflush(stdout);}
+void Instr_I_DIVS(){                    printf("DIVS\n");fflush(stdout);}
+void Instr_I_IDIVS(){                   printf("IDIVS\n");fflush(stdout);}
+void Instr_I_LT(tInstr i){              printf("LT %s %s %s\n",i.addr1,i.addr2,i.addr3);fflush(stdout);}
+void Instr_I_GT(tInstr i){              printf("GT %s %s %s\n",i.addr1,i.addr2,i.addr3);fflush(stdout);}
+void Instr_I_EQ(tInstr i){              printf("EQ %s %s %s\n",i.addr1,i.addr2,i.addr3);fflush(stdout);}
+void Instr_I_LTS(){                     printf("LTS\n");fflush(stdout);}
+void Instr_I_GTS(){                     printf("GTS\n");fflush(stdout);}
+void Instr_I_EQS(){                     printf("EQS\n");fflush(stdout);}
+void Instr_I_AND(tInstr i){             printf("AND %s %s %s\n",i.addr1,i.addr2,i.addr3);fflush(stdout);}
+void Instr_I_OR(tInstr i){              printf("OR %s %s %s\n",i.addr1,i.addr2,i.addr3);fflush(stdout);}
+void Instr_I_NOT(tInstr i){             printf("NOT %s %s %s\n",i.addr1,i.addr2,i.addr3);fflush(stdout);}
+void Instr_I_ANDS(){                    printf("ANDS\n");fflush(stdout);}
+void Instr_I_ORS(){                     printf("ORS\n");fflush(stdout);}
+void Instr_I_NOTS(){                    printf("NOTS\n");fflush(stdout);}
+void Instr_I_FLOAT2INT(tInstr i){       printf("FLOAT2INT %s %s\n",i.addr1,i.addr2);fflush(stdout);}
+void Instr_I_INT2FLOAT(tInstr i){       printf("INT2FLOAT %s %s\n",i.addr1,i.addr2);fflush(stdout);}
+void Instr_I_INT2CHAR(tInstr i){        printf("INT2CHAR %s %s\n",i.addr1,i.addr2);fflush(stdout);}
+void Instr_I_STRI2INT(tInstr i){        printf("STRI2INT %s %s %s\n",i.addr1,i.addr2,i.addr3);fflush(stdout);}
+void Instr_I_INT2FLOATS(){              printf("INT2FLOATS\n");fflush(stdout);}
+void Instr_I_FLOAT2INTS(){              printf("FLOAT2INTS\n");fflush(stdout);}
+void Instr_I_INT2CHARS(){               printf("INT2CHARS\n");fflush(stdout);}
+void Instr_I_STRI2INTS(){               printf("STRI2INTS\n");fflush(stdout);}
+void Instr_I_READ(tInstr i){            printf("READ %s %s\n",i.addr1,i.addr2);fflush(stdout);}
+void Instr_I_WRITE(tInstr i){           printf("WRITE %s\n",i.addr1);fflush(stdout);}
+void Instr_I_CONCAT(tInstr i){          printf("CONCAT %s %s %s\n",i.addr1,i.addr2,i.addr3);fflush(stdout);}
+void Instr_I_STRLEN(tInstr i){          printf("STRLEN %s %s\n",i.addr1,i.addr2);fflush(stdout);}
+void Instr_I_GETCHAR(tInstr i){         printf("GETCHAR %s %s %s\n",i.addr1,i.addr2,i.addr3);fflush(stdout);}
+void Instr_I_SETCHAR(tInstr i){         printf("SETCHAR %s %s %s\n",i.addr1,i.addr2,i.addr3);fflush(stdout);}
+void Instr_I_TYPE(tInstr i){            printf("TYPE %s %s\n",i.addr1,i.addr2);fflush(stdout);}
+void Instr_I_LABEL(tInstr i){           printf("LABEL %s\n",i.addr1);fflush(stdout);}
+void Instr_I_JUMP(tInstr i){            printf("JUMP %s\n",i.addr1);fflush(stdout);}
+void Instr_I_JUMPIFEQ(tInstr i){        printf("JUMPIFEQ %s %s %s\n",i.addr1,i.addr2,i.addr3);fflush(stdout);}
+void Instr_I_JUMPIFNEQ(tInstr i){       printf("JUMPIFNEQ %s %s %s\n",i.addr1,i.addr2,i.addr3);fflush(stdout);}
+void Instr_I_JUMPIFEQS(tInstr i){       printf("JUMPIFEQS %s\n",i.addr1);fflush(stdout);}
+void Instr_I_JUMPIFNEQS(tInstr i){      printf("JUMPIFNEQS %s\n",i.addr1);fflush(stdout);}
+void Instr_I_EXIT(tInstr i){            printf("EXIT %s\n",i.addr1);fflush(stdout);}
+void Instr_I_BREAK(){                   printf("BREAK\n");fflush(stdout);}
+void Instr_I_DPRINT(tInstr i){          printf("DPRINT %s\n",i.addr1);fflush(stdout);}
 
 void InstructionPrint(tInstr i)
 {
@@ -729,8 +858,14 @@ void InstructionPrint(tInstr i)
 void Print_BuiltIn_Functions()
 {
     printf(".IFJcode20\n\n");
-    //DEF 2x tmp
+    fflush(stdout);
+
+
+    printf("DEFVAR GF@tmpInt\nDEFVAR GF@tmpFloat\nDEFVAR GF@tmpString\nDEFVAR GF@tmp\n\n");
+    fflush(stdout);
+
     printf("JUMP $$main\n\n");
+    fflush(stdout);
 
     //printf inputi
     printf("LABEL $inputi\n"
@@ -739,6 +874,7 @@ void Print_BuiltIn_Functions()
            "READ LF@retval int\n"
            "POPFRAME\n"
            "RETURN\n");
+    fflush(stdout);
 
     //printf inputf
     printf("LABEL $inputf\n"
@@ -747,6 +883,7 @@ void Print_BuiltIn_Functions()
            "READ LF@retval float\n"
            "POPFRAME\n"
            "RETURN\n");
+    fflush(stdout);
 
     //printf inputs
     printf("LABEL $inputs\n"
@@ -755,22 +892,25 @@ void Print_BuiltIn_Functions()
            "READ LF@retval string\n"
            "POPFRAME\n"
            "RETURN\n");
+    fflush(stdout);
 
     //printf int2float
     printf("LABEL $int2float\n"
            "PUSHFRAME\n"
            "DEFVAR LF@retval\n"
-           "INT2FLOAT LF@retval LF@i\n"
+           "INT2FLOAT LF@retval LF@-i\n"
            "POPFRAME\n"
            "RETURN\n");
+    fflush(stdout);
 
     //printf float2int
     printf("LABEL $float2int\n"
            "PUSHFRAME\n"
            "DEFVAR LF@retval\n"
-           "FLOAT2INT LF@retval LF@f\n"
+           "FLOAT2INT LF@retval LF@-f\n"
            "POPFRAME\n"
            "RETURN\n");
+    fflush(stdout);
 
     //Print len
     printf("LABEL $len\n"
@@ -779,6 +919,7 @@ void Print_BuiltIn_Functions()
            "STRLEN LF@retval LF@s\n"
            "POPFRAME \n"
            "RETURN\n");
+    fflush(stdout);
 
     //print substr
     printf("LABEL $substr\n"
@@ -787,51 +928,52 @@ void Print_BuiltIn_Functions()
            "MOVE LF@retval string@\n"
            "DEFVAR LF@length\n"
            "CREATEFRAME\n"
-           "DEFVAR TF%%0\n"
-           "MOVE TF@%%0 LF%%0\n"
+           "DEFVAR TF@s\n"
+           "MOVE TF@s LF@substr_s\n"
            "CALL $len\n"
-           "MOVE LF@length TF@%%retval\n"
+           "MOVE LF@length TF@retval\n"
            "DEFVAR LF@ret\n"
            "LT LF@ret LF@length int@0\n"
            "JUMPIFEQ $substr$return LF@ret bool@true\n"
            "EQ LF@ret LF@length int@0\n"
            "JUMPIFEQ $substr$return LF@ret bool@true\n"
-           "LT LF@ret LF@%%1 int@0\n"
+           "LT LF@ret LF@substr_i int@0\n"
            "JUMPIFEQ $substr$return LF@ret bool@true\n"
-           "EQ LF@ret LF@%%1 int@0\n"
+           "EQ LF@ret LF@substr_i int@0\n"
            "JUMPIFEQ $substr$return LF@ret bool@true\n"
-           "GT LF@ret LF@%%1 LF@length\n"
+           "GT LF@ret LF@substr_i LF@length\n"
            "JUMPIFEQ $substr$return LF@ret bool@true\n"
-           "EQ LF@ret LF@%%2 int@0\n"
+           "EQ LF@ret LF@substr_n int@0\n"
            "JUMPIFEQ $substr$return LF@ret bool@true\n"
            "DEFVAR LF@max\n"
            "MOVE LF@max LF@length\n"
-           "SUB LF@max LF@max LF@%%1\n"
+           "SUB LF@max LF@max LF@substr_i\n"
            "ADD LF@max LF@max int@1\n"
            "DEFVAR LF@edit\n"
-           "LT LF@edit LF@%%2 int@0\n"
+           "LT LF@edit LF@substr_n int@0\n"
            "JUMPIFEQ $substr$edit LF@edit bool@true\n"
-           "GT LF@edit LF@%%2 LF@max\n"
+           "GT LF@edit LF@substr_n LF@max\n"
            "JUMPIFEQ $substr$edit LF@edit bool@true\n"
            "JUMP $substr$process\n"
            "LABEL $substr$edit\n"
-           "MOVE LF@%%2 LF@max\n"
+           "MOVE LF@substr_n LF@max\n"
            "LABEL $substr$process\n"
            "DEFVAR LF@index\n"
-           "MOVE LF@index LF@%%1\n"
+           "MOVE LF@index LF@substr_i\n"
            "SUB LF@index LF@index int@1\n"
            "DEFVAR LF@char\n"
            "DEFVAR LF@processloop\n"
            "LABEL $substr$loop\n"
-           "GETCHAR LF@char LF@%%0 LF@index\n"
+           "GETCHAR LF@char LF@substr_s LF@index\n"
            "CONCAT LF@retval LF@retval LF@char\n"
            "ADD LF@index LF@index int@1\n"
-           "SUB LF@%%2 LF@%%2 int@1\n"
-           "GT LF@processloop LF@%%2 int@0\n"
+           "SUB LF@substr_n LF@substr_n int@1\n"
+           "GT LF@processloop LF@substr_n int@0\n"
            "JUMPIFEQ $substr$loop LF@processloop bool@true\n"
            "LABEL $substr$return\n"
            "POPFRAME\n"
            "RETURN\n");
+    fflush(stdout);
 
     //printf chr
     printf("LABEL $chr\n"
@@ -839,14 +981,15 @@ void Print_BuiltIn_Functions()
            "DEFVAR LF@retval\n"
            "MOVE LF@retval string@\n"
            "DEFVAR LF@cond\n"
-           "LT LF@cond LF@%%0 int@0\n"
+           "LT LF@cond LF@chr_int int@0\n"
            "JUMPIFEQ $chr$return LF@cond bool@true\n"
-           "GT LF@cond LF@%%0 int@255\n"
+           "GT LF@cond LF@chr_int int@255\n"
            "JUMPIFEQ $chr$return LF@cond bool@true\n"
-           "INT2CHAR LF@retval LF@%%0\n"
+           "INT2CHAR LF@retval LF@chr_int\n"
            "LABEL $chr$return\n"
            "POPFRAME\n"
            "RETURN\n");
+    fflush(stdout);
 
     //printf ord
     printf("LABEL $ord\n"
@@ -854,22 +997,48 @@ void Print_BuiltIn_Functions()
            "DEFVAR LF@retval\n"
            "MOVE LF@retval int@0\n"
            "DEFVAR LF@cond\n"
-           "LT LF@cond LF@%%1 int@1\n"
+           "LT LF@cond LF@s int@0\n"
            "JUMPIFEQ $ord$return LF@cond bool@true\n"
            "DEFVAR LF@length\n"
            "CREATEFRAME\n"
-           "DEFVAR TF@%%0\n"
-           "MOVE TF@%%0 LF@%%0\n"
+           "DEFVAR TF@s\n"
+           "MOVE TF@s LF@ord_s\n"
            "CALL $len\n"
            "MOVE LF@length TF@retval\n"
-           "GT LF@cond LF@%%1 LF@length\n"
+           "GT LF@cond LF@s LF@length\n"
            "JUMPIFEQ $ord$return LF@cond bool@true\n"
-           "SUB LF@%%1 LF@%%1 int@1\n"
-           "STRI2INT LF@retval LF@%%0 LF@%%1\n"
+           "SUB LF@ord_i LF@s int@1\n"
+           "STRI2INT LF@retval LF@ord_s LF@s\n"
            "LABEL $ord$return\n"
            "POPFRAME\n"
            "RETURN\n");
+    fflush(stdout);
 
+
+
+    // možná tady budou jesdnotlivé funkce ještě před mainem...
+
+    /*
+     * takže např LABEL $func
+     * pushframe/createframe
+     * práce s proměnnými
+     * popframe
+     * RETURN
+     * */
+}
+
+void print_Mainframe_begin()
+{
     //printf begin of main
     printf("LABEL $$main\n");
+    fflush(stdout);
+    printf("CREATEFRAME\n");
+    fflush(stdout);
+    //printf("PUSHFRAME\n");
+    //fflush(stdout);
+}
+
+void print_Mainframe_end()
+{
+    printf("RETURN\n");fflush(stdout);
 }
