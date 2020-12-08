@@ -7,7 +7,7 @@ int main(){
     string s;
     init_string(&s);
     adds_to_string(&s, "8<0"); //"\"hej\" != \"op\""
-    printf("delka str %d\n", s.length);
+    printf("length str %d\n", s.length);
     for(int i = 0; i < 18; i++){
         printf("++---%d %c\n", i, s.str[i]);
     }

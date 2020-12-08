@@ -5,10 +5,9 @@
 
 int main(){
   tExpressionList *L = malloc(sizeof(tExpressionList));
-  tLinkedList *list;
+  tLinkedList *list = malloc(sizeof(tLinkedList));;
   ExprLLInit(L);
   //TableLLInit(list);
-  printf("here\n");
   string input;         //noda a node b = a+9 , t*5-9
    init_string(&input);
    printf("\n");
