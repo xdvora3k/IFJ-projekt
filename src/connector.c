@@ -37,7 +37,7 @@ char* VarLLInsert(tFinalList *L, char* name, char* func_name, tLinkedList *func_
     int malloc_size = strlen(name) + strlen(func_name) + 10;
     variable->key = malloc(malloc_size);
     int nests = TableLLGetNumOfNests(func_variable_list, name);
-    if ((!strcmp(name, "-if") || !strcmp(name, "-else") || !strcmp(name,"-ifend") || !strcmp(name,"-forbegin") || !strcmp(name,"-forend")) && !nests){
+    if ((!strcmp(name, "-if") || !strcmp(name, "-else") || !strcmp(name,"-ifend") || !strcmp(name,"-forbegin") || !strcmp(name,"-forend")) && nests == -1){
         nests = TableLLLen(func_variable_list) - 1;
         if(!strcmp(name,"-forbegin") || !strcmp(name,"-forend"))
         {
