@@ -281,29 +281,31 @@ char* Calc_Int_Expression(tExpressionNode *Rules,tLinkedList *func_variable_list
     {
         rule = ExprLLGetNthRuleRule(Rules,i);
 
-        string ruleLeftStr; init_string(&ruleLeftStr);
-        string ruleRightStr; init_string(&ruleRightStr);
-        adds_to_string(&ruleLeftStr,rule->leftOperand->text->str);
-        adds_to_string(&ruleRightStr,rule->rightOperand->text->str);
-        clear_str(rule->leftOperand->text);
-        clear_str(rule->rightOperand->text);
-        adds_to_string(rule->leftOperand->text,VarLLGetRealName(final_variables,ruleLeftStr.str,NULL,func_variable_list));
-        adds_to_string(rule->rightOperand->text,VarLLGetRealName(final_variables,ruleRightStr.str,NULL,func_variable_list));
 
         if(rule->leftOperand->type == tId)
         {
-
+            string ruleLeftStr; init_string(&ruleLeftStr);
+            adds_to_string(&ruleLeftStr,rule->leftOperand->text->str);
+            clear_str(rule->leftOperand->text);
+            adds_to_string(rule->leftOperand->text,VarLLGetRealName(final_variables,ruleLeftStr.str,NULL,func_variable_list));
             opL = ChangeOperand(opL,rule->leftOperand->text->str,"",IntType,Frame_LF);
         }
         else
-        {opL = ChangeOperand(opL,"",rule->leftOperand->text->str,IntType,Frame_LF);}
-
+        {
+            opL = ChangeOperand(opL,"",rule->leftOperand->text->str,IntType,Frame_LF);
+        }
         if (rule->rightOperand->type == tId)
         {
+            string ruleRightStr; init_string(&ruleRightStr);
+            adds_to_string(&ruleRightStr,rule->rightOperand->text->str);
+            clear_str(rule->rightOperand->text);
+            adds_to_string(rule->rightOperand->text,VarLLGetRealName(final_variables,ruleRightStr.str,NULL,func_variable_list));
             opR = ChangeOperand(opR,rule->rightOperand->text->str,"",IntType,Frame_LF);
         }
         else
-        {opR = ChangeOperand(opR,"",rule->rightOperand->text->str,IntType,Frame_LF);}
+        {
+            opR = ChangeOperand(opR,"",rule->rightOperand->text->str,IntType,Frame_LF);
+        }
 
         printf("DEFVAR %s\n",rule->placeHolder->text->str);fflush(stdout);
         opV = ChangeOperand(opV,rule->placeHolder->text->str,"",IntType,Frame_LF);
@@ -409,24 +411,31 @@ char* Calc_Float_Expression(tExpressionNode *Rules,tLinkedList *func_variable_li
     {
         rule = ExprLLGetNthRuleRule(Rules,i);
 
-        string ruleLeftStr; init_string(&ruleLeftStr);
-        string ruleRightStr; init_string(&ruleRightStr);
-        adds_to_string(&ruleLeftStr,rule->leftOperand->text->str);
-        adds_to_string(&ruleRightStr,rule->rightOperand->text->str);
-        clear_str(rule->leftOperand->text);
-        clear_str(rule->rightOperand->text);
-        adds_to_string(rule->leftOperand->text,VarLLGetRealName(final_variables,ruleLeftStr.str,NULL,func_variable_list));
-        adds_to_string(rule->rightOperand->text,VarLLGetRealName(final_variables,ruleRightStr.str,NULL,func_variable_list));
-
 
         if(rule->leftOperand->type == tId)
-        {opL = ChangeOperand(opL,rule->leftOperand->text->str,"",Float64Type,Frame_LF);}
+        {
+            string ruleLeftStr; init_string(&ruleLeftStr);
+            adds_to_string(&ruleLeftStr,rule->leftOperand->text->str);
+            clear_str(rule->leftOperand->text);
+            adds_to_string(rule->leftOperand->text,VarLLGetRealName(final_variables,ruleLeftStr.str,NULL,func_variable_list));
+            opL = ChangeOperand(opL,rule->leftOperand->text->str,"",Float64Type,Frame_LF);
+        }
         else
-        {opL = ChangeOperand(opL,"",rule->leftOperand->text->str,Float64Type,Frame_LF);}
+        {
+            opL = ChangeOperand(opL,"",rule->leftOperand->text->str,Float64Type,Frame_LF);
+        }
         if (rule->rightOperand->type == tId)
-        {opR = ChangeOperand(opR,rule->rightOperand->text->str,"",Float64Type,Frame_LF);}
+        {
+            string ruleRightStr; init_string(&ruleRightStr);
+            adds_to_string(&ruleRightStr,rule->rightOperand->text->str);
+            clear_str(rule->rightOperand->text);
+            adds_to_string(rule->rightOperand->text,VarLLGetRealName(final_variables,ruleRightStr.str,NULL,func_variable_list));
+            opR = ChangeOperand(opR,rule->rightOperand->text->str,"",Float64Type,Frame_LF);
+        }
         else
-        {opR = ChangeOperand(opR,"",rule->rightOperand->text->str,Float64Type,Frame_LF);}
+        {
+            opR = ChangeOperand(opR,"",rule->rightOperand->text->str,Float64Type,Frame_LF);
+        }
 
         printf("DEFVAR %s\n",rule->placeHolder->text->str);fflush(stdout);
         opV = ChangeOperand(opV,rule->placeHolder->text->str,"",Float64Type,Frame_LF);
@@ -532,24 +541,31 @@ char* Calc_String_Expression(tExpressionNode *Rules,tLinkedList *func_variable_l
     {
         rule = ExprLLGetNthRuleRule(Rules,i);
 
-        string ruleLeftStr; init_string(&ruleLeftStr);
-        string ruleRightStr; init_string(&ruleRightStr);
-        adds_to_string(&ruleLeftStr,rule->leftOperand->text->str);
-        adds_to_string(&ruleRightStr,rule->rightOperand->text->str);
-        clear_str(rule->leftOperand->text);
-        clear_str(rule->rightOperand->text);
-        adds_to_string(rule->leftOperand->text,VarLLGetRealName(final_variables,ruleLeftStr.str,NULL,func_variable_list));
-        adds_to_string(rule->rightOperand->text,VarLLGetRealName(final_variables,ruleRightStr.str,NULL,func_variable_list));
-
 
         if(rule->leftOperand->type == tId)
-        {opL = ChangeOperand(opL,rule->leftOperand->text->str,"",StringType,Frame_LF);}
+        {
+            string ruleLeftStr; init_string(&ruleLeftStr);
+            adds_to_string(&ruleLeftStr,rule->leftOperand->text->str);
+            clear_str(rule->leftOperand->text);
+            adds_to_string(rule->leftOperand->text,VarLLGetRealName(final_variables,ruleLeftStr.str,NULL,func_variable_list));
+            opL = ChangeOperand(opL,rule->leftOperand->text->str,"",StringType,Frame_LF);
+        }
         else
-        {opL = ChangeOperand(opL,"",rule->leftOperand->text->str,StringType,Frame_LF);}
+        {
+            opL = ChangeOperand(opL,"",rule->leftOperand->text->str,StringType,Frame_LF);
+        }
         if (rule->rightOperand->type == tId)
-        {opR = ChangeOperand(opR,rule->rightOperand->text->str,"",StringType,Frame_LF);}
+        {
+            string ruleRightStr; init_string(&ruleRightStr);
+            adds_to_string(&ruleRightStr,rule->rightOperand->text->str);
+            clear_str(rule->rightOperand->text);
+            adds_to_string(rule->rightOperand->text,VarLLGetRealName(final_variables,ruleRightStr.str,NULL,func_variable_list));
+            opR = ChangeOperand(opR,rule->rightOperand->text->str,"",StringType,Frame_LF);
+        }
         else
-        {opR = ChangeOperand(opR,"",rule->rightOperand->text->str,StringType,Frame_LF);}
+        {
+            opR = ChangeOperand(opR,"",rule->rightOperand->text->str,StringType,Frame_LF);
+        }
 
         printf("DEFVAR %s\n",rule->placeHolder->text->str);fflush(stdout);
         opV = ChangeOperand(opV,rule->placeHolder->text->str,"",StringType,Frame_LF);
@@ -628,9 +644,9 @@ char* Calc_String_Expression(tExpressionNode *Rules,tLinkedList *func_variable_l
 
 void print_print_Expression(tPassedSide *Frases,tLinkedList* func_variable_list)
 {
-    int numberOfFrases = PassedLLLen(Frases);
 
-    for (int i = 0; i < numberOfFrases; ++i)
+    int numberOfFrases = PassedLLLen(Frases);
+    for (int i = 0; i < numberOfFrases; i++)
     {
         tPassedNode *text = PassedLLGetNode(Frases,i);
         int textLength = strlen(text->value);
