@@ -664,7 +664,12 @@ void _process_function_call(tLinkedList *func_variable_list, tLinkedList *left_v
         if (token != EOL){
             free_and_exit(SYN_ERROR, func_variable_list, left_variables);
         }
-        print_function_assigment(NULL, called_func_name, right_param_names, right_side, func_variable_list, is_return);
+        if (!strcmp(called_func_name, "print")){
+            print_print_Expression(right_side, func_variable_list);
+        }
+        else {
+            print_function_assigment(NULL, called_func_name, right_param_names, right_side, func_variable_list, is_return);
+        }
     }
 }
 
