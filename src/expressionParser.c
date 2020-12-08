@@ -37,6 +37,7 @@ tVarDataType getDataType(tToken *token, tLinkedList *linkedL)
     default: //not handled in switch
         break;
     }
+    return Unknown_type;
 }
 
 void _save_to_token(tToken *token, string *string, tState type, int end_index, tLinkedList *list)
@@ -174,7 +175,7 @@ void get_tokenExp(tToken *token, string *input, int startIndex, tLinkedList *L)
             {
                 add_to_string(&tokenText, '$');
                 _save_to_token(token, &tokenText, tEOF, startIndex + i, L);
-                ;
+                
                 return;
             }
             break;
