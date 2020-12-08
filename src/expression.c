@@ -95,6 +95,8 @@ void precedencSA(string *input, tExpressionList *expL, tLinkedList *linkedL)
     int index = 0;
     tToken *topToken;
     tToken *inputToken = (tToken *)(StrLLLocateNthElem(tokens, index)->Content);
+    CreateNode(rule, expL);
+
     do
     {
         // printf("%d %s %d\n", index, inputToken->text->str, tokens->first.);
@@ -196,6 +198,7 @@ void precedencSA(string *input, tExpressionList *expL, tLinkedList *linkedL)
     printf("\n");
     //printf("\n Insert list %s %s %s\n", justTestingList.first->first->leftOperand->text->str, justTestingList.first->first->operator->text->str, justTestingList.first->first->rightOperand->text->str);
     counter = 0;
+    printf("nn %s\n", expL->first->first->rightOperand->text->str);
 }
 
 void pushOpenTokenToStack(ptrStack *topOfStack, tToken *exprOpenToken)
@@ -493,6 +496,17 @@ void printStack(ptrStack *topStack)
 // return expList;
 //}
 
+void CreateNode(tExpressionRule rule, tExpressionList *expL){
+    if (rule.typeOfRule == expBrackets)
+    {
+        ExprLLCreateNextNode(expL, rule.operator->dataType);
+    }
+    else
+    {
+        ExprLLCreateNextNode(expL, rule.rightOperand->dataType);
+    }
+
+}
 void InsertList(tExpressionRule rule, tExpressionList *expL, tLinkedList *linkedL)
 {
     printf("insert\n");
@@ -508,14 +522,6 @@ void InsertList(tExpressionRule rule, tExpressionList *expL, tLinkedList *linked
     /*    if(rule.leftOperand->type == tExprPlaceholder){ //kdyz budou oba 58?
         rule.leftOperand->type = rule.rightOperand->type;
     }*/
-    if (rule.typeOfRule == expBrackets)
-    {
-        ExprLLCreateNextNode(expL, rule.operator->dataType);
-    }
-    else
-    {
-        ExprLLCreateNextNode(expL, rule.rightOperand->dataType);
-    }
     ExprLLInsertExprToLastNode(expL, rule.leftOperand, rule.rightOperand, rule.operator, rule.placeHolder, rule.typeOfRule);
     printf("++++insert LIST %s +++\n", expL->first->first->rightOperand->text->str);
 

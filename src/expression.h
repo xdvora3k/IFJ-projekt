@@ -33,4 +33,5 @@ void printStack(ptrStack* topStack);
 void printList(tExpressionList *List, tExpressionRule rule);
 //void CreateEXPList(tExpressionList *L , /*tExpressionRule *rule*/ tToken *leftToken, tToken *rightToken, int counter);
 void InsertList(tExpressionRule rule, tExpressionList *expL, tLinkedList *linkedL);
+void CreateNode(tExpressionRule rule, tExpressionList *expL);
 #endif
