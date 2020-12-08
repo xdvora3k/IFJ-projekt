@@ -499,8 +499,8 @@ void _process_var_declaration(tLinkedList *func_variable_list, tLinkedList *left
         free_and_exit(SEM_ERROR, func_variable_list, left_variables);
     }
 
-    print_variable_declaration_Expression(left_variables, right_side, func_variable_list);
     TableLLInsertFirstSeenVariable(func_variable_list, left_variables, right_side);
+    print_variable_declaration_Expression(left_variables, right_side, func_variable_list);
     if (for_header_state == 1){
         return;
     }
@@ -922,6 +922,7 @@ void _process_one_line_and_follow(tLinkedList *func_variable_list){
     string name;
     init_string(&name);
     adds_to_string(&name, attr.str);
+    printf("- %s\n",name.str);fflush(stdout);
     switch (token){
         case tId:
             token = get_adjusted_token(&attr);

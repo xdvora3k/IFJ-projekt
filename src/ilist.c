@@ -475,6 +475,10 @@ void CreateInstruction(INSTRUCTION InstrType, char *addr1, char *addr2, char *ad
 
 tInstructionOperand* CreateOperand(char* name, char* value, tVarDataType type, FRAME f)
 {
+    if(!name)
+    {
+        return NULL;
+    }
     tInstructionOperand *o = malloc(sizeof(tInstructionOperand));
     int str_len_name = strlen(name);
     int str_len_value = strlen(value);

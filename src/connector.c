@@ -134,19 +134,19 @@ void print_variable_declaration_Expression(tLinkedList *leftside, tExpressionLis
     {
         printfS = Calc_Int_Expression(rightside->first,func_variable_list);
         left = ChangeOperand(left,VarLLInsert(final_variables,leftside->first->Content, NULL, func_variable_list),"",IntType,Frame_LF);
-        right = ChangeOperand(right,printfS,"",IntType,Frame_LF);
+        right = ChangeOperand(right,printfS,"",IntType,Frame_TF);
     }
     else if(rightside->first->data_type == Float64Type)
     {
         printfS = Calc_Float_Expression(rightside->first,func_variable_list);
         left = ChangeOperand(left,VarLLInsert(final_variables,leftside->first->Content, NULL, func_variable_list),"",Float64Type,Frame_LF);
-        right = ChangeOperand(right,printfS,"",Float64Type,Frame_LF);
+        right = ChangeOperand(right,printfS,"",Float64Type,Frame_TF);
     }
     else if(rightside->first->data_type == StringType)
     {
         printfS = Calc_String_Expression(rightside->first,func_variable_list);
         left = ChangeOperand(left,VarLLInsert(final_variables,leftside->first->Content, NULL, func_variable_list),"",StringType,Frame_LF);
-        right = ChangeOperand(right,printfS,"",StringType,Frame_LF);
+        right = ChangeOperand(right,printfS,"",StringType,Frame_TF);
     }
     else if(rightside->first->data_type == UnderscoreType)
     {
@@ -776,6 +776,7 @@ void print_int2float_Expression(tLinkedList *leftside, tPassedSide * rightside, 
 
     tInstructionOperand *floatvalue = CreateOperand(VarLLGetRealName(final_variables,leftside->first->Content,NULL,func_variable_list),"",Float64Type,Frame_LF);
     tInstructionOperand *retval = CreateOperand("retval","",Float64Type,Frame_LF);
+    if(retval)
     Instruction2(I_MOVE,*floatvalue,*retval);
 
     printf("POPFRAME\n");fflush(stdout);
@@ -802,6 +803,7 @@ void print_float2int_Expression(tLinkedList *leftside, tPassedSide * rightside,t
 
     tInstructionOperand *intvalue = CreateOperand(VarLLGetRealName(final_variables,leftside->first->Content,NULL,func_variable_list),"",IntType,Frame_LF);
     tInstructionOperand *retval = CreateOperand("retval","",IntType,Frame_LF);
+    if(retval)
     Instruction2(I_MOVE,*intvalue,*retval);
 
     printf("POPFRAME\n");fflush(stdout);
@@ -854,13 +856,17 @@ void print_function_assigment(tLinkedList *leftside, char* funcName,tPassedSide*
     }
     if (strcmp(funcName,"inputi") == 0)
     {
+
         tInstructionOperand *opI = CreateOperand(ret1,"",IntType,Frame_LF);
         tInstructionOperand *opII = CreateOperand(ret2,"",IntType,Frame_LF);
         tInstructionOperand *retI = CreateOperand("retval","",IntType,Frame_LF);
         tInstructionOperand *retII = CreateOperand("","0",IntType,Frame_NaN);
         printf("CALL $inputi\n");fflush(stdout);
-        Instruction2(I_MOVE,*opI,*retI);
-        Instruction2(I_MOVE,*opII,*retII);
+
+        if(ret1)
+            Instruction2(I_MOVE, *opI, *retI);
+        if(ret2)
+            Instruction2(I_MOVE, *opII, *retII);
     }
     else if(strcmp(funcName,"inputf") == 0)
     {
@@ -869,7 +875,9 @@ void print_function_assigment(tLinkedList *leftside, char* funcName,tPassedSide*
         tInstructionOperand *retI = CreateOperand("retval","",IntType,Frame_LF);
         tInstructionOperand *retII = CreateOperand("","0",IntType,Frame_NaN);
         printf("CALL $inputf\n");fflush(stdout);
+        if(ret1)
         Instruction2(I_MOVE,*opI,*retI);
+        if(ret2)
         Instruction2(I_MOVE,*opII,*retII);
     }
     else if(strcmp(funcName,"inputs") == 0)
@@ -879,7 +887,9 @@ void print_function_assigment(tLinkedList *leftside, char* funcName,tPassedSide*
         tInstructionOperand *retI = CreateOperand("retval","",IntType,Frame_LF);
         tInstructionOperand *retII = CreateOperand("","0",IntType,Frame_NaN);
         printf("CALL $inputs\n");fflush(stdout);
+        if(ret1)
         Instruction2(I_MOVE,*opI,*retI);
+        if(ret2)
         Instruction2(I_MOVE,*opII,*retII);
     }
     else if(strcmp(funcName,"int2float") == 0)
@@ -899,6 +909,7 @@ void print_function_assigment(tLinkedList *leftside, char* funcName,tPassedSide*
         tInstructionOperand *opI = CreateOperand(VarLLGetRealName(final_variables,leftside->first->Content,NULL, func_variable_list),"",Float64Type,Frame_LF);
         tInstructionOperand *retI = CreateOperand("retval","",IntType,Frame_LF);
         printf("CALL $len\n");fflush(stdout);
+        if(ret1)
         Instruction2(I_MOVE,*opI,*retI);
     }
     else if(strcmp(funcName,"ord") == 0)
@@ -915,7 +926,9 @@ void print_function_assigment(tLinkedList *leftside, char* funcName,tPassedSide*
         Instruction2(I_MOVE,*substrII,*opParamII);
 
         printf("CALL $ord\n");fflush(stdout);
+        if(ret1)
         Instruction2(I_MOVE,*opI,*retI);
+        if(ret2)
         Instruction2(I_MOVE,*opII,*retII);
     }
     else if(strcmp(funcName,"chr") == 0)
@@ -929,7 +942,9 @@ void print_function_assigment(tLinkedList *leftside, char* funcName,tPassedSide*
         Instruction2(I_MOVE,*opChr,*opParamI);
 
         printf("CALL $chr\n");fflush(stdout);
+        if(ret1)
         Instruction2(I_MOVE,*opI,*retI);
+        if(ret2)
         Instruction2(I_MOVE,*opII,*retII);
     }
     else if(strcmp(funcName,"substr") == 0)
@@ -949,7 +964,9 @@ void print_function_assigment(tLinkedList *leftside, char* funcName,tPassedSide*
         Instruction2(I_MOVE,*substrIII,*opParamIII);
 
         printf("CALL $substr\n");fflush(stdout);
+        if(ret1)
         Instruction2(I_MOVE,*opI,*retI);
+        if(ret2)
         Instruction2(I_MOVE,*opII,*retII);
     }
     else
@@ -976,6 +993,7 @@ void print_function_assigment(tLinkedList *leftside, char* funcName,tPassedSide*
 
             tInstructionOperand *opI = CreateOperand(VarLLGetRealName(final_variables,LeftItem->Content,NULL, func_variable_list),"",Unknown_type,Frame_LF);
             tInstructionOperand *retI = CreateOperand(ReturnVariable,"", Unknown_type,Frame_LF);
+            if(ret1)
             Instruction2(I_MOVE,*opI,*retI);
         }
     }
@@ -983,6 +1001,7 @@ void print_function_assigment(tLinkedList *leftside, char* funcName,tPassedSide*
 
 void print_if_begin(tExpressionNode* expList, tLinkedList *func_variable_list)
 {
+
     printf("#\n");fflush(stdout);
     string ifExpression;
     init_string(&ifExpression);
