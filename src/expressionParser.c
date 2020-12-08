@@ -1,4 +1,7 @@
-
+/*
+ * IFJ project 2020
+ * Author: xkuzel08, Marie Kuzelova       
+ */
 #include "expressionParser.h"
 
 tVarDataType getDatatypefromId(tToken *token, tLinkedList *linkedL)
@@ -53,10 +56,9 @@ void _save_to_token(tToken *token, string *string, tState type, int end_index, t
     token->dataType = getDataType(token, list);
 }
 
-void get_tokenExp(tToken *token, string *input, int startIndex)
+void get_tokenExp(tToken *token, string *input, int startIndex, tLinkedList *L)
 {
     tState state = start;
-    tLinkedList *L;
     char c;
     int i = 0;
     string tokenText;
@@ -175,7 +177,6 @@ void get_tokenExp(tToken *token, string *input, int startIndex)
             {
                 add_to_string(&tokenText, '$');
                 _save_to_token(token, &tokenText, tEOF, startIndex + i, L);
-                ;
                 return;
             }
             break;
@@ -487,7 +488,7 @@ void TokenLLInsert(tLinkedList *L, tToken *token)
     curr->nextItem = new_node;
 }
 
-tLinkedList *get_tokens(string *s)
+tLinkedList *get_tokens(string *s, tLinkedList *List)
 {
     tLinkedList *L = malloc(sizeof(tLinkedList));
     StrLLInit(L);
@@ -495,9 +496,11 @@ tLinkedList *get_tokens(string *s)
     tToken *t = malloc(sizeof(tToken));
     do
     {
-        get_tokenExp(t, s, i);
+        //printf("index %d %s\n", i, s->str);
+        get_tokenExp(t, s, i, List);
         TokenLLInsert(L, t);
         i = t->endIndex + 1;
+        //printf("endindex %d, s.len %d\n", t->endIndex, s->length);
 
     } while (t->endIndex + 1 < s->length);
     return L;

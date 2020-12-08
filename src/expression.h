@@ -1,3 +1,7 @@
+/*
+ * IFJ project 2020
+ * Author: xkuzel08, Marie Kuzelova
+ */
 #ifndef IFJ_PROJEKT_EXPRESSION_H
 #define IFJ_PROJEKT_EXPRESSION_H
 #include <stdio.h>
@@ -5,9 +9,6 @@
 #include "ilist.h"
 #include "scanner.h"
 #include "expressionParser.h"
-
-
-
 
 typedef enum 
 {

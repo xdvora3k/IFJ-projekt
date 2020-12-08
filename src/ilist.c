@@ -245,12 +245,10 @@ void ExprLLInsertExprToLastNode(tExpressionList *L, tToken *leftOperand, tToken*
             last_rule = last_rule->next;
         }
     }
-    
     tExpressionRule *new_rule = malloc(sizeof(tExpressionRule));
     if(leftOperand != NULL){ 
     new_rule->leftOperand = _insert_token_to_node(leftOperand);
     }
-
     new_rule->rightOperand = _insert_token_to_node(rightOperand);
     if(operator != NULL){ 
     new_rule->operator = _insert_token_to_node(operator);

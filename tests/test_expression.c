@@ -31,6 +31,7 @@ int main(){
     printf("I %d %s \n", i, (myToken->text)->str);
    // printf("Index = 2\n");//%d and %s\n", i, (myToken->text).str);
 
+
     while (listItem->nextItem)
     {
         i++;

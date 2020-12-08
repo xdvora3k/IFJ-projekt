@@ -1,7 +1,8 @@
 PROJ=proj
 BINARY_FILES=$(PROJ) test-scanner test-ilist test-expParser test-expression
 CC=gcc
-CFLAGS=-std=c11 -Wall -Wextra -pedantic -pthread
+CFLAGS=-std=c11 -Wall -Wextra -Werror -pedantic -pthread
+
 FILES=src/str.c src/scanner.c src/symtable.c src/ilist.c src/stack.c src/expressionParser.c src/expression.c 
 
 .PHONY: all
