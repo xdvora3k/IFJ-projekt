@@ -285,7 +285,6 @@ char* Calc_Int_Expression(tExpressionNode *Rules,tLinkedList *func_variable_list
 
         if(rule->leftOperand->type == tId)
         {
-            printf("%s\n",rule->leftOperand->text->str);
             adds_to_string(&ruleLeftStr,rule->leftOperand->text->str);
             clear_str(rule->leftOperand->text);
             adds_to_string(rule->leftOperand->text,VarLLGetRealName(final_variables,ruleLeftStr.str,NULL,func_variable_list));
@@ -293,7 +292,6 @@ char* Calc_Int_Expression(tExpressionNode *Rules,tLinkedList *func_variable_list
         }
         else
         {
-            printf("%s\n",rule->leftOperand->text->str);
             opL = ChangeOperand(opL,"",rule->leftOperand->text->str,IntType,Frame_NaN);
         }
         if (rule->rightOperand->type == tId)
@@ -310,7 +308,7 @@ char* Calc_Int_Expression(tExpressionNode *Rules,tLinkedList *func_variable_list
         }
 
         printf("DEFVAR %s\n",rule->placeHolder->text->str);fflush(stdout);
-        opV = ChangeOperand(opV,rule->placeHolder->text->str,"",IntType,Frame_LF);
+        opV = ChangeOperand(opV,rule->placeHolder->text->str,"",IntType,Frame_TF);
 
         switch(rule->operator->text->str[0])
         {
@@ -440,7 +438,7 @@ char* Calc_Float_Expression(tExpressionNode *Rules,tLinkedList *func_variable_li
         }
 
         printf("DEFVAR %s\n",rule->placeHolder->text->str);fflush(stdout);
-        opV = ChangeOperand(opV,rule->placeHolder->text->str,"",Float64Type,Frame_LF);
+        opV = ChangeOperand(opV,rule->placeHolder->text->str,"",Float64Type,Frame_TF);
 
         switch(rule->operator->text->str[0])
         {
@@ -570,7 +568,7 @@ char* Calc_String_Expression(tExpressionNode *Rules,tLinkedList *func_variable_l
         }
 
         printf("DEFVAR %s\n",rule->placeHolder->text->str);fflush(stdout);
-        opV = ChangeOperand(opV,rule->placeHolder->text->str,"",StringType,Frame_LF);
+        opV = ChangeOperand(opV,rule->placeHolder->text->str,"",StringType,Frame_TF);
 
         switch(rule->operator->text->str[0])
         {
