@@ -8,8 +8,6 @@
 #include "symtable.h"
 #include "parser.h"
 
-tLinkedList *final_variables;
-
 int main() {
     set_source_file(stdin);
 

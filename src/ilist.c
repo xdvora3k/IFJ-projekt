@@ -200,7 +200,13 @@ void PassedLLInit(tPassedSide *L){
 void PassedLLInsert(tPassedSide *L, char* value, int is_variable, tVarDataType data_type){
     tPassedNode *new_node = malloc(sizeof(tPassedNode));
     new_node->is_variable = is_variable;
-    int str_len = strlen(value);
+    int str_len;
+    if (value) {
+        str_len = strlen(value);
+    }
+    else {
+        str_len = 0;
+    }
     new_node->value = malloc(str_len + 1);
     strncpy(new_node->value, value, str_len);
     new_node->value[str_len] = '\0';
