@@ -90,9 +90,6 @@ void precedencSA(string *input, tExpressionList *expL, tLinkedList *linkedL)
     expL = malloc(sizeof(tExpressionList));
     ExprLLInit(expL);
 
-    tExpressionList justTestingList;
-    ExprLLInit(&justTestingList);
-
     tExpressionRule rule;
     int index = 0;
     tToken *topToken;
@@ -114,11 +111,11 @@ void precedencSA(string *input, tExpressionList *expL, tLinkedList *linkedL)
                 if (rule.operator!= NULL)
                 {
                     InsertList(rule, expL);
-                    printList(expL, rule);
+                    //printList(expL, rule);
                 }
 
-                printRule(rule);
-                printStack(&topOfStack);
+               // printRule(rule);
+               // printStack(&topOfStack);
                 break;
 
             case '<':

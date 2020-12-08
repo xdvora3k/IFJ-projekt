@@ -95,16 +95,17 @@ int main(){
    printf("Input2 %s . %d\n", input11.str, input11.length);
    precedencSA(&input11);
 */
- /*tToken * tok;
+ /* tToken * tok = malloc(sizeof(tToken));
   string testinp;
   init_string(&testinp);
-  add_to_string(&testinp, 'p');
+  adds_to_string(&testinp, "p");
 
   
-  tok->text = testinp;
-  StrLLInsert(list, tok->text->str);
+  tok->text->str = &testinp;
+  printf("test token %s\n", tok->text->str);*/
+ // StrLLInsert(list, tok->text->str);
 
-
+/*
    string input12;
    init_string(&input12);
    printf("\n");
