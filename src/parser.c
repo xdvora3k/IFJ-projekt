@@ -231,9 +231,11 @@ void parse_func_header() {
     ((tDataFunction *) new_node->Content)->declared = TRUE;
     ((tDataFunction *) new_node->Content)->defined = FALSE;
     // Proceeding with parsing params
+
     _parse_params(new_node);
 
     // Proceeding with parsing return types
+
     _parse_return_types(new_node);
 }
 
@@ -373,7 +375,7 @@ tExpressionList* get_expressions(tLinkedList *func_variable_list, char* first, i
             free_and_exit(error, func_variable_list, NULL);
         }
         first = NULL;
-        precedencSA(&expr, expr_list, func_variable_list);
+        expr_list = precedencSA(&expr, expr_list, func_variable_list);
         clear_str(&expr);
     } while (token == tComma && !is_condition);
 
@@ -662,7 +664,12 @@ void _process_function_call(tLinkedList *func_variable_list, tLinkedList *left_v
         if (token != EOL){
             free_and_exit(SYN_ERROR, func_variable_list, left_variables);
         }
-        print_function_assigment(NULL, called_func_name, right_param_names, right_side, func_variable_list, is_return);
+        if (!strcmp(called_func_name, "print")){
+            print_print_Expression(right_side, func_variable_list);
+        }
+        else {
+            print_function_assigment(NULL, called_func_name, right_param_names, right_side, func_variable_list, is_return);
+        }
     }
 }
 
@@ -1075,12 +1082,10 @@ void parse_func(){
             if (token != tId) {
                 free_and_exit(SYN_ERROR, NULL, NULL);
             }
-
             clear_str(&FUNC_NAME);
             adds_to_string(&FUNC_NAME, attr.str);
             print_function_begin(FUNC_NAME.str);
             func_definition();
-            print_function_end();
             return;
         default:
             free_and_exit(SYN_ERROR, NULL, NULL);
