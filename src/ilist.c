@@ -6,7 +6,6 @@
 
 #include "ilist.h"
 
-extern FRAME currentFrame;
 
 void StrLLInit(tLinkedList *L){
     L->first = NULL;
@@ -201,7 +200,13 @@ void PassedLLInit(tPassedSide *L){
 void PassedLLInsert(tPassedSide *L, char* value, int is_variable, tVarDataType data_type){
     tPassedNode *new_node = malloc(sizeof(tPassedNode));
     new_node->is_variable = is_variable;
-    int str_len = strlen(value);
+    int str_len;
+    if (value) {
+        str_len = strlen(value);
+    }
+    else {
+        str_len = 0;
+    }
     new_node->value = malloc(str_len + 1);
     strncpy(new_node->value, value, str_len);
     new_node->value[str_len] = '\0';
@@ -889,7 +894,7 @@ void Print_BuiltIn_Functions()
     printf("LABEL $int2float\n"
            "PUSHFRAME\n"
            "DEFVAR LF@retval\n"
-           "INT2FLOAT LF@retval LF@i\n"
+           "INT2FLOAT LF@retval LF@-i\n"
            "POPFRAME\n"
            "RETURN\n");
     fflush(stdout);
@@ -898,7 +903,7 @@ void Print_BuiltIn_Functions()
     printf("LABEL $float2int\n"
            "PUSHFRAME\n"
            "DEFVAR LF@retval\n"
-           "FLOAT2INT LF@retval LF@f\n"
+           "FLOAT2INT LF@retval LF@-f\n"
            "POPFRAME\n"
            "RETURN\n");
     fflush(stdout);
@@ -1027,7 +1032,6 @@ void print_Mainframe_begin()
     fflush(stdout);
     //printf("PUSHFRAME\n");
     //fflush(stdout);
-    currentFrame = Frame_TF;
 }
 
 void print_Mainframe_end()

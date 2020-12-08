@@ -11,6 +11,7 @@ tState token;
 string attr;
 tFinalList *final_variables;
 
+
 int for_header_state;
 int func_has_return;
 string FUNC_NAME;
@@ -115,31 +116,7 @@ void _insert_datatype(tDataFunction* Content){
         free_and_exit(INTERNAL_ERROR, NULL, NULL);
     }
 }
-/*
-void call_correct_function(tLinkedList *left_variables, tPassedSide *params, char* func_name){
-    if (!strcmp(func_name, "int2float")){
-        // TODO
-    }
-    else if (!strcmp(func_name, "float2int")){
-        // TODO
-    }
-    else if (!strcmp(func_name, "ord")){
-        // TODO
-    }
-    else if (!strcmp(func_name, "chr")){
-        // TODO
-    }
-    else if (!strcmp(func_name, "len")){
-        // TODO
-    }
-    else if (!strcmp(func_name, "substr")){
-        // TODO
-    }
-    else {
-        // TODO: print other functions
-    }
-}
-*/
+
 void _parse_param(tBSTNodePtr node){
     token = get_token_with_handle_EOL(&attr);
     if (token == tClosingSimpleBrace){
@@ -455,34 +432,6 @@ int insert_value_to_right_side(tLinkedList *func_variable_list, tPassedSide *rig
     return 0;
 }
 
-void _process_var_declaration(tLinkedList *func_variable_list, tLinkedList *left_variables){
-    if (StrLLLen(left_variables) > 1) {
-        free_and_exit(SEM_ERROR, func_variable_list, left_variables);
-    }
-    // Declaration => only 1 variable in list
-    if (!strcmp((char*) left_variables->first->Content, "_")){
-        // Declaring `_` as variable
-        free_and_exit(SEM_OTHER_ERROR, func_variable_list, left_variables);
-    }
-    // Check if variable does not exist in current table
-    if (SymTableSearch((tSymtable*) func_variable_list->first->Content, (char*) left_variables->first->Content)){
-        free_and_exit(SEM_ERROR, func_variable_list, left_variables);
-    }
-
-    tExpressionList *right_side = get_expressions(func_variable_list, NULL, FALSE);
-    if (ExprLLNodeLen(right_side) != 1){
-        free_and_exit(SEM_ERROR, func_variable_list, left_variables);
-    }
-    // TODO: process declaration
-    TableLLInsertFirstSeenVariable(func_variable_list, left_variables, right_side);
-    if (for_header_state == 1){
-        return;
-    }
-    if (token != EOL){
-        free_and_exit(SYN_ERROR, func_variable_list, left_variables);
-    }
-}
-
 int _check_correct_params_and_return_types(tLinkedList *func_variable_list, tLinkedList *left_variables, tBSTNodePtr func_node){
     for (int i = 0; i < StrLLLen(left_variables); i++){
         char *variable = (char*) StrLLLocateNthElem(left_variables, i)->Content;
@@ -512,6 +461,53 @@ int _check_correct_params_and_return_types(tLinkedList *func_variable_list, tLin
         }
     }
     return 0;
+}
+
+void _check_correct_left_and_right_types(tLinkedList *func_variable_list, tLinkedList *left_variables, tExpressionList *right_side){
+    if (StrLLLen(left_variables) != ExprLLNodeLen(right_side)){
+        free_and_exit(SEM_ERROR, func_variable_list, left_variables);
+    }
+    for (int i = 0; i < StrLLLen(left_variables); i++){
+        char* left_var = (char*) StrLLLocateNthElem(left_variables, i)->Content;
+        if (!strcmp(left_var, "_")){
+            continue;
+        }
+        tVarDataType left_data_type = TableLLGetSingleVariable(func_variable_list, left_var)->dataType;
+        tVarDataType right_data_type = ExprLLGetNthNode(right_side, i)->data_type;
+        if (left_data_type == right_data_type){
+            continue;
+        }
+        free_and_exit(SEM_DATATYPE_ERROR, func_variable_list, left_variables);
+    }
+}
+
+void _process_var_declaration(tLinkedList *func_variable_list, tLinkedList *left_variables){
+    if (StrLLLen(left_variables) != 1) {
+        free_and_exit(SEM_ERROR, func_variable_list, left_variables);
+    }
+    // Declaration => only 1 variable in list
+    if (!strcmp((char*) left_variables->first->Content, "_")){
+        // Declaring `_` as variable
+        free_and_exit(SEM_OTHER_ERROR, func_variable_list, left_variables);
+    }
+    // Check if variable does not exist in current table
+    if (SymTableSearch((tSymtable*) func_variable_list->first->Content, (char*) left_variables->first->Content)){
+        free_and_exit(SEM_ERROR, func_variable_list, left_variables);
+    }
+
+    tExpressionList *right_side = get_expressions(func_variable_list, NULL, FALSE);
+    if (ExprLLNodeLen(right_side) != 1){
+        free_and_exit(SEM_ERROR, func_variable_list, left_variables);
+    }
+
+    // TODO: process declaration
+    TableLLInsertFirstSeenVariable(func_variable_list, left_variables, right_side);
+    if (for_header_state == 1){
+        return;
+    }
+    if (token != EOL){
+        free_and_exit(SYN_ERROR, func_variable_list, left_variables);
+    }
 }
 
 int _parse_func_right_side(tLinkedList *func_variable_list, tPassedSide *right_side, tBSTNodePtr func_node) {
@@ -635,24 +631,6 @@ void _process_function_call(tLinkedList *func_variable_list, tLinkedList *left_v
             free_and_exit(SYN_ERROR, func_variable_list, left_variables);
         }
         // TODO: call `print` or custom non-return type function
-
-        print_print_Expression(right_side);
-        fflush(stdout);
-    }
-}
-
-void _check_correct_left_and_right_types(tLinkedList *func_variable_list, tLinkedList *left_variables, tExpressionList *right_side){
-    if (StrLLLen(left_variables) != ExprLLNodeLen(right_side)){
-        free_and_exit(SEM_ERROR, func_variable_list, left_variables);
-    }
-    for (int i = 0; i < StrLLLen(left_variables); i++){
-        char* left_var = (char*) StrLLLocateNthElem(left_variables, i)->Content;
-        tVarDataType left_data_type = TableLLGetSingleVariable(func_variable_list, left_var)->dataType;
-        tVarDataType right_data_type = ExprLLGetNthNode(right_side, i)->data_type;
-        if (left_data_type == right_data_type){
-            continue;
-        }
-        free_and_exit(SEM_DATATYPE_ERROR, func_variable_list, left_variables);
     }
 }
 
@@ -1051,16 +1029,17 @@ void create_function_label(){
     tPassedSide *params = malloc(sizeof(tPassedSide));
     tBSTNodePtr func_node = SymTableSearch(GlobalFuncRoot, FUNC_NAME.str);
     tDataFunction *func_content = (tDataFunction*) func_node->Content;
-    for (int i = 0; i < func_content->params.length; i++){
-        char* param_name = (char*) StrLLLocateNthElem(&func_content->paramNames, i)->Content;
-        tVarDataType var_type = _get_datatype_from_char(func_content->params.str[i]);
-        PassedLLInsert(params, param_name, TRUE, var_type);
-    }
-
-    tPassedSide *return_types = malloc(sizeof(tPassedSide));
-    for (int i = 0; i < func_content->returnType.length; i++){
-        tVarDataType ret_type = _get_datatype_from_char(func_content->returnType.str[i]);
-        PassedLLInsert(return_types, NULL, FALSE, ret_type);
+    if (func_content->params.length) {
+        for (int i = 0; i < func_content->params.length; i++) {
+            char *param_name = (char *) StrLLLocateNthElem(&func_content->paramNames, i)->Content;
+            tVarDataType var_type = _get_datatype_from_char(func_content->params.str[i]);
+            PassedLLInsert(params, param_name, TRUE, var_type);
+        }
+        tPassedSide *return_types = malloc(sizeof(tPassedSide));
+        for (int i = 0; i < func_content->returnType.length; i++) {
+            tVarDataType ret_type = _get_datatype_from_char(func_content->returnType.str[i]);
+            PassedLLInsert(return_types, NULL, FALSE, ret_type);
+        }
     }
 
     // TODO: print function label
@@ -1139,6 +1118,7 @@ void program(){
     // Proceeding with function def
     final_variables = malloc(sizeof(tFinalList));
     VarLLInit(final_variables);
+
     token = get_token_with_handle_EOL(&attr);
     while (token != tEOF){
         parse_func();

@@ -13,6 +13,7 @@
 #include <stdbool.h>
 #include "connector.h"
 
+
 #ifndef IFJ_PROJEKT_PARSER_H
 #define IFJ_PROJEKT_PARSER_H
 
