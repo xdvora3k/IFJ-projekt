@@ -9,6 +9,8 @@ tSymtable *GlobalFuncRoot;
 tLinkedList *GlobalInstr;
 tState token;
 string attr;
+tFinalList *final_variables;
+
 
 int for_header_state;
 int func_has_return;
@@ -371,13 +373,10 @@ tExpressionList* get_expressions(tLinkedList *func_variable_list, char* first, i
             free_and_exit(error, func_variable_list, NULL);
         }
         first = NULL;
-        // TODO: create expression
+        precedencSA(&expr, expr_list, func_variable_list);
         clear_str(&expr);
     } while (token == tComma && !is_condition);
-    // TODO: temp remove
-    expr_list->first = malloc(sizeof(tExpressionNode));
-    expr_list->first->data_type = IntType;
-    // -----------------
+
     return expr_list;
 }
 
@@ -498,7 +497,7 @@ void _process_var_declaration(tLinkedList *func_variable_list, tLinkedList *left
         free_and_exit(SEM_ERROR, func_variable_list, left_variables);
     }
 
-    // TODO: process declaration
+    print_variable_declaration_Expression(left_variables, right_side, func_variable_list);
     TableLLInsertFirstSeenVariable(func_variable_list, left_variables, right_side);
     if (for_header_state == 1){
         return;
@@ -580,8 +579,32 @@ int _parse_func_right_side(tLinkedList *func_variable_list, tPassedSide *right_s
     }
 }
 
+int _get_function_param_names(tPassedSide *right_param_names, char* func_name){
+    tDataFunction *func_node = SymTableSearch(GlobalFuncRoot, func_name)->Content;
+    int param_len = StrLLLen(&func_node->paramNames);
+    tVarDataType data_type;
+    for (int i = 0; i < param_len; i++){
+        char* var_name =  StrLLLocateNthElem(&func_node->paramNames, i)->Content;
+        switch (func_node->params.str[i]){
+            case 'i':
+                data_type = IntType;
+                break;
+            case 'f':
+                data_type = Float64Type;
+                break;
+            case 's':
+                data_type = StringType;
+                break;
+            default:
+                return -1;
+        }
+        PassedLLInsert(right_param_names, var_name, TRUE, data_type);
+    }
+    return 0;
+}
+
 // Can be called in both cases - assigning, just call (check return types)
-void _process_function_call(tLinkedList *func_variable_list, tLinkedList *left_variables, char* called_func_name){
+void _process_function_call(tLinkedList *func_variable_list, tLinkedList *left_variables, char* called_func_name, int is_return){
     if (!SymTableSearch(GlobalFuncRoot, called_func_name)){
         free_and_exit(SEM_ERROR, func_variable_list, left_variables);
     }
@@ -605,19 +628,17 @@ void _process_function_call(tLinkedList *func_variable_list, tLinkedList *left_v
             free_and_exit(SEM_ERROR, func_variable_list, left_variables);
         }
 
-        tPassedSide *retvals = malloc(sizeof(tPassedSide));
-        PassedLLInit(retvals);
-        // TODO
-//        if (_insert_retvals_to_list(retvals, called_func_name)){
-//            free_and_exit(INTERNAL_ERROR, func_variable_list, left_variables);
-//        }
+        tPassedSide *right_param_names = malloc(sizeof(tPassedSide));
+        PassedLLInit(right_param_names);
+        if (_get_function_param_names(right_param_names, called_func_name)){
+            free_and_exit(INTERNAL_ERROR, func_variable_list, left_variables);
+        }
 
         token = get_adjusted_token(&attr);
         if (token != EOL){
             free_and_exit(SYN_ERROR, func_variable_list, left_variables);
         }
-        // left_variables , called_func_name, retvals, right_side
-        // TODO: process function and assign
+        print_function_assigment(left_variables, called_func_name, right_param_names, right_side, func_variable_list, is_return);
     }
     else {
         tBSTNodePtr func_node = SymTableSearch(GlobalFuncRoot, called_func_name);
@@ -631,11 +652,17 @@ void _process_function_call(tLinkedList *func_variable_list, tLinkedList *left_v
             free_and_exit(SEM_ERROR, func_variable_list, left_variables);
         }
 
+        tPassedSide *right_param_names = malloc(sizeof(tPassedSide));
+        PassedLLInit(right_param_names);
+        if (_get_function_param_names(right_param_names, called_func_name)){
+            free_and_exit(INTERNAL_ERROR, func_variable_list, left_variables);
+        }
+
         token = get_adjusted_token(&attr);
         if (token != EOL){
             free_and_exit(SYN_ERROR, func_variable_list, left_variables);
         }
-        // TODO: call `print` or custom non-return type function
+        print_function_assigment(NULL, called_func_name, right_param_names, right_side, func_variable_list, is_return);
     }
 }
 
@@ -653,7 +680,7 @@ void _process_var_assignment(tLinkedList *func_variable_list, tLinkedList *left_
             token = get_adjusted_token(&attr);
             if (token == tOpeningSimpleBrace) {
                 if (SymTableSearch(GlobalFuncRoot, name.str)) {
-                    _process_function_call(func_variable_list, left_variables, name.str);
+                    _process_function_call(func_variable_list, left_variables, name.str, FALSE);
                     return;
                 }
                 free_and_exit(SYN_ERROR, func_variable_list, left_variables);
@@ -662,7 +689,6 @@ void _process_var_assignment(tLinkedList *func_variable_list, tLinkedList *left_
     }
     tExpressionList *right_side = get_expressions(func_variable_list, NULL, FALSE);
     _check_correct_left_and_right_types(func_variable_list, left_variables, right_side);
-    // TODO: process assignment
     if (for_header_state == 1 && token == tSemicolon){
         return;
     }
@@ -672,6 +698,7 @@ void _process_var_assignment(tLinkedList *func_variable_list, tLinkedList *left_
     if (token != EOL){
         free_and_exit(SYN_ERROR, func_variable_list, left_variables);
     }
+    print_variable_assigment_Expression(left_variables, right_side, func_variable_list);
 
 }
 
@@ -722,12 +749,10 @@ void _process_tId_token(tLinkedList *func_variable_list, char *name, int forbid_
 }
 
 void _process_if_call(tLinkedList *func_variable_list){
-    // TODO: print start if
-
     token = get_adjusted_token(&attr);
     tExpressionList *condition = get_expressions(func_variable_list, NULL, TRUE);
     condition->first->data_type = IntType;
-    // TODO: print condition
+    print_if_begin(condition->first, func_variable_list);
 
     // token ~= tOpeningCurlyBrace
     tSymtable *if_layer = malloc(sizeof(tSymtable));
@@ -739,7 +764,7 @@ void _process_if_call(tLinkedList *func_variable_list){
         }
         _process_one_line_and_follow(func_variable_list);
     }
-    // end if
+    print_else_begin(func_variable_list);
     // delete if layer
     TableLLDeleteFirst(func_variable_list);
     free(if_layer);
@@ -748,7 +773,6 @@ void _process_if_call(tLinkedList *func_variable_list){
     if (strcmp(attr.str, "else")){
         free_and_exit(SYN_ERROR, func_variable_list, NULL);
     }
-    // print final code - else
     token = get_adjusted_token(&attr);
     if (token != tOpeningCurlyBrace){
         free_and_exit(SYN_ERROR, func_variable_list, NULL);
@@ -771,6 +795,7 @@ void _process_if_call(tLinkedList *func_variable_list){
     if (token != EOL){
         free_and_exit(SYN_ERROR, func_variable_list, NULL);
     }
+    print_if_end(func_variable_list);
     TableLLDeleteFirst(func_variable_list);
     free(else_layer);
 }
@@ -801,11 +826,15 @@ void _process_for_cycle(tLinkedList *func_variable_list){
     if (!condition){
         free_and_exit(SEM_ERROR, func_variable_list, NULL);
     }
-    // TODO: print condition
 
     for_header_state = 3;
     // Condition is processed, check tOpeningCurlyBrace
     token = get_adjusted_token(&attr);
+
+    tLinkedList *left_for_assignment = malloc(sizeof(tLinkedList));
+    StrLLInit(left_for_assignment);
+    tExpressionList* right_for_assignment = malloc(sizeof(tExpressionList));
+    ExprLLInit(right_for_assignment);
     if (token != tOpeningCurlyBrace){
         if (token != tId) {
             free_and_exit(SEM_OTHER_ERROR, func_variable_list, NULL);
@@ -813,8 +842,18 @@ void _process_for_cycle(tLinkedList *func_variable_list){
         // process variable assignment
         clear_str(&name);
         adds_to_string(&name, attr.str);
+        get_left_side_of_assignment(left_for_assignment, name.str);
         token = get_adjusted_token(&attr);
-        _process_tId_token(func_variable_list, name.str, TRUE, FALSE); // declaring at this part is forbidden
+        switch (token){
+            case tDeclaration:
+                free_and_exit(SEM_ERROR, func_variable_list, left_for_assignment);
+                break;
+            case tAssignment:
+                right_for_assignment = get_expressions(func_variable_list, NULL, FALSE);
+                break;
+            default:
+                free_and_exit(SYN_ERROR, func_variable_list, left_for_assignment);
+        }
     }
     if (token != tOpeningCurlyBrace){
         free_and_exit(SYN_ERROR, func_variable_list, NULL);
@@ -823,6 +862,8 @@ void _process_for_cycle(tLinkedList *func_variable_list){
     if (token != EOL){
         free_and_exit(SYN_ERROR, func_variable_list, NULL);
     }
+    print_for_begin(condition->first, left_for_assignment, right_for_assignment, func_variable_list);
+
     tSymtable *for_cycle = malloc(sizeof(tSymtable));
     SymTableInit(for_cycle);
     TableLLInsertFirst(func_variable_list, for_cycle);
@@ -839,7 +880,7 @@ void _process_for_cycle(tLinkedList *func_variable_list){
         free_and_exit(SYN_ERROR, func_variable_list, NULL);
     }
 
-    // TODO: end for loop
+    print_for_end(func_variable_list);
     // Delete 2 tables (for cycle, for header)
     TableLLDeleteFirst(func_variable_list);
     TableLLDeleteFirst(func_variable_list);
@@ -860,16 +901,13 @@ void _process_return(tLinkedList *func_variable_list){
                 if (strcmp(return_type->str, ret_func_type->str)){
                     free_and_exit(SEM_PARAM_ERROR, func_variable_list, NULL);
                 }
-                _process_function_call(func_variable_list, NULL, name.str);
+                _process_function_call(func_variable_list, NULL, name.str, TRUE);
             }
         }
     }
 
     tExpressionList *right_side = get_expressions(func_variable_list, name.str, FALSE);
-    if (!right_side){
-        free_and_exit(SEM_ERROR, func_variable_list, NULL);
-    }
-    // TODO: print return
+    print_return_assignment(right_side, FUNC_NAME.str, func_variable_list);
 }
 
 void _process_one_line_and_follow(tLinkedList *func_variable_list){
@@ -890,7 +928,7 @@ void _process_one_line_and_follow(tLinkedList *func_variable_list){
                     free_and_exit(SYN_ERROR, func_variable_list, NULL);
                 }
                 // Process function call
-                _process_function_call(func_variable_list, NULL, name.str);
+                _process_function_call(func_variable_list, NULL, name.str, FALSE);
                 free(name.str);
                 break;
             }
@@ -906,7 +944,7 @@ void _process_one_line_and_follow(tLinkedList *func_variable_list){
             }
             // Only function without return types is print
             // Others are handled in assignment
-            _process_function_call(func_variable_list, NULL, "print");
+            _process_function_call(func_variable_list, NULL, "print", FALSE);
             break;
         case sFor:
             free(name.str);
@@ -965,6 +1003,11 @@ void skip_func_declaration(){
     }
 }
 
+void _print_function_defvar_param(char* var_name, char* func_name, tLinkedList *func_variable_list){
+    char* var_real_name = VarLLInsert(final_variables, var_name, func_name, func_variable_list);
+    printf("DEFVAR LF@%s\n", var_real_name);
+}
+
 void func_definition(){
     tBSTNodePtr func_node = SymTableSearch(GlobalFuncRoot, FUNC_NAME.str);
     tSymtable local_variables;
@@ -988,6 +1031,24 @@ void func_definition(){
         tListItem *var_item = StrLLLocateNthElem(&((tDataFunction*) func_node->Content)->paramNames, i);
         tBSTNodePtr var_node = SymTableInsertVariable(&local_variables, (char*) var_item->Content);
         _insert_var_datatype(var_node, ((tDataFunction*) func_node->Content)->params.str[i]);
+        _print_function_defvar_param(var_node->Key, FUNC_NAME.str, &func_variable_list);
+    }
+
+    int num_of_return_types = ((tDataFunction*) func_node->Content)->returnType.length;
+    for (int i = 0; i < num_of_return_types; i++){
+        switch (((tDataFunction*) func_node->Content)->returnType.str[i]){
+            case 'i':
+                printf("DEFVAR LF@-retvalInt_%s_%d\n", FUNC_NAME.str, i);
+                break;
+            case 's':
+                printf("DEFVAR LF@-retvalString_%s_%d\n", FUNC_NAME.str, i);
+                break;
+            case 'f':
+                printf("DEFVAR LF@-retvalFloat_%s_%d\n", FUNC_NAME.str, i);
+                break;
+            default:
+                free_and_exit(INTERNAL_ERROR, &func_variable_list, NULL);
+        }
     }
 
     // Proceeding with parsing function body
@@ -1007,28 +1068,6 @@ tVarDataType _get_datatype_from_char(char c){
     }
 }
 
-void create_function_label(){
-    tPassedSide *params = malloc(sizeof(tPassedSide));
-    tBSTNodePtr func_node = SymTableSearch(GlobalFuncRoot, FUNC_NAME.str);
-    tDataFunction *func_content = (tDataFunction*) func_node->Content;
-    if (func_content->params.length) {
-
-        for (int i = 0; i < func_content->params.length; i++) {
-            char *param_name = (char *) StrLLLocateNthElem(&func_content->paramNames, i)->Content;
-            tVarDataType var_type = _get_datatype_from_char(func_content->params.str[i]);
-            PassedLLInsert(params, param_name, TRUE, var_type);
-        }
-        tPassedSide *return_types = malloc(sizeof(tPassedSide));
-        for (int i = 0; i < func_content->returnType.length; i++) {
-            tVarDataType ret_type = _get_datatype_from_char(func_content->returnType.str[i]);
-            PassedLLInsert(return_types, NULL, FALSE, ret_type);
-        }
-    }
-
-    // TODO: print function label
-
-}
-
 void parse_func(){
     switch (token){
         case sFunc:
@@ -1039,9 +1078,9 @@ void parse_func(){
 
             clear_str(&FUNC_NAME);
             adds_to_string(&FUNC_NAME, attr.str);
-            create_function_label();
+            print_function_begin(FUNC_NAME.str);
             func_definition();
-            // TODO: end function
+            print_function_end();
             return;
         default:
             free_and_exit(SYN_ERROR, NULL, NULL);
@@ -1098,8 +1137,10 @@ void program(){
     check_package_main();
     first_pass(); // declare functions
     check_package_main();
-
     // Proceeding with function def
+    final_variables = malloc(sizeof(tFinalList));
+    VarLLInit(final_variables);
+
     token = get_token_with_handle_EOL(&attr);
     while (token != tEOF){
         parse_func();

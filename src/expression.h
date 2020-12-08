@@ -9,10 +9,8 @@
 #include "stack.h"
 #include "ilist.h"
 #include "scanner.h"
+#include "expression.h"
 #include "expressionParser.h"
-
-
-
 
 typedef enum 
 {

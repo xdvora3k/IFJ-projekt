@@ -17,6 +17,7 @@ int main() {
     InstrLLInit(&InstrList);
 
     InsertBuiltInFuncs(&SymTable);
+    Print_BuiltIn_Functions();
 
     parse(&SymTable, &InstrList);
 }
