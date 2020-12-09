@@ -159,10 +159,16 @@ void print_return_assignment( tExpressionList *rightside, char* funcName, tLinke
     for(int i = 0 ; i < numberOReturns ; i++)
     {
         char*  returnVars = VarLLGetReturnRealName(funcName,i);
+        fflush(stdout);
 
         tExpressionNode *RightItem = ExprLLGetNthNode(rightside,i);
         tInstructionOperand *opVar = CreateOperand("","",Unknown_type,Frame_NaN);
         tInstructionOperand *opVal = CreateOperand("","",Unknown_type,Frame_NaN);
+
+
+
+
+
 
         switch(RightItem->data_type)
         {
@@ -254,8 +260,7 @@ char* Calc_Int_Expression(tExpressionNode *Rules,tLinkedList *func_variable_list
         rule = ExprLLGetNthRuleRule(Rules,i);
         string ruleLeftStr; init_string(&ruleLeftStr);
         string ruleRightStr; init_string(&ruleRightStr);
-        printf("********* %p\n", (void*) rule->leftOperand);
-        fflush(stdout);
+
         if(rule->leftOperand->type == tId)
         {
             adds_to_string(&ruleLeftStr,rule->leftOperand->text->str);
@@ -877,26 +882,54 @@ void print_function_assigment(tLinkedList *leftside, char* funcName,tPassedSide*
     }
     else if(strcmp(funcName,"len") == 0)
     {
-        tInstructionOperand *opP = CreateOperand(ret1,"",StringType,Frame_LF);
-        printf("DEFVAR LF@s");
+        tInstructionOperand *opP = CreateOperand("","",Unknown_type,Frame_NaN);
+                if(params->first->is_variable)
+                {
+                    opP = ChangeOperand(opP,VarLLGetRealName(final_variables,params->first->value,NULL,func_variable_list),"",StringType,Frame_LF);
+                }
+                else{
+                    opP = ChangeOperand(opP,"",params->first->value,StringType,Frame_NaN);
+                }
+        printf("DEFVAR LF@s\n");
         tInstructionOperand *opS = CreateOperand("s","",StringType,Frame_LF);
         Instruction2(I_MOVE,*opS,*opP);
-        tInstructionOperand *opI = CreateOperand(VarLLGetRealName(final_variables,leftside->first->Content,NULL, func_variable_list),"",Float64Type,Frame_LF);
+        tInstructionOperand *opI = CreateOperand(ret1,"",Float64Type,Frame_LF);
         tInstructionOperand *retI = CreateOperand("retval","",IntType,Frame_LF);
         printf("CALL $len\n");fflush(stdout);
         if(ret1)
         Instruction2(I_MOVE,*opI,*retI);
+
     }
     else if(strcmp(funcName,"ord") == 0)
     {
+
         tInstructionOperand *opI = CreateOperand(ret1,"",StringType,Frame_LF);
         tInstructionOperand *opII = CreateOperand(ret2,"",StringType,Frame_LF);
         tInstructionOperand *retI = CreateOperand("retval","",IntType,Frame_LF);
         tInstructionOperand *retII = CreateOperand("","0",IntType,Frame_NaN);
-        tInstructionOperand *opParamI = CreateOperand(VarLLGetRealName(final_variables,params->first->value,NULL,func_variable_list),"",IntType,Frame_LF);
-        tInstructionOperand *opParamII = CreateOperand(VarLLGetRealName(final_variables,params->first->nextItem->value,NULL,func_variable_list),"",IntType,Frame_LF);
         tInstructionOperand *substrI = CreateOperand("ord_s","",StringType,Frame_LF);
         tInstructionOperand *substrII = CreateOperand("ord_i","",IntType,Frame_LF);
+        tInstructionOperand *opParamI = CreateOperand("","",IntType,Frame_LF);
+        tInstructionOperand *opParamII = CreateOperand("","",IntType,Frame_LF);
+
+
+        if(params->first->is_variable)
+        {
+            opParamI = ChangeOperand(opParamI,VarLLGetRealName(final_variables,params->first->value,NULL,func_variable_list),"",StringType,Frame_LF);
+        }
+        else
+        {
+            opParamI = ChangeOperand(opParamI,"",params->first->value,StringType,Frame_NaN);
+        }
+
+        if(params->first->nextItem->is_variable)
+        {
+            opParamII = ChangeOperand(opParamII,VarLLGetRealName(final_variables,params->first->nextItem->value,NULL,func_variable_list),"",IntType,Frame_LF);
+        }
+        else
+        {
+            opParamII = ChangeOperand(opParamII,"",params->first->nextItem->value,IntType,Frame_NaN);
+        }
         Instruction2(I_MOVE,*substrI,*opParamI);
         Instruction2(I_MOVE,*substrII,*opParamII);
 

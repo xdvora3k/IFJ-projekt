@@ -8,9 +8,9 @@ func add(i /*zde se nesmi odradkovat*/ int,
 
 func main() /*zde se nesmi odradkovat*/ {
     f := 10.0 + 1.2
-     a := "str" + "str"
+    b := 0+0
 	i := 1 + 1
-	f = int2float(5)
+	i = chr("str",2)
 	a,i = inputs()
 	i = add( /* zde muzeme odradkovavat*/
 		a, /*pred carkou se nesmi, za carkou muze odradkovat*/
