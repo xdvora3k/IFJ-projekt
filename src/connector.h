@@ -27,6 +27,7 @@ typedef struct tFinalList{
 
 void VarLLInit(tFinalList *L);
 char* VarLLInsert(tFinalList *L, char* name, char* func_name, tLinkedList *func_variable_list);
+void define_built_in_variables();
 
 void print_variable_declaration_Expression(tLinkedList *leftside, tExpressionList *rightside, tLinkedList *func_variable_list);
 void print_return_assignment(tExpressionList *rightside, char* funcName, tLinkedList *func_variable_list);

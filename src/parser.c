@@ -1151,6 +1151,7 @@ void check_package_main(){
 }
 
 void program(){
+    define_built_in_variables();
     check_package_main();
     first_pass(); // declare functions
     check_package_main();

@@ -110,6 +110,18 @@ char *VarLLGetReturnRealName(char *func_name, int index) {
     return retval;
 }
 
+void define_built_in_variables(){
+    printf("DEFVAR LF@%s\n", VarLLInsert(final_variables, "i", "int2float", NULL));
+    printf("DEFVAR LF@%s\n", VarLLInsert(final_variables, "f", "float2int", NULL));
+    printf("DEFVAR LF@%s\n", VarLLInsert(final_variables, "s", "len", NULL));
+    printf("DEFVAR LF@%s\n", VarLLInsert(final_variables, "s", "substr", NULL));
+    printf("DEFVAR LF@%s\n", VarLLInsert(final_variables, "i", "substr", NULL));
+    printf("DEFVAR LF@%s\n", VarLLInsert(final_variables, "n", "substr", NULL));
+    printf("DEFVAR LF@%s\n", VarLLInsert(final_variables, "s", "ord", NULL));
+    printf("DEFVAR LF@%s\n", VarLLInsert(final_variables, "i", "ord", NULL));
+    printf("DEFVAR LF@%s\n", VarLLInsert(final_variables, "i", "chr", NULL));
+}
+
 void print_variable_declaration_Expression(tLinkedList *leftside, tExpressionList *rightside,
                                            tLinkedList *func_variable_list) {
     printf("PUSHFRAME\n");

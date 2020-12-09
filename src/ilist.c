@@ -885,8 +885,8 @@ void Print_BuiltIn_Functions()
     //printf inputi
     printf("LABEL $inputi\n"
            "PUSHFRAME\n"
-           "DEFVAR LF@reval\n"
-           "READ LF@retval int\n"
+           "DEFVAR LF@-retvalInt_inputi_0\n"
+           "READ LF@-retvalInt_inputi_0 int\n"
            "POPFRAME\n"
            "RETURN\n");
     fflush(stdout);
@@ -894,8 +894,8 @@ void Print_BuiltIn_Functions()
     //printf inputf
     printf("LABEL $inputf\n"
            "PUSHFRAME\n"
-           "DEFVAR LF@retval"
-           "READ LF@retval float\n"
+           "DEFVAR LF@-retvalFloat_inputf_0"
+           "READ LF@-retvalFloat_inputf_0 float\n"
            "POPFRAME\n"
            "RETURN\n");
     fflush(stdout);
@@ -903,8 +903,8 @@ void Print_BuiltIn_Functions()
     //printf inputs
     printf("LABEL $inputs\n"
            "PUSHFRAME\n"
-           "DEFVAR LF@retval\n"
-           "READ LF@retval string\n"
+           "DEFVAR LF@-retvalString_inputs_0\n"
+           "READ LF@-retvalString_inputs_0 string\n"
            "POPFRAME\n"
            "RETURN\n");
     fflush(stdout);
@@ -912,8 +912,8 @@ void Print_BuiltIn_Functions()
     //printf int2float
     printf("LABEL $int2float\n"
            "PUSHFRAME\n"
-           "DEFVAR LF@retval\n"
-           "INT2FLOAT LF@retval LF@-i\n"
+           "DEFVAR LF@-retvalFloat_int2float_0\n"
+           "INT2FLOAT LF@-retvalFloat_int2float_0 LF@i_int2float_1_0\n"
            "POPFRAME\n"
            "RETURN\n");
     fflush(stdout);
@@ -921,8 +921,8 @@ void Print_BuiltIn_Functions()
     //printf float2int
     printf("LABEL $float2int\n"
            "PUSHFRAME\n"
-           "DEFVAR LF@retval\n"
-           "FLOAT2INT LF@retval LF@-f\n"
+           "DEFVAR LF@-retvalInt_float2int_0\n"
+           "FLOAT2INT LF@-retvalInt_float2int_0 LF@f_float2int_1_0\n"
            "POPFRAME\n"
            "RETURN\n");
     fflush(stdout);
@@ -930,8 +930,8 @@ void Print_BuiltIn_Functions()
     //Print len
     printf("LABEL $len\n"
            "PUSHFRAME\n"
-           "DEFVAR LF@retval\n"
-           "STRLEN LF@retval LF@s\n"
+           "DEFVAR LF@-retvalInt_len_0\n"
+           "STRLEN LF@-retvalInt_len_0 LF@s_len_1_0\n"
            "POPFRAME \n"
            "RETURN\n");
     fflush(stdout);
@@ -993,14 +993,14 @@ void Print_BuiltIn_Functions()
     //printf chr
     printf("LABEL $chr\n"
            "PUSHFRAME\n"
-           "DEFVAR LF@retval\n"
-           "MOVE LF@retval string@\n"
-           "DEFVAR LF@cond\n"
-           "LT LF@cond LF@chr_int int@0\n"
-           "JUMPIFEQ $chr$return LF@cond bool@true\n"
-           "GT LF@cond LF@chr_int int@255\n"
-           "JUMPIFEQ $chr$return LF@cond bool@true\n"
-           "INT2CHAR LF@retval LF@chr_int\n"
+           "DEFVAR LF@-retvalString_chr_0\n"
+           "MOVE LF@-retvalString_chr_0 string@\n"
+           "DEFVAR LF@-retvalInt_chr_1\n"
+           "LT LF@-retvalInt_chr_1 LF@i_chr_1_0 int@0\n"
+           "JUMPIFEQ $chr$return LF@-retvalInt_chr_1 bool@true\n"
+           "GT LF@cond LF@i_chr_1_0 int@255\n"
+           "JUMPIFEQ $chr$return LF@-retvalInt_chr_1 bool@true\n"
+           "INT2CHAR LF@-retvalString_chr_0 LF@i_chr_1_0\n"
            "LABEL $chr$return\n"
            "POPFRAME\n"
            "RETURN\n");
@@ -1009,21 +1009,21 @@ void Print_BuiltIn_Functions()
     //printf ord
     printf("LABEL $ord\n"
            "PUSHFRAME\n"
-           "DEFVAR LF@retval\n"
-           "MOVE LF@retval int@0\n"
-           "DEFVAR LF@cond\n"
-           "LT LF@cond LF@s int@0\n"
-           "JUMPIFEQ $ord$return LF@cond bool@true\n"
-           "DEFVAR LF@length\n"
+           "DEFVAR LF@-retvalInt_ord_0\n"
+           "MOVE LF@-retvalInt_ord_0 int@0\n"
+           "DEFVAR LF@-retvalInt_ord_1\n"
+           "LT LF@-retvalInt_ord_1 LF@s_ord_1_0 int@0\n"
+           "JUMPIFEQ $ord$return LF@-retvalInt_ord_1 bool@true\n"
+           "DEFVAR LF@length\n" //TODO, do not define function params, only return!
            "CREATEFRAME\n"
            "DEFVAR TF@s\n"
-           "MOVE TF@s LF@ord_s\n"
+           "MOVE TF@s LF@s_ord_1_0\n"
            "CALL $len\n"
-           "MOVE LF@length TF@retval\n"
-           "GT LF@cond LF@s LF@length\n"
-           "JUMPIFEQ $ord$return LF@cond bool@true\n"
-           "SUB LF@ord_i LF@s int@1\n"
-           "STRI2INT LF@retval LF@ord_s LF@s\n"
+           "MOVE LF@length LF@-retvalInt_ord_0\n"
+           "GT LF@-retvalInt_ord_1 TF@s LF@length\n"
+           "JUMPIFEQ $ord$return LF@-retvalInt_ord_1 bool@true\n"
+           "SUB LF@i_ord_1_0 TF@s int@1\n"
+           "STRI2INT LF@-retvalInt_ord_0 LF@s_ord_1_0 LF@s\n"
            "LABEL $ord$return\n"
            "POPFRAME\n"
            "RETURN\n");
