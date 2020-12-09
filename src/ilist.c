@@ -889,7 +889,7 @@ void Print_BuiltIn_Functions()
     //printf inputf
     printf("LABEL $inputf\n"
            "PUSHFRAME\n"
-           "DEFVAR LF@-retvalFloat_inputf_0"
+           "DEFVAR LF@-retvalFloat_inputf_0\n"
            "READ LF@-retvalFloat_inputf_0 float\n"
            "POPFRAME\n"
            "RETURN\n\n");
