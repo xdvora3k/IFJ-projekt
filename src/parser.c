@@ -47,6 +47,9 @@ void check_lex_error(){
 
 // see get_adjusted_token()
 tState translate_scanner_states(string *attr){
+    if (token == tString){
+        return token;
+    }
     char* compare = attr->str;
     if (!strcmp(compare, "func")){
         return sFunc;
