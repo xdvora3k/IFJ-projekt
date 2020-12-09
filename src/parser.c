@@ -378,7 +378,7 @@ tExpressionList* get_expressions(tLinkedList *func_variable_list, char* first, i
         }
         first = NULL;
         fflush(stdout);
-        ExprLLCreateNextNode(expr_list, dataType);
+        //ExprLLCreateNextNode(expr_list, dataType);
         expr_list = precedencSA(&expr, expr_list, func_variable_list);
 
         clear_str(&expr);

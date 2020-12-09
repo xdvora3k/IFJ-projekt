@@ -6,7 +6,7 @@
 #include "expression.h"
 
 int counter = 0;
-
+int is_start = TRUE;
 
 int precedentTable[8][8] = //> za | < pred
         {
@@ -109,7 +109,10 @@ tExpressionList* precedencSA(string *input, tExpressionList *expL, tLinkedList *
                 case '>': //zamen <y
                     rule = extractexpression(&topOfStack);
                     rule = applyrule(&topOfStack, rule, linkedL);
-
+                    if(is_start){
+                        CreateNode(rule, expL);
+                        is_start = FALSE;
+                    }
                     if (rule.operator!= NULL)   
                     {
                         InsertList(rule, expL);
@@ -170,6 +173,7 @@ tExpressionList* precedencSA(string *input, tExpressionList *expL, tLinkedList *
     } while (inputToken->type != tEOF || topToken->type != tEOF); // || topToken-> type != tComma
 
     counter = 0;
+    is_start = TRUE;
     return expL;
 }
 
@@ -441,8 +445,20 @@ void printStack(ptrStack *topStack)
 }
 // return expList;
 //}
+void CreateNode(tExpressionRule rule, tExpressionList *expL){
 
-
+    if (rule.typeOfRule == expBrackets)
+    {
+        
+        ExprLLCreateNextNode(expL, rule.operator->dataType);
+    }
+    else
+    {
+        
+        ExprLLCreateNextNode(expL, rule.rightOperand->dataType);
+    }
+   
+}
 void InsertList(tExpressionRule rule, tExpressionList *expL)
 {
     ExprLLInsertExprToLastNode(expL, rule.leftOperand, rule.rightOperand, rule.operator, rule.placeHolder, rule.typeOfRule);
