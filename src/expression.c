@@ -113,14 +113,18 @@ tExpressionList* precedencSA(string *input, tExpressionList *expL, tLinkedList *
                         CreateNode(&rule, expL);
                         node_created = TRUE;
                     }
-                    if (rule.operator!= NULL)   //|| rule.typeOfRule == expIdentity
+                    if (rule.operator!= NULL)   
                     {
                         InsertList(rule, expL);
 
                     }
+                   if(input->length == 1 ){
+                        InsertList(rule, expL);
+                    }
 
-                    //printRule(rule);
-                    //printStack(&topOfStack);
+                    printRule(rule);
+                    printStack(&topOfStack);
+                  //  printf("r %s\n", expL->first->first->rightOperand->text->str);
                     break;
 
                 case '<':
