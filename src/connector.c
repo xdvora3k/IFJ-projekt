@@ -132,10 +132,10 @@ void define_built_in_variables(tFinalList* final_variables){
 
 void print_variable_declaration_Expression(tLinkedList *leftside, tExpressionList *rightside,
                                            tLinkedList *func_variable_list) {
-    printf("PUSHFRAME\n");
+    /*printf("PUSHFRAME\n");
     fflush(stdout);
     printf("CREATEFRAME\n");
-    fflush(stdout);
+    fflush(stdout);*/
 
     tInstructionOperand *left = CreateOperand("", "", Unknown_type, Frame_NaN);
     tInstructionOperand *right = CreateOperand("", "", Unknown_type, Frame_NaN);
@@ -166,8 +166,8 @@ void print_variable_declaration_Expression(tLinkedList *leftside, tExpressionLis
 
     Instruction1(I_DEFVAR, *left);
     Instruction2(I_MOVE, *left, *right);
-    printf("POPFRAME\n");
-    fflush(stdout);
+    /*printf("POPFRAME\n");
+    fflush(stdout);*/
 }
 
 void print_return_assignment(tExpressionList *rightside, char *funcName, tLinkedList *func_variable_list) {
@@ -390,12 +390,13 @@ char *Calc_Float_Expression(tExpressionNode *Rules, tLinkedList *func_variable_l
         //printf("* %s %p %p *\n",rule->rightOperand->text->str,(void*)rule->leftOperand,(void*)rule->operator);
         if (!(void *) rule->leftOperand) {
             tInstructionOperand *rescueOp = CreateOperand("", "", Unknown_type, Frame_NaN);
-            if (rule->rightOperand->type == tId) {
-                rescueOp = ChangeOperand(rescueOp,
-                                         VarLLGetRealName(final_variables, rule->rightOperand->text->str, NULL,
-                                                          func_variable_list), "", IntType, Frame_LF);
+            if (rule->rightOperand->type == tId) {rescueOp = ChangeOperand(rescueOp,VarLLGetRealName(final_variables, rule->rightOperand->text->str, NULL,func_variable_list), "", IntType, Frame_LF);
             } else {
-                rescueOp = ChangeOperand(rescueOp, "", rule->rightOperand->text->str, Float64Type, Frame_NaN);
+                string mytmp; init_string(&mytmp);
+                adds_to_string(&mytmp,"0x");
+                adds_to_string(&mytmp,rule->rightOperand->text->str);
+                adds_to_string(&mytmp,"p+0");
+                rescueOp = ChangeOperand(rescueOp, "", mytmp.str, Float64Type, Frame_NaN);
             }
             opV = ChangeOperand(opV, "-tmp1", "", Float64Type, Frame_TF);
             Instruction1(I_DEFVAR, *opV);
@@ -405,13 +406,15 @@ char *Calc_Float_Expression(tExpressionNode *Rules, tLinkedList *func_variable_l
             fflush(stdout);
             if (rule->leftOperand->type == tId) {
                 adds_to_string(&ruleLeftStr, rule->leftOperand->text->str);
-                clear_str(rule->leftOperand->text);
-                adds_to_string(rule->leftOperand->text,
-                               VarLLGetRealName(final_variables, ruleLeftStr.str, NULL, func_variable_list));
+                clear_str(rule->leftOperand->text);adds_to_string(rule->leftOperand->text,VarLLGetRealName(final_variables, ruleLeftStr.str, NULL, func_variable_list));
                 opL = ChangeOperand(opL, rule->leftOperand->text->str, "", Float64Type, Frame_LF);
             } else {
-                fflush(stdout);
-                opL = ChangeOperand(opL, "", rule->leftOperand->text->str, Float64Type, Frame_NaN);
+
+                string mytmp; init_string(&mytmp);
+                adds_to_string(&mytmp,"0x");
+                adds_to_string(&mytmp,rule->leftOperand->text->str);
+                adds_to_string(&mytmp,"p+0");
+                opL = ChangeOperand(opL, "",mytmp.str, Float64Type, Frame_NaN);
             }
             if (rule->rightOperand->type == tId) {
                 adds_to_string(&ruleRightStr, rule->rightOperand->text->str);
@@ -420,7 +423,11 @@ char *Calc_Float_Expression(tExpressionNode *Rules, tLinkedList *func_variable_l
                                VarLLGetRealName(final_variables, ruleRightStr.str, NULL, func_variable_list));
                 opR = ChangeOperand(opR, rule->rightOperand->text->str, "", Float64Type, Frame_LF);
             } else {
-                opR = ChangeOperand(opR, "", rule->rightOperand->text->str, Float64Type, Frame_NaN);
+                string mytmp; init_string(&mytmp);
+                adds_to_string(&mytmp,"0x");
+                adds_to_string(&mytmp,rule->rightOperand->text->str);
+                adds_to_string(&mytmp,"p+0");
+                opR = ChangeOperand(opR, "", mytmp.str, Float64Type, Frame_NaN);
             }
 
             opV = ChangeOperand(opV, rule->placeHolder->text->str, "", Float64Type, Frame_TF);
