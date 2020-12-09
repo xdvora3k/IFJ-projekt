@@ -15,9 +15,12 @@ int main() {
     tLinkedList InstrList;
     SymTableInit(&SymTable);
     InstrLLInit(&InstrList);
-
+    tFinalList FinalList;
+    VarLLInit(&FinalList);
     InsertBuiltInFuncs(&SymTable);
-    //Print_BuiltIn_Functions();
+    define_built_in_variables(&FinalList);
+    Print_BuiltIn_Functions();
 
-    parse(&SymTable, &InstrList);
+
+    parse(&SymTable, &InstrList, &FinalList);
 }

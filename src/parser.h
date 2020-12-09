@@ -18,7 +18,7 @@
 #define IFJ_PROJEKT_PARSER_H
 
 void program();
-void parse(tSymtable *RootPtr, tLinkedList *Instr);
+void parse(tSymtable *RootPtr, tLinkedList *Instr, tFinalList* FinalList);
 void _process_one_line_and_follow(tLinkedList *func_variable_list);
 
 #endif

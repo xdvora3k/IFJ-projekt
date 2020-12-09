@@ -38,11 +38,18 @@ char *VarLLInsert(tFinalList *L, char *name, char *func_name, tLinkedList *func_
     tFinalVariable *variable = malloc(sizeof(tFinalVariable));
     int malloc_size = strlen(name) + strlen(func_name) + 10;
     variable->key = malloc(malloc_size);
-    int nests = TableLLGetNumOfNests(func_variable_list, name);
+
+    int nests;
+    if(func_variable_list)
+        nests = TableLLGetNumOfNests(func_variable_list, name);
+    else
+        nests = 1;
     if ((!strcmp(name, "-if") || !strcmp(name, "-else") || !strcmp(name, "-ifend") || !strcmp(name, "-forbegin") ||
          !strcmp(name, "-forend")) && nests == -1) {
         nests = TableLLLen(func_variable_list) - 1;
     }
+
+
     snprintf(variable->key, malloc_size, "%s_%s_%d", name, func_name, nests);
     tFinalVariable *last_found = _search_for_variable(L, name);
     if (!last_found) {
@@ -110,7 +117,9 @@ char *VarLLGetReturnRealName(char *func_name, int index) {
     return retval;
 }
 
-void define_built_in_variables(){
+void define_built_in_variables(tFinalList* final_variables){
+    printf(".IFJcode20\n\n");
+    fflush(stdout);
     printf("DEFVAR LF@%s\n", VarLLInsert(final_variables, "i", "int2float", NULL));
     printf("DEFVAR LF@%s\n", VarLLInsert(final_variables, "f", "float2int", NULL));
     printf("DEFVAR LF@%s\n", VarLLInsert(final_variables, "s", "len", NULL));
@@ -374,34 +383,49 @@ char *Calc_Float_Expression(tExpressionNode *Rules, tLinkedList *func_variable_l
 
     for (int i = 0; i < expLength; i++) {
         rule = ExprLLGetNthRuleRule(Rules, i);
+        string ruleLeftStr;
+        init_string(&ruleLeftStr);
+        string ruleRightStr;
+        init_string(&ruleRightStr);
+        //printf("%p\n",(void*)rule->leftOperand);
+        //printf("* %s %p %p *\n",rule->rightOperand->text->str,(void*)rule->leftOperand,(void*)rule->operator);
+        if (!(void *) rule->leftOperand) {
+            tInstructionOperand *rescueOp = CreateOperand("", "", Unknown_type, Frame_NaN);
+            if (rule->rightOperand->type == tId) {
+                rescueOp = ChangeOperand(rescueOp,
+                                         VarLLGetRealName(final_variables, rule->rightOperand->text->str, NULL,
+                                                          func_variable_list), "", IntType, Frame_LF);
+            } else {
+                rescueOp = ChangeOperand(rescueOp, "", rule->rightOperand->text->str, Float64Type, Frame_NaN);
+            }
+            opV = ChangeOperand(opV, "-tmp1", "", Float64Type, Frame_TF);
+            Instruction1(I_DEFVAR, *opV);
+            Instruction2(I_MOVE, *opV, *rescueOp);
 
-
-        if (rule->leftOperand->type == tId) {
-            string ruleLeftStr;
-            init_string(&ruleLeftStr);
-            adds_to_string(&ruleLeftStr, rule->leftOperand->text->str);
-            clear_str(rule->leftOperand->text);
-            adds_to_string(rule->leftOperand->text,
-                           VarLLGetRealName(final_variables, ruleLeftStr.str, NULL, func_variable_list));
-            opL = ChangeOperand(opL, rule->leftOperand->text->str, "", Float64Type, Frame_LF);
         } else {
-            opL = ChangeOperand(opL, "", rule->leftOperand->text->str, Float64Type, Frame_NaN);
-        }
-        if (rule->rightOperand->type == tId) {
-            string ruleRightStr;
-            init_string(&ruleRightStr);
-            adds_to_string(&ruleRightStr, rule->rightOperand->text->str);
-            clear_str(rule->rightOperand->text);
-            adds_to_string(rule->rightOperand->text,
-                           VarLLGetRealName(final_variables, ruleRightStr.str, NULL, func_variable_list));
-            opR = ChangeOperand(opR, rule->rightOperand->text->str, "", Float64Type, Frame_LF);
-        } else {
-            opR = ChangeOperand(opR, "", rule->rightOperand->text->str, Float64Type, Frame_NaN);
-        }
+            fflush(stdout);
+            if (rule->leftOperand->type == tId) {
+                adds_to_string(&ruleLeftStr, rule->leftOperand->text->str);
+                clear_str(rule->leftOperand->text);
+                adds_to_string(rule->leftOperand->text,
+                               VarLLGetRealName(final_variables, ruleLeftStr.str, NULL, func_variable_list));
+                opL = ChangeOperand(opL, rule->leftOperand->text->str, "", Float64Type, Frame_LF);
+            } else {
+                fflush(stdout);
+                opL = ChangeOperand(opL, "", rule->leftOperand->text->str, Float64Type, Frame_NaN);
+            }
+            if (rule->rightOperand->type == tId) {
+                adds_to_string(&ruleRightStr, rule->rightOperand->text->str);
+                clear_str(rule->rightOperand->text);
+                adds_to_string(rule->rightOperand->text,
+                               VarLLGetRealName(final_variables, ruleRightStr.str, NULL, func_variable_list));
+                opR = ChangeOperand(opR, rule->rightOperand->text->str, "", Float64Type, Frame_LF);
+            } else {
+                opR = ChangeOperand(opR, "", rule->rightOperand->text->str, Float64Type, Frame_NaN);
+            }
 
-
-        opV = ChangeOperand(opV, rule->placeHolder->text->str, "", Float64Type, Frame_TF);
-        Instruction1(I_DEFVAR, *opV);
+            opV = ChangeOperand(opV, rule->placeHolder->text->str, "", Float64Type, Frame_TF);
+            Instruction1(I_DEFVAR, *opV);
 
         switch (rule->operator->text->str[0]) {
             case '+':
@@ -444,7 +468,7 @@ char *Calc_Float_Expression(tExpressionNode *Rules, tLinkedList *func_variable_l
                 break;
             default:
                 break;
-        }
+        }}
     }
     return opV->name;
 }
@@ -463,34 +487,48 @@ char *Calc_String_Expression(tExpressionNode *Rules, tLinkedList *func_variable_
 
     for (int i = 0; i < expLength; i++) {
         rule = ExprLLGetNthRuleRule(Rules, i);
+        string ruleLeftStr;
+        init_string(&ruleLeftStr);
+        string ruleRightStr;
+        init_string(&ruleRightStr);
 
+       if (!(void *) rule->leftOperand) {
+            tInstructionOperand *rescueOp = CreateOperand("", "", Unknown_type, Frame_NaN);
+            if (rule->rightOperand->type == tId) {
+                rescueOp = ChangeOperand(rescueOp,
+                                         VarLLGetRealName(final_variables, rule->rightOperand->text->str, NULL,
+                                                          func_variable_list), "", IntType, Frame_LF);
+            } else {
+                rescueOp = ChangeOperand(rescueOp, "", rule->rightOperand->text->str, StringType, Frame_NaN);
+            }
+            opV = ChangeOperand(opV, "-tmp1", "", StringType, Frame_TF);
+            Instruction1(I_DEFVAR, *opV);
+            Instruction2(I_MOVE, *opV, *rescueOp);
 
-        if (rule->leftOperand->type == tId) {
-            string ruleLeftStr;
-            init_string(&ruleLeftStr);
-            adds_to_string(&ruleLeftStr, rule->leftOperand->text->str);
-            clear_str(rule->leftOperand->text);
-            adds_to_string(rule->leftOperand->text,
-                           VarLLGetRealName(final_variables, ruleLeftStr.str, NULL, func_variable_list));
-            opL = ChangeOperand(opL, rule->leftOperand->text->str, "", StringType, Frame_LF);
         } else {
-            opL = ChangeOperand(opL, "", rule->leftOperand->text->str, StringType, Frame_NaN);
-        }
-        if (rule->rightOperand->type == tId) {
-            string ruleRightStr;
-            init_string(&ruleRightStr);
-            adds_to_string(&ruleRightStr, rule->rightOperand->text->str);
-            clear_str(rule->rightOperand->text);
-            adds_to_string(rule->rightOperand->text,
-                           VarLLGetRealName(final_variables, ruleRightStr.str, NULL, func_variable_list));
-            opR = ChangeOperand(opR, rule->rightOperand->text->str, "", StringType, Frame_LF);
-        } else {
-            opR = ChangeOperand(opR, "", rule->rightOperand->text->str, StringType, Frame_NaN);
-        }
+            fflush(stdout);
+            if (rule->leftOperand->type == tId) {
+                adds_to_string(&ruleLeftStr, rule->leftOperand->text->str);
+                clear_str(rule->leftOperand->text);
+                adds_to_string(rule->leftOperand->text,
+                               VarLLGetRealName(final_variables, ruleLeftStr.str, NULL, func_variable_list));
+                opL = ChangeOperand(opL, rule->leftOperand->text->str, "", StringType, Frame_LF);
+            } else {
+                fflush(stdout);
+                opL = ChangeOperand(opL, "", rule->leftOperand->text->str, StringType, Frame_NaN);
+            }
+            if (rule->rightOperand->type == tId) {
+                adds_to_string(&ruleRightStr, rule->rightOperand->text->str);
+                clear_str(rule->rightOperand->text);
+                adds_to_string(rule->rightOperand->text,
+                               VarLLGetRealName(final_variables, ruleRightStr.str, NULL, func_variable_list));
+                opR = ChangeOperand(opR, rule->rightOperand->text->str, "", StringType, Frame_LF);
+            } else {
+                opR = ChangeOperand(opR, "", rule->rightOperand->text->str, StringType, Frame_NaN);
+            }
 
-
-        opV = ChangeOperand(opV, rule->placeHolder->text->str, "", StringType, Frame_TF);
-        Instruction1(I_DEFVAR, *opV);
+            opV = ChangeOperand(opV, rule->placeHolder->text->str, "", StringType, Frame_TF);
+            Instruction1(I_DEFVAR, *opV);
 
         switch (rule->operator->text->str[0]) {
             case '+':
@@ -522,7 +560,7 @@ char *Calc_String_Expression(tExpressionNode *Rules, tLinkedList *func_variable_
             default:
                 break;
         }
-    }
+    }}
     return opV->name;
 }
 
@@ -629,7 +667,7 @@ void print_print_Expression(tPassedSide *Frases, tLinkedList *func_variable_list
     }
 }
 
-void print_int2float_Expression(tLinkedList *leftside, tPassedSide *rightside, tLinkedList *func_variable_list) {
+void print_int2float_Expression(tLinkedList *leftside, tPassedSide *rightside, tLinkedList *func_variable_list, char* funcName) {
     printf("PUSHFRAME\n");
     fflush(stdout);
     printf("CREATEFRAME\n");
@@ -652,7 +690,8 @@ void print_int2float_Expression(tLinkedList *leftside, tPassedSide *rightside, t
     tInstructionOperand *floatvalue = CreateOperand(
             VarLLGetRealName(final_variables, leftside->first->Content, NULL, func_variable_list), "", Float64Type,
             Frame_LF);
-    tInstructionOperand *retval = CreateOperand("retval", "", Float64Type, Frame_LF);
+    char * retval1 = VarLLGetReturnRealName(funcName,0);
+    tInstructionOperand *retval = CreateOperand(retval1, "", Float64Type, Frame_LF);
     if (retval)
         Instruction2(I_MOVE, *floatvalue, *retval);
 
@@ -661,7 +700,7 @@ void print_int2float_Expression(tLinkedList *leftside, tPassedSide *rightside, t
 
 }
 
-void print_float2int_Expression(tLinkedList *leftside, tPassedSide *rightside, tLinkedList *func_variable_list) {
+void print_float2int_Expression(tLinkedList *leftside, tPassedSide *rightside, tLinkedList *func_variable_list, char* funcName) {
     printf("PUSHFRAME\n");
     fflush(stdout);
     printf("CREATEFRAME\n");
@@ -684,7 +723,8 @@ void print_float2int_Expression(tLinkedList *leftside, tPassedSide *rightside, t
     tInstructionOperand *intvalue = CreateOperand(
             VarLLGetRealName(final_variables, leftside->first->Content, NULL, func_variable_list), "", IntType,
             Frame_LF);
-    tInstructionOperand *retval = CreateOperand("retval", "", IntType, Frame_LF);
+    char* retval1 = VarLLGetReturnRealName(funcName,0);
+    tInstructionOperand *retval = CreateOperand(retval1, "", IntType, Frame_LF);
     if (retval)
         Instruction2(I_MOVE, *intvalue, *retval);
 
@@ -745,7 +785,8 @@ void print_function_assigment(tLinkedList *leftside, char *funcName, tPassedSide
     if (strcmp(funcName, "inputi") == 0) {
         tInstructionOperand *opI = CreateOperand(ret1, "", IntType, Frame_LF);
         tInstructionOperand *opII = CreateOperand(ret2, "", IntType, Frame_LF);
-        tInstructionOperand *retI = CreateOperand("retval", "", IntType, Frame_LF);
+        char* retval1 = VarLLGetReturnRealName(funcName,0);
+        tInstructionOperand *retI = CreateOperand(retval1, "", IntType, Frame_LF);
         tInstructionOperand *retII = CreateOperand("", "0", IntType, Frame_NaN);
         printf("CALL $inputi\n");
         fflush(stdout);
@@ -757,7 +798,8 @@ void print_function_assigment(tLinkedList *leftside, char *funcName, tPassedSide
     } else if (strcmp(funcName, "inputf") == 0) {
         tInstructionOperand *opI = CreateOperand(ret1, "", Float64Type, Frame_LF);
         tInstructionOperand *opII = CreateOperand(ret2, "", Float64Type, Frame_LF);
-        tInstructionOperand *retI = CreateOperand("retval", "", IntType, Frame_LF);
+        char* retval = VarLLGetReturnRealName(funcName,0);
+        tInstructionOperand *retI = CreateOperand(retval, "", IntType, Frame_LF);
         tInstructionOperand *retII = CreateOperand("", "0", IntType, Frame_NaN);
         printf("CALL $inputf\n");
         fflush(stdout);
@@ -770,7 +812,8 @@ void print_function_assigment(tLinkedList *leftside, char *funcName, tPassedSide
         fflush(stdout);
         tInstructionOperand *opI = CreateOperand(ret1, "", StringType, Frame_LF);
         tInstructionOperand *opII = CreateOperand(ret2, "", StringType, Frame_LF);
-        tInstructionOperand *retI = CreateOperand("retval", "", IntType, Frame_LF);
+        char* retval1 = VarLLGetReturnRealName(funcName,0);
+        tInstructionOperand *retI = CreateOperand(retval1, "", IntType, Frame_LF);
         tInstructionOperand *retII = CreateOperand("", "0", IntType, Frame_NaN);
         printf("CALL $inputs\n");
         fflush(stdout);
@@ -779,9 +822,9 @@ void print_function_assigment(tLinkedList *leftside, char *funcName, tPassedSide
         if (ret2)
             Instruction2(I_MOVE, *opII, *retII);
     } else if (strcmp(funcName, "int2float") == 0) {
-        print_int2float_Expression(leftside, params, func_variable_list);
+        print_int2float_Expression(leftside, params, func_variable_list,funcName);
     } else if (strcmp(funcName, "float2int") == 0) {
-        print_float2int_Expression(leftside, params, func_variable_list);
+        print_float2int_Expression(leftside, params, func_variable_list,funcName);
     } else if (strcmp(funcName, "len") == 0) {
         tInstructionOperand *opP = CreateOperand("", "", Unknown_type, Frame_NaN);
         if (params->first->is_variable) {
@@ -794,7 +837,8 @@ void print_function_assigment(tLinkedList *leftside, char *funcName, tPassedSide
         tInstructionOperand *opS = CreateOperand("s", "", StringType, Frame_LF);
         Instruction2(I_MOVE, *opS, *opP);
         tInstructionOperand *opI = CreateOperand(ret1, "", Float64Type, Frame_LF);
-        tInstructionOperand *retI = CreateOperand("retval", "", IntType, Frame_LF);
+        char* retval1 = VarLLGetReturnRealName(funcName,0);
+        tInstructionOperand *retI = CreateOperand(retval1, "", IntType, Frame_LF);
         printf("CALL $len\n");
         fflush(stdout);
         if (ret1)
@@ -804,10 +848,13 @@ void print_function_assigment(tLinkedList *leftside, char *funcName, tPassedSide
 
         tInstructionOperand *opI = CreateOperand(ret1, "", StringType, Frame_LF);
         tInstructionOperand *opII = CreateOperand(ret2, "", StringType, Frame_LF);
-        tInstructionOperand *retI = CreateOperand("retval", "", IntType, Frame_LF);
+        char* retval1 = VarLLGetReturnRealName(funcName,0);
+        tInstructionOperand *retI = CreateOperand(retval1, "", IntType, Frame_LF);
         tInstructionOperand *retII = CreateOperand("", "0", IntType, Frame_NaN);
-        tInstructionOperand *substrI = CreateOperand("ord_s", "", StringType, Frame_LF);
-        tInstructionOperand *substrII = CreateOperand("ord_i", "", IntType, Frame_LF);
+        char* ord_s = VarLLGetRealName(final_variables,"s",funcName,NULL);
+        tInstructionOperand *substrI = CreateOperand(ord_s,"", StringType, Frame_LF);
+        char* ord_i = VarLLGetRealName(final_variables,"i",funcName,NULL);
+        tInstructionOperand *substrII = CreateOperand(ord_i, "", IntType, Frame_LF);
         tInstructionOperand *opParamI = CreateOperand("", "", IntType, Frame_LF);
         tInstructionOperand *opParamII = CreateOperand("", "", IntType, Frame_LF);
 
@@ -836,15 +883,28 @@ void print_function_assigment(tLinkedList *leftside, char *funcName, tPassedSide
         if (ret2)
             Instruction2(I_MOVE, *opII, *retII);
     } else if (strcmp(funcName, "chr") == 0) {
+
         tInstructionOperand *opI = CreateOperand(ret1, "", StringType, Frame_LF);
         tInstructionOperand *opII = CreateOperand(ret2, "", StringType, Frame_LF);
-        tInstructionOperand *retI = CreateOperand("retval", "", IntType, Frame_LF);
+
+        char* retval1 = VarLLGetReturnRealName(funcName,0);
+        tInstructionOperand *retI = CreateOperand(retval1, "", IntType, Frame_LF);
         tInstructionOperand *retII = CreateOperand("", "0", IntType, Frame_NaN);
-        tInstructionOperand *opChr = CreateOperand("LF@chr_int", "", IntType, Frame_LF);
-        tInstructionOperand *opParamI = CreateOperand(
-                VarLLGetRealName(final_variables, params->first->value, NULL, func_variable_list), "", IntType,
-                Frame_LF);
+        char* chr_i = VarLLGetRealName(final_variables,"i",funcName,NULL);
+        tInstructionOperand *opChr = CreateOperand(chr_i, "", IntType, Frame_LF);
+        tInstructionOperand *opParamI;
+        if(params->first->is_variable)
+            opParamI = CreateOperand(VarLLGetRealName(final_variables, params->first->value, NULL, func_variable_list), "", IntType,Frame_LF);
+        else
+            opParamI = CreateOperand( "",params->first->value,IntType,Frame_NaN);
+
+
+        printf("%s\n",funcName);
+        printf("%s\n",chr_i);
+
+
         Instruction2(I_MOVE, *opChr, *opParamI);
+
 
         printf("CALL $chr\n");
         fflush(stdout);
@@ -855,20 +915,30 @@ void print_function_assigment(tLinkedList *leftside, char *funcName, tPassedSide
     } else if (strcmp(funcName, "substr") == 0) {
         tInstructionOperand *opI = CreateOperand(ret1, "", StringType, Frame_LF);
         tInstructionOperand *opII = CreateOperand(ret2, "", StringType, Frame_LF);
-        tInstructionOperand *retI = CreateOperand("retval", "", IntType, Frame_LF);
+        char* retval1 = VarLLGetReturnRealName(funcName,0);
+        tInstructionOperand *retI = CreateOperand(retval1, "", IntType, Frame_LF);
         tInstructionOperand *retII = CreateOperand("", "0", IntType, Frame_NaN);
-        tInstructionOperand *opParamI = CreateOperand(
-                VarLLGetRealName(final_variables, params->first->value, NULL, func_variable_list), "", IntType,
-                Frame_LF);
-        tInstructionOperand *opParamII = CreateOperand(
-                VarLLGetRealName(final_variables, params->first->nextItem->value, NULL, func_variable_list), "",
-                IntType, Frame_LF);
-        tInstructionOperand *opParamIII = CreateOperand(
-                VarLLGetRealName(final_variables, params->first->nextItem->nextItem->value, NULL, func_variable_list),
-                "", IntType, Frame_LF);
-        tInstructionOperand *substrI = CreateOperand("substr_s", "", StringType, Frame_LF);
-        tInstructionOperand *substrII = CreateOperand("substr_i", "", IntType, Frame_LF);
-        tInstructionOperand *substrIII = CreateOperand("substr_n", "", IntType, Frame_LF);
+        tInstructionOperand *opParamI;
+        if(params->first->is_variable)
+            opParamI = CreateOperand(VarLLGetRealName(final_variables, params->first->value, NULL, func_variable_list), "", StringType,Frame_LF);
+        else
+            opParamI = CreateOperand("",params->first->value,StringType,Frame_NaN);
+        tInstructionOperand *opParamII;
+        if(params->first->nextItem->is_variable)
+            opParamII = CreateOperand(VarLLGetRealName(final_variables, params->first->nextItem->value, NULL, func_variable_list), "",IntType, Frame_LF);
+        else
+            opParamII = CreateOperand("",params->first->nextItem->value,IntType, Frame_NaN);
+        tInstructionOperand *opParamIII;
+        if(params->first->nextItem->nextItem->is_variable)
+            opParamIII = CreateOperand(VarLLGetRealName(final_variables, params->first->nextItem->nextItem->value, NULL, func_variable_list),"", IntType, Frame_LF);
+        else
+            opParamIII = CreateOperand("",params->first->nextItem->nextItem->value,IntType, Frame_NaN);
+        char* substr_s = VarLLGetRealName(final_variables,"s",funcName,NULL);
+        char* substr_i = VarLLGetRealName(final_variables,"i",funcName,NULL);
+        char* substr_n = VarLLGetRealName(final_variables,"n",funcName,NULL);
+        tInstructionOperand *substrI = CreateOperand(substr_s, "", StringType, Frame_LF);
+        tInstructionOperand *substrII = CreateOperand(substr_i, "", IntType, Frame_LF);
+        tInstructionOperand *substrIII = CreateOperand(substr_n, "", IntType, Frame_LF);
         Instruction2(I_MOVE, *substrI, *opParamI);
         Instruction2(I_MOVE, *substrII, *opParamII);
         Instruction2(I_MOVE, *substrIII, *opParamIII);

@@ -1153,9 +1153,6 @@ void program(){
     first_pass(); // declare functions
     check_package_main();
     // Proceeding with function def
-    final_variables = malloc(sizeof(tFinalList));
-    VarLLInit(final_variables);
-    define_built_in_variables();
 
     token = get_token_with_handle_EOL(&attr, FALSE);
     while (token != tEOF){
@@ -1164,9 +1161,10 @@ void program(){
     }
 }
 
-void parse(tSymtable *RootPtr, tLinkedList *Instr){
+void parse(tSymtable *RootPtr, tLinkedList *Instr, tFinalList *FinalList){
     GlobalFuncRoot = RootPtr;
     GlobalInstr = Instr;
+    final_variables = FinalList;
     if (init_string(&attr)){
         free_and_exit(INTERNAL_ERROR, NULL, NULL);
     }
