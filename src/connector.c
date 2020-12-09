@@ -593,25 +593,25 @@ void print_print_Expression(tPassedSide *Frases, tLinkedList *func_variable_list
                         adds_to_string(&finalString, "\\092");
                         break;
                     case 97:
-                        adds_to_string(&finalString, "\\097");
+                        adds_to_string(&finalString, "\\007");
                         break;
                     case 98:
-                        adds_to_string(&finalString, "\\098");
+                        adds_to_string(&finalString, "\\008");
                         break;
                     case 102:
-                        adds_to_string(&finalString, "\\102");
+                        adds_to_string(&finalString, "\\012");
                         break;
                     case 110:
-                        adds_to_string(&finalString, "\\110");
+                        adds_to_string(&finalString, "\\010");
                         break;
                     case 114:
-                        adds_to_string(&finalString, "\\114");
+                        adds_to_string(&finalString, "\\013");
                         break;
                     case 116:
-                        adds_to_string(&finalString, "\\116");
+                        adds_to_string(&finalString, "\\009");
                         break;
                     case 118:
-                        adds_to_string(&finalString, "\\118");
+                        adds_to_string(&finalString, "\\011");
                         break;
                     default:
                         break;
