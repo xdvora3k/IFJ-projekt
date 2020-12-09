@@ -114,7 +114,7 @@ tExpressionList* precedencSA(string *input, tExpressionList *expL, tLinkedList *
                         CreateNode(&rule, expL);
                         node_created = TRUE;
                     }
-                    if (rule.operator!= NULL || rule.typeOfRule == expIdentity)
+                    if (rule.operator!= NULL)   //|| rule.typeOfRule == expIdentity
                     {
                         InsertList(rule, expL);
 
@@ -123,7 +123,7 @@ tExpressionList* precedencSA(string *input, tExpressionList *expL, tLinkedList *
                     //printRule(rule);
                     //printStack(&topOfStack);
                     break;
-//  0
+
                 case '<':
                     //zamen a za a<
 
