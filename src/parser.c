@@ -239,17 +239,21 @@ void parse_func_header() {
     _parse_return_types(new_node);
 }
 
-int _get_expression_to_string(string* string, char *first, int is_condition, tLinkedList *func_variable_list, tVarDataType *data_type){
+int _get_expression_to_string(string* string, char* first, int is_condition, tLinkedList *func_variable_list, tVarDataType *data_type){
+
     int nums_of_brackets = 0;
     int expecting_something = FALSE;
     int comparison_used = FALSE;
     *data_type = -1;
     tDataVariable *var;
-    if (!strcmp(attr.str, ",")){
-        token = get_adjusted_token(&attr, TRUE);
-    }
     if (first){
         adds_to_string(string, first);
+        if (token == tComma || token == EOL){
+            return 0;
+        }
+    }
+    if (!strcmp(attr.str, ",")){
+        token = get_adjusted_token(&attr, TRUE);
     }
     while (TRUE){
         switch (token){
@@ -374,11 +378,10 @@ tExpressionList* get_expressions(tLinkedList *func_variable_list, char* first, i
         error = _get_expression_to_string(&expr, first, is_condition, func_variable_list, &dataType);
         if (error){
             free_and_exit(error, func_variable_list, NULL);
-
         }
         first = NULL;
+        printf("--------- %s\n", expr.str);
         expr_list = precedencSA(&expr, expr_list, func_variable_list);
-
         clear_str(&expr);
     } while (token == tComma && !is_condition);
 
@@ -930,7 +933,7 @@ void _process_one_line_and_follow(tLinkedList *func_variable_list){
     string name;
     init_string(&name);
     adds_to_string(&name, attr.str);
-    //printf("-%s\n",name.str);
+    printf("-%s\n",name.str);
     switch (token){
         case tId:
             token = get_adjusted_token(&attr, FALSE);
@@ -1093,9 +1096,20 @@ void parse_func(){
             }
             clear_str(&FUNC_NAME);
             adds_to_string(&FUNC_NAME, attr.str);
-            print_function_begin(FUNC_NAME.str);
+            if (!strcmp(FUNC_NAME.str, "main")) {
+                print_Mainframe_begin();
+                define_built_in_variables(final_variables);
+            }
+            else {
+                print_function_begin(FUNC_NAME.str);
+            }
             func_definition();
-            print_function_end();
+            if (!strcmp(FUNC_NAME.str, "main")) {
+                print_Mainframe_end();
+            }
+            else {
+                print_function_end(FUNC_NAME.str);
+            }
             return;
         default:
             free_and_exit(SYN_ERROR, NULL, NULL);

@@ -872,7 +872,8 @@ void InstructionPrint(tInstr i)
 
 void Print_BuiltIn_Functions()
 {
-
+    printf(".IFJcode20\n\n");
+    fflush(stdout);
 
     printf("JUMP $$main\n\n");
     fflush(stdout);
@@ -1034,11 +1035,12 @@ void print_Mainframe_begin()
     printf("LABEL $$main\n\n");
     fflush(stdout);
     printf("CREATEFRAME\n");
+    printf("PUSHFRAME\n");
     fflush(stdout);
 
 }
 
 void print_Mainframe_end()
 {
-    printf("RETURN\n");fflush(stdout);
+    printf("POPFRAME\n");fflush(stdout);
 }

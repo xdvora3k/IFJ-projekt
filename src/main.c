@@ -18,9 +18,7 @@ int main() {
     tFinalList FinalList;
     VarLLInit(&FinalList);
     InsertBuiltInFuncs(&SymTable);
-    define_built_in_variables(&FinalList);
     Print_BuiltIn_Functions();
-
 
     parse(&SymTable, &InstrList, &FinalList);
 }

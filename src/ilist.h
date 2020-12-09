@@ -215,6 +215,8 @@ void Instruction2(INSTRUCTION InstrType, tInstructionOperand op, tInstructionOpe
 void Instruction3(INSTRUCTION InstrType, tInstructionOperand op, tInstructionOperand op2, tInstructionOperand op3);
 void InstructionPrint(tInstr i);
 void Print_BuiltIn_Functions();
+void print_Mainframe_begin();
+void print_Mainframe_end();
 
 void PassedLLInit(tPassedSide *L);
 void PassedLLInsert(tPassedSide *L, char* value, int is_variable, tVarDataType data_type);
@@ -222,7 +224,6 @@ void PassedLLDeleteLast(tPassedSide *L);
 void PassedLLDispose(tPassedSide *L);
 int PassedLLLen(tPassedSide *L);
 tPassedNode* PassedLLGetNode(tPassedSide *L, int index);
-
 
 void ExprLLInit(tExpressionList *L);
 void ExprLLCreateNextNode(tExpressionList *L, tVarDataType data_type);

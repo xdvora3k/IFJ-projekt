@@ -118,8 +118,6 @@ char *VarLLGetReturnRealName(char *func_name, int index) {
 }
 
 void define_built_in_variables(tFinalList* final_variables){
-    printf(".IFJcode20\n\n");
-    fflush(stdout);
     printf("DEFVAR LF@%s\n", VarLLInsert(final_variables, "i", "int2float", NULL));
     printf("DEFVAR LF@%s\n", VarLLInsert(final_variables, "f", "float2int", NULL));
     printf("DEFVAR LF@%s\n", VarLLInsert(final_variables, "s", "len", NULL));
@@ -129,6 +127,7 @@ void define_built_in_variables(tFinalList* final_variables){
     printf("DEFVAR LF@%s\n", VarLLInsert(final_variables, "s", "ord", NULL));
     printf("DEFVAR LF@%s\n", VarLLInsert(final_variables, "i", "ord", NULL));
     printf("DEFVAR LF@%s\n", VarLLInsert(final_variables, "i", "chr", NULL));
+    printf("CREATEFRAME\n");
 }
 
 void print_variable_declaration_Expression(tLinkedList *leftside, tExpressionList *rightside,
