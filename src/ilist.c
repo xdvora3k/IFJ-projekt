@@ -80,9 +80,11 @@ int StrLLLen(tLinkedList *L) {
 
     tListItem *item = L->first;
     while (item) {
+        fflush(stdout);
         i++;
         item = item->nextItem;
     }
+
     return i;
 }
 
@@ -313,7 +315,6 @@ void ExprLLInsertExprToLastNode(tExpressionList *L, tToken *leftOperand, tToken*
 
     tExpressionNode *last_node = L->first;
     if (last_node) {
-
         while (last_node->next_node) {
             last_node = last_node->next_node;
         }
@@ -330,7 +331,9 @@ void ExprLLInsertExprToLastNode(tExpressionList *L, tToken *leftOperand, tToken*
     if(leftOperand != NULL){
         new_rule->leftOperand = _insert_token_to_node(leftOperand);
     }
-    new_rule->rightOperand = _insert_token_to_node(rightOperand);
+    if(rightOperand != NULL){
+        new_rule->rightOperand = _insert_token_to_node(rightOperand);
+    }
     if(operator != NULL){
         new_rule->operator = _insert_token_to_node(operator);
     }

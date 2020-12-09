@@ -82,17 +82,17 @@ tState translate_scanner_states(string *attr){
 }
 
 // Try to adjust token type for parser
-tState get_adjusted_token(string *string){
-    token = get_token(string);
+tState get_adjusted_token(string *string, int is_expression){
+    token = get_token(string, is_expression);
     check_lex_error();
     return translate_scanner_states(string);
 }
 
 // Get token while skipping EOL
-tState get_token_with_handle_EOL(string *string){
-    token = get_adjusted_token(string);
+tState get_token_with_handle_EOL(string *string, int is_expression){
+    token = get_adjusted_token(string, is_expression);
     if (token == EOL){
-        token = get_token_with_handle_EOL(string);
+        token = get_token_with_handle_EOL(string, is_expression);
     }
     return token;
 }
@@ -118,7 +118,7 @@ void _insert_datatype(tDataFunction* Content){
 }
 
 void _parse_param(tBSTNodePtr node){
-    token = get_token_with_handle_EOL(&attr);
+    token = get_token_with_handle_EOL(&attr, FALSE);
     if (token == tClosingSimpleBrace){
         return;
     }
@@ -137,14 +137,14 @@ void _parse_param(tBSTNodePtr node){
         free_and_exit(SEM_ERROR, NULL, NULL);
     }
     StrLLInsert(&Content->paramNames, attr.str);
-    token = get_adjusted_token(&attr);
+    token = get_adjusted_token(&attr, FALSE);
 
     if (!is_datatype(&attr)){
         free_and_exit(SEM_DATATYPE_ERROR, NULL, NULL);
     }
     _insert_datatype(Content);
 
-    token = get_adjusted_token(&attr);
+    token = get_adjusted_token(&attr, FALSE);
     if (token != tClosingSimpleBrace && token != tComma){
         free_and_exit(SYN_ERROR, NULL, NULL);
     }
@@ -154,7 +154,7 @@ void _parse_param(tBSTNodePtr node){
 // Parse `(i int)(char, int)`
 // Token current state ~= tId
 void _parse_params(tBSTNodePtr node){
-    token = get_adjusted_token(&attr);
+    token = get_adjusted_token(&attr, FALSE);
     // Expecting tOpeningSimpleBrace
     if (token != tOpeningSimpleBrace){
         free_and_exit(SYN_ERROR, NULL, NULL);
@@ -185,7 +185,7 @@ void _insert_return_type(tBSTNodePtr node){
 }
 
 void _parse_return_type(tBSTNodePtr node){
-    token = get_token_with_handle_EOL(&attr);
+    token = get_token_with_handle_EOL(&attr, FALSE);
     if (token == tClosingSimpleBrace){
         return;
     }
@@ -200,11 +200,11 @@ void _parse_return_type(tBSTNodePtr node){
     }
 
     _insert_return_type(node);
-    token = get_adjusted_token(&attr);
+    token = get_adjusted_token(&attr, FALSE);
 }
 
 void _parse_return_types(tBSTNodePtr node){
-    token = get_adjusted_token(&attr);
+    token = get_adjusted_token(&attr, FALSE);
     if (token != tOpeningSimpleBrace && token != tOpeningCurlyBrace){
         free_and_exit(SYN_ERROR, NULL, NULL);
     }
@@ -218,7 +218,7 @@ void _parse_return_types(tBSTNodePtr node){
 }
 
 void parse_func_header() {
-    token = get_adjusted_token(&attr);
+    token = get_adjusted_token(&attr, FALSE);
     clear_str(&FUNC_NAME);
     adds_to_string(&FUNC_NAME, attr.str);
     if (token != tId) {
@@ -239,14 +239,14 @@ void parse_func_header() {
     _parse_return_types(new_node);
 }
 
-int _get_expression_to_string(string* string, char *first, int is_condition, tLinkedList *func_variable_list){
+int _get_expression_to_string(string* string, char *first, int is_condition, tLinkedList *func_variable_list, tVarDataType *data_type){
     int nums_of_brackets = 0;
     int expecting_something = FALSE;
     int comparison_used = FALSE;
-    tVarDataType data_type = -1;
+    *data_type = -1;
     tDataVariable *var;
     if (!strcmp(attr.str, ",")){
-        token = get_adjusted_token(&attr);
+        token = get_adjusted_token(&attr, TRUE);
     }
     if (first){
         adds_to_string(string, first);
@@ -255,53 +255,53 @@ int _get_expression_to_string(string* string, char *first, int is_condition, tLi
         switch (token){
             case sDeclare:
             case sAssign:
-                token = get_adjusted_token(&attr);
+                token = get_adjusted_token(&attr, TRUE);
                 continue;
             case tId:
                 var = TableLLGetSingleVariable(func_variable_list, attr.str);
                 if (!var){
                     return SEM_ERROR;
                 }
-                if (data_type != -1){
-                    if (data_type != var->dataType){
+                if (*data_type != -1){
+                    if (*data_type != var->dataType){
                         return SEM_GET_DATATYPE_ERROR;
                     }
                 }
                 else {
-                    data_type = var->dataType;
+                    *data_type = var->dataType;
                 }
                 expecting_something = FALSE;
                 break;
             case tFloat:
-                if (data_type != -1){
-                    if (data_type != Float64Type){
+                if (*data_type != -1){
+                    if (*data_type != Float64Type){
                         return SEM_GET_DATATYPE_ERROR;
                     }
                 }
                 else {
-                    data_type = Float64Type;
+                    *data_type = Float64Type;
                 }
                 expecting_something = FALSE;
                 break;
             case tInteger:
-                if (data_type != -1){
+                if (*data_type != -1){
                     if (data_type != IntType){
                         return SEM_GET_DATATYPE_ERROR;
                     }
                 }
                 else {
-                    data_type = IntType;
+                    *data_type = IntType;
                 }
                 expecting_something = FALSE;
                 break;
             case tString:
-                if (data_type != -1){
-                    if (data_type != StringType){
+                if (*data_type != -1){
+                    if (*data_type != StringType){
                         return SEM_GET_DATATYPE_ERROR;
                     }
                 }
                 else {
-                    data_type = StringType;
+                    *data_type = StringType;
                 }
                 expecting_something = FALSE;
                 break;
@@ -359,23 +359,28 @@ int _get_expression_to_string(string* string, char *first, int is_condition, tLi
                 return SEM_ERROR;
         }
         adds_to_string(string, attr.str);
-        token = get_adjusted_token(&attr);
+        token = get_adjusted_token(&attr, TRUE);
     }
 }
 
 tExpressionList* get_expressions(tLinkedList *func_variable_list, char* first, int is_condition){
     tExpressionList *expr_list = malloc(sizeof(tExpressionList));
+    tVarDataType dataType;
     ExprLLInit(expr_list);
     int error;
     string expr;
     init_string(&expr);
     do {
-        error = _get_expression_to_string(&expr, first, is_condition, func_variable_list);
+        error = _get_expression_to_string(&expr, first, is_condition, func_variable_list, &dataType);
         if (error){
             free_and_exit(error, func_variable_list, NULL);
+
         }
         first = NULL;
+        fflush(stdout);
+        ExprLLCreateNextNode(expr_list, dataType);
         expr_list = precedencSA(&expr, expr_list, func_variable_list);
+
         clear_str(&expr);
     } while (token == tComma && !is_condition);
 
@@ -481,14 +486,17 @@ void _check_correct_left_and_right_types(tLinkedList *func_variable_list, tLinke
 }
 
 void _process_var_declaration(tLinkedList *func_variable_list, tLinkedList *left_variables){
+
     if (StrLLLen(left_variables) != 1) {
         free_and_exit(SEM_ERROR, func_variable_list, left_variables);
     }
+
     // Declaration => only 1 variable in list
     if (!strcmp((char*) left_variables->first->Content, "_")){
         // Declaring `_` as variable
         free_and_exit(SEM_OTHER_ERROR, func_variable_list, left_variables);
     }
+
     // Check if variable does not exist in current table
     if (SymTableSearch((tSymtable*) func_variable_list->first->Content, (char*) left_variables->first->Content)){
         free_and_exit(SEM_ERROR, func_variable_list, left_variables);
@@ -498,7 +506,6 @@ void _process_var_declaration(tLinkedList *func_variable_list, tLinkedList *left
     if (ExprLLNodeLen(right_side) != 1){
         free_and_exit(SEM_ERROR, func_variable_list, left_variables);
     }
-
     TableLLInsertFirstSeenVariable(func_variable_list, left_variables, right_side);
     print_variable_declaration_Expression(left_variables, right_side, func_variable_list);
     if (for_header_state == 1){
@@ -513,14 +520,14 @@ int _parse_func_right_side(tLinkedList *func_variable_list, tPassedSide *right_s
     int func_param_len = ((tDataFunction *) func_node->Content)->params.length;
     int error;
     if (!strcmp(func_node->Key, "print")) {
-        token = get_token_with_handle_EOL(&attr);
+        token = get_token_with_handle_EOL(&attr, FALSE);
         if (token != tOpeningSimpleBrace){
             return 1;
         }
         // process variable number of params for print
         char data_type;
         while (TRUE) {
-            token = get_token_with_handle_EOL(&attr);
+            token = get_token_with_handle_EOL(&attr, FALSE);
             switch (token) {
                 case tString:
                     data_type = 's';
@@ -541,7 +548,7 @@ int _parse_func_right_side(tLinkedList *func_variable_list, tPassedSide *right_s
             if (error) {
                 return 1;
             }
-            token = get_adjusted_token(&attr);
+            token = get_adjusted_token(&attr, FALSE);
             switch (token){
                 case tComma:
                     break;
@@ -559,20 +566,20 @@ int _parse_func_right_side(tLinkedList *func_variable_list, tPassedSide *right_s
 
         for (int i = 0; i < func_param_len; i++) {
             // get value
-            token = get_token_with_handle_EOL(&attr);
+            token = get_token_with_handle_EOL(&attr, FALSE);
             error = insert_value_to_right_side(func_variable_list, right_side,
                                                ((tDataFunction *) func_node->Content)->params.str[i]);
             if (error) {
                 return 1;
             }
             // expecting `)` or `,`
-            token = get_adjusted_token(&attr);
+            token = get_adjusted_token(&attr, FALSE);
             if (token != tClosingSimpleBrace && token != tComma) {
                 return 1;
             }
         }
         if (!func_param_len) {
-            token = get_adjusted_token(&attr);
+            token = get_adjusted_token(&attr, FALSE);
             if (token != tClosingSimpleBrace) {
                 return 1;
             }
@@ -636,13 +643,14 @@ void _process_function_call(tLinkedList *func_variable_list, tLinkedList *left_v
             free_and_exit(INTERNAL_ERROR, func_variable_list, left_variables);
         }
 
-        token = get_adjusted_token(&attr);
+        token = get_adjusted_token(&attr, FALSE);
         if (token != EOL){
             free_and_exit(SYN_ERROR, func_variable_list, left_variables);
         }
         print_function_assigment(left_variables, called_func_name, right_param_names, right_side, func_variable_list, is_return);
     }
     else {
+
         tBSTNodePtr func_node = SymTableSearch(GlobalFuncRoot, called_func_name);
         int func_ret_len = ((tDataFunction *) func_node->Content)->returnType.length;
         if (func_ret_len){
@@ -660,7 +668,7 @@ void _process_function_call(tLinkedList *func_variable_list, tLinkedList *left_v
             free_and_exit(INTERNAL_ERROR, func_variable_list, left_variables);
         }
 
-        token = get_adjusted_token(&attr);
+        token = get_adjusted_token(&attr, FALSE);
         if (token != EOL){
             free_and_exit(SYN_ERROR, func_variable_list, left_variables);
         }
@@ -678,13 +686,13 @@ void _process_var_assignment(tLinkedList *func_variable_list, tLinkedList *left_
         free_and_exit(SEM_ERROR, func_variable_list, left_variables);
     }
 
-    token = get_adjusted_token(&attr);
+    token = get_adjusted_token(&attr, FALSE);
     string name;
     init_string(&name);
     adds_to_string(&name, attr.str);
     if (token == tId || token == tBuiltIn){
         if (!TableLLGetSingleVariable(func_variable_list, name.str)) {
-            token = get_adjusted_token(&attr);
+            token = get_adjusted_token(&attr, FALSE);
             if (token == tOpeningSimpleBrace) {
                 if (SymTableSearch(GlobalFuncRoot, name.str)) {
                     _process_function_call(func_variable_list, left_variables, name.str, FALSE);
@@ -714,7 +722,7 @@ void get_left_side_of_assignment(tLinkedList *stored_variables, char *first){
     StrLLInsert(stored_variables, first);
 
     while (token == tComma){
-        token = get_adjusted_token(&attr);
+        token = get_adjusted_token(&attr, FALSE);
         if (token != tId){
             free_and_exit(SYN_ERROR, NULL, stored_variables);
         }
@@ -726,7 +734,7 @@ void get_left_side_of_assignment(tLinkedList *stored_variables, char *first){
             }
         }
         StrLLInsert(stored_variables, attr.str);
-        token = get_adjusted_token(&attr);
+        token = get_adjusted_token(&attr, FALSE);
     }
 }
 
@@ -756,7 +764,7 @@ void _process_tId_token(tLinkedList *func_variable_list, char *name, int forbid_
 }
 
 void _process_if_call(tLinkedList *func_variable_list){
-    token = get_adjusted_token(&attr);
+    token = get_adjusted_token(&attr, FALSE);
     tExpressionList *condition = get_expressions(func_variable_list, NULL, TRUE);
 
     print_if_begin(condition->first, func_variable_list);
@@ -775,16 +783,16 @@ void _process_if_call(tLinkedList *func_variable_list){
     TableLLDeleteFirst(func_variable_list);
     free(if_layer);
     print_else_begin(func_variable_list);
-    token = get_adjusted_token(&attr);
+    token = get_adjusted_token(&attr, FALSE);
     // else is required after if
     if (strcmp(attr.str, "else")){
         free_and_exit(SYN_ERROR, func_variable_list, NULL);
     }
-    token = get_adjusted_token(&attr);
+    token = get_adjusted_token(&attr, FALSE);
     if (token != tOpeningCurlyBrace){
         free_and_exit(SYN_ERROR, func_variable_list, NULL);
     }
-    token = get_adjusted_token(&attr);
+    token = get_adjusted_token(&attr, FALSE);
     if (token != EOL){
         free_and_exit(SYN_ERROR, func_variable_list, NULL);
     }
@@ -798,7 +806,7 @@ void _process_if_call(tLinkedList *func_variable_list){
         }
         _process_one_line_and_follow(func_variable_list);
     }
-    token = get_adjusted_token(&attr);
+    token = get_adjusted_token(&attr, FALSE);
     if (token != EOL){
         free_and_exit(SYN_ERROR, func_variable_list, NULL);
     }
@@ -812,14 +820,14 @@ void _process_for_cycle(tLinkedList *func_variable_list){
     SymTableInit(for_layer);
     TableLLInsertFirst(func_variable_list, for_layer);
 
-    token = get_adjusted_token(&attr);
+    token = get_adjusted_token(&attr, FALSE);
     string name;
     init_string(&name);
     adds_to_string(&name, attr.str);
     // sets global variable to indicate that we are in for cycle
     for_header_state = 1;
     if (token == tId){
-        token = get_adjusted_token(&attr);
+        token = get_adjusted_token(&attr, FALSE);
         // first part of for cycle is taken care of
         _process_tId_token(func_variable_list, name.str, FALSE, TRUE); // assigning at this part is forbidden
     }
@@ -828,7 +836,7 @@ void _process_for_cycle(tLinkedList *func_variable_list){
     }
 
     for_header_state = 2;
-    token = get_adjusted_token(&attr);
+    token = get_adjusted_token(&attr, FALSE);
     tExpressionList *condition = get_expressions(func_variable_list, NULL, TRUE);
     if (!condition){
         free_and_exit(SEM_ERROR, func_variable_list, NULL);
@@ -836,7 +844,7 @@ void _process_for_cycle(tLinkedList *func_variable_list){
 
     for_header_state = 3;
     // Condition is processed, check tOpeningCurlyBrace
-    token = get_adjusted_token(&attr);
+    token = get_adjusted_token(&attr, FALSE);
 
     tLinkedList *left_for_assignment = malloc(sizeof(tLinkedList));
     StrLLInit(left_for_assignment);
@@ -850,12 +858,12 @@ void _process_for_cycle(tLinkedList *func_variable_list){
         clear_str(&name);
         adds_to_string(&name, attr.str);
         get_left_side_of_assignment(left_for_assignment, name.str);
-        token = get_adjusted_token(&attr);
+        token = get_adjusted_token(&attr, FALSE);
         switch (token){
-            case tDeclaration:
+            case sDeclare:
                 free_and_exit(SEM_ERROR, func_variable_list, left_for_assignment);
                 break;
-            case tAssignment:
+            case sAssign:
                 right_for_assignment = get_expressions(func_variable_list, NULL, FALSE);
                 break;
             default:
@@ -865,7 +873,7 @@ void _process_for_cycle(tLinkedList *func_variable_list){
     if (token != tOpeningCurlyBrace){
         free_and_exit(SYN_ERROR, func_variable_list, NULL);
     }
-    token = get_adjusted_token(&attr);
+    token = get_adjusted_token(&attr, FALSE);
     if (token != EOL){
         free_and_exit(SYN_ERROR, func_variable_list, NULL);
     }
@@ -883,24 +891,25 @@ void _process_for_cycle(tLinkedList *func_variable_list){
         }
         _process_one_line_and_follow(func_variable_list);
     }
-    token = get_adjusted_token(&attr);
+    token = get_adjusted_token(&attr, FALSE);
     if (token != EOL){
         free_and_exit(SYN_ERROR, func_variable_list, NULL);
     }
 
-    print_for_end(func_variable_list);
+
     // Delete 2 tables (for cycle, for header)
     TableLLDeleteFirst(func_variable_list);
+    print_for_end(func_variable_list);
     TableLLDeleteFirst(func_variable_list);
 }
 
 void _process_return(tLinkedList *func_variable_list){
     string* return_type = &((tDataFunction*) SymTableSearch(GlobalFuncRoot, FUNC_NAME.str)->Content)->returnType;
-    token = get_adjusted_token(&attr);
+    token = get_adjusted_token(&attr, FALSE);
     string name;
     init_string(&name);
     adds_to_string(&name, attr.str);
-    token = get_adjusted_token(&attr);
+    token = get_adjusted_token(&attr, FALSE);
     if (token == tId){
         if (token == tOpeningSimpleBrace) {
             if (SymTableSearch(GlobalFuncRoot, name.str)){
@@ -919,14 +928,14 @@ void _process_return(tLinkedList *func_variable_list){
 }
 
 void _process_one_line_and_follow(tLinkedList *func_variable_list){
-    token = get_token_with_handle_EOL(&attr);
+    token = get_token_with_handle_EOL(&attr, FALSE);
     string name;
     init_string(&name);
     adds_to_string(&name, attr.str);
-    printf("-%s\n",name.str);
+    //printf("-%s\n",name.str);
     switch (token){
         case tId:
-            token = get_adjusted_token(&attr);
+            token = get_adjusted_token(&attr, FALSE);
             // First check if variable exists and after that if function exists
             if (TableLLGetSingleVariable(func_variable_list, name.str)){
                 _process_tId_token(func_variable_list, name.str, FALSE, FALSE);
@@ -1008,7 +1017,7 @@ void _insert_var_datatype(tBSTNodePtr var_node, char key){
 
 void skip_func_declaration(){
     while (token != tOpeningCurlyBrace){
-        token = get_adjusted_token(&attr);
+        token = get_adjusted_token(&attr, FALSE);
     }
 }
 
@@ -1080,7 +1089,7 @@ tVarDataType _get_datatype_from_char(char c){
 void parse_func(){
     switch (token){
         case sFunc:
-            token = get_adjusted_token(&attr);
+            token = get_adjusted_token(&attr, FALSE);
             if (token != tId) {
                 free_and_exit(SYN_ERROR, NULL, NULL);
             }
@@ -1098,14 +1107,14 @@ void parse_func(){
 void skip_to_next_function(){
     int curly_braces = 0;
     if (token != tOpeningCurlyBrace){
-        token = get_adjusted_token(&attr);
+        token = get_adjusted_token(&attr, FALSE);
     }
     if (token == tOpeningCurlyBrace){
         curly_braces++;
     }
 
     while (token != sFunc && token != tEOF){
-        token = get_token_with_handle_EOL(&attr);
+        token = get_token_with_handle_EOL(&attr, FALSE);
         if (token == tOpeningCurlyBrace){
             curly_braces++;
         }
@@ -1131,11 +1140,11 @@ void first_pass(){
 }
 
 void check_package_main(){
-    token = get_token_with_handle_EOL(&attr);
+    token = get_token_with_handle_EOL(&attr, FALSE);
     if (strcmp(attr.str, "package")){
         free_and_exit(SYN_ERROR, NULL, NULL);
     }
-    token = get_token(&attr);
+    token = get_token(&attr, FALSE);
     if (strcmp(attr.str, "main")){
         free_and_exit(SYN_ERROR, NULL, NULL);
     }
@@ -1149,10 +1158,10 @@ void program(){
     final_variables = malloc(sizeof(tFinalList));
     VarLLInit(final_variables);
 
-    token = get_token_with_handle_EOL(&attr);
+    token = get_token_with_handle_EOL(&attr, FALSE);
     while (token != tEOF){
         parse_func();
-        token = get_token_with_handle_EOL(&attr);
+        token = get_token_with_handle_EOL(&attr, FALSE);
     }
 }
 

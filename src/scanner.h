@@ -11,7 +11,7 @@
 #include "error_codes.h"
 
 void set_source_file(FILE *file);
-int get_token(string *attr);
+int get_token(string *attr, int is_expression);
 void reset_file_pointer();
 
 typedef enum{

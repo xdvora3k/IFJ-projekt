@@ -3,17 +3,18 @@ package main
 
 func main() {
   print("Zadejte cislo pro vypocet faktorialu: ###LL")
-  a := 1+1
+  a := 1
   b :=1+a
   b = 1+a
+  s := "str"+"str"
 
 	a, _ = inputi()
 
   if a < 0 {
-    print("Faktorial nejde spocitat!\n")
+    print("Faktorial nejde spocitat!\n",a)
   } else {
-
-    for vysl := 1 ; a > 0; a = a - 1 {
+    vysl := 1
+    for ; a > 0; a = a - 1 {
       vysl = vysl * a
     }
     print("Vysledek je ",vysl,"\n")

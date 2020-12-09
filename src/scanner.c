@@ -14,7 +14,7 @@ void set_source_file(FILE *file) {
     source = file;
 }
 
-int get_token(string *attr){
+int get_token(string *attr, int is_expression){
     tState state = start;
     char c;
     clear_str(attr);
@@ -42,6 +42,9 @@ int get_token(string *attr){
                     state = tInteger;
                 }
                 else if (c == '"') {
+                    if (is_expression){
+                        add_to_string(attr, c);
+                    }
                     state = string_start;
                 }
                 else if (c == '+') {
@@ -151,6 +154,9 @@ int get_token(string *attr){
                 return tLEX_ERROR;
             case string_start:
                 if (c == '"') {
+                    if (is_expression){
+                        add_to_string(attr, c);
+                    }
                     return tString;
                 }
                 else if (c == '\\') {
