@@ -285,7 +285,7 @@ int _get_expression_to_string(string* string, char *first, int is_condition, tLi
                 break;
             case tInteger:
                 if (*data_type != -1){
-                    if (data_type != IntType){
+                    if (*data_type != IntType){
                         return SEM_GET_DATATYPE_ERROR;
                     }
                 }
@@ -377,8 +377,6 @@ tExpressionList* get_expressions(tLinkedList *func_variable_list, char* first, i
 
         }
         first = NULL;
-        fflush(stdout);
-        ExprLLCreateNextNode(expr_list, dataType);
         expr_list = precedencSA(&expr, expr_list, func_variable_list);
 
         clear_str(&expr);
@@ -1151,13 +1149,13 @@ void check_package_main(){
 }
 
 void program(){
-    define_built_in_variables();
     check_package_main();
     first_pass(); // declare functions
     check_package_main();
     // Proceeding with function def
     final_variables = malloc(sizeof(tFinalList));
     VarLLInit(final_variables);
+    define_built_in_variables();
 
     token = get_token_with_handle_EOL(&attr, FALSE);
     while (token != tEOF){
