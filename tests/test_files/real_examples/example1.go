@@ -3,12 +3,11 @@ package main
 
 func main() {
   print("Zadejte cislo pro vypocet faktorialu: ###LL")
-  a := 1
-  b :=1+a
-  b = 1+a
-  s := "str"+"str"
+  a := 122
+  b := 1.5
+  c := "s"
 
-	a, _ = inputi()
+
 
   if a < 0 {
     print("Faktorial nejde spocitat!\n",a)
