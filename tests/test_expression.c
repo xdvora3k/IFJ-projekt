@@ -12,7 +12,7 @@ int main(){
   string input;
    init_string(&input);
    printf("\n");
-   adds_to_string(&input, "5+5");   //a+v*c //"58-o+1+9"
+   adds_to_string(&input, "5.2+5.3");   //a+v*c //"58-o+1+9"
    printf("input %s . %d\n", input.str, input.length);
    L = precedencSA(&input, L ,list);
    printf("\n");

@@ -70,7 +70,6 @@ tExpressionList* precedencSA(string *input, tExpressionList *expL, tLinkedList *
 {
     tLinkedList *tokens = get_tokens(input, linkedL);
 
-
     ptrStack topOfStack;
     StackInit(&topOfStack);
 
@@ -98,7 +97,7 @@ tExpressionList* precedencSA(string *input, tExpressionList *expL, tLinkedList *
     topToken = findTerminalToken(&topOfStack);
     do
     {
-
+    
         int firstIndex = getTokenTableIndex(topToken->type);
 
         int secondIndex = getTokenTableIndex(inputToken->type);
@@ -168,7 +167,7 @@ tExpressionList* precedencSA(string *input, tExpressionList *expL, tLinkedList *
         topToken = findTerminalToken(&topOfStack);
 
     } while (inputToken->type != tEOF || topToken->type != tEOF); // || topToken-> type != tComma
-
+    node_created = FALSE;
     counter = 0;
     return expL;
 }
