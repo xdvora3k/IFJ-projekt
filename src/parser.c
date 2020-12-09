@@ -869,6 +869,7 @@ void _process_for_cycle(tLinkedList *func_variable_list){
     if (token != EOL){
         free_and_exit(SYN_ERROR, func_variable_list, NULL);
     }
+
     print_for_begin(condition->first, left_for_assignment, right_for_assignment, func_variable_list);
 
     tSymtable *for_cycle = malloc(sizeof(tSymtable));
@@ -922,6 +923,7 @@ void _process_one_line_and_follow(tLinkedList *func_variable_list){
     string name;
     init_string(&name);
     adds_to_string(&name, attr.str);
+    printf("-%s\n",name.str);
     switch (token){
         case tId:
             token = get_adjusted_token(&attr);

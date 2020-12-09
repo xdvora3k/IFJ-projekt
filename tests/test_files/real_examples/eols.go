@@ -7,9 +7,11 @@ func add(i /*zde se nesmi odradkovat*/ int,
 }
 
 func main() /*zde se nesmi odradkovat*/ {
-    i := 0
+    i := 1
+    a := 1+1
+
 	i = add( /* zde muzeme odradkovavat*/
-		a, /*pred carkou se nesmi, za carkou muze odradkovat*/
+		1, /*pred carkou se nesmi, za carkou muze odradkovat*/
 		1 /*zde se nesmi odradkovat*/)
 	i = /* zde muzeme odradkovavat*/
 		1 /*zde se nesmi odradkovat*/ + ( /* zde muzeme odradkovavat*/
@@ -21,3 +23,4 @@ func main() /*zde se nesmi odradkovat*/ {
 	} else /*zde se nesmi odradkovat*/ /*zde se nesmi odradkovat*/ { /*zde se musi odradkovat*/
 	} /*zde se musi odradkovat*/
 }
+

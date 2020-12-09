@@ -121,6 +121,12 @@ void print_variable_declaration_Expression(tLinkedList *leftside, tExpressionLis
 
     if(rightside->first->data_type == IntType)
     {
+
+        // NELZE NAJÍT OPERAND N V TABULCE
+        printf("-%s-\n",rightside->first->first->leftOperand->text->str);
+        printf("-%s-\n",VarLLGetRealName(final_variables,rightside->first->first->leftOperand->text->str,NULL,func_variable_list));
+
+
         printfS = Calc_Int_Expression(rightside->first,func_variable_list);
         left = ChangeOperand(left,VarLLInsert(final_variables,leftside->first->Content, NULL, func_variable_list),"",IntType,Frame_LF);
         right = ChangeOperand(right,printfS,"",IntType,Frame_TF);
@@ -159,7 +165,7 @@ void print_return_assignment( tExpressionList *rightside, char* funcName, tLinke
     for(int i = 0 ; i < numberOReturns ; i++)
     {
         char*  returnVars = VarLLGetReturnRealName(funcName,i);
-        fflush(stdout);
+
 
         tExpressionNode *RightItem = ExprLLGetNthNode(rightside,i);
         tInstructionOperand *opVar = CreateOperand("","",Unknown_type,Frame_NaN);
@@ -215,19 +221,20 @@ void print_variable_assigment_Expression(tLinkedList *leftside,tExpressionList *
         switch(RightItem->data_type)
         {
             case IntType:
+
                 printfS = Calc_Int_Expression(RightItem,func_variable_list);
                 opVar = ChangeOperand(opVar,VarLLGetRealName(final_variables,LeftItem->Content, NULL, func_variable_list),"",IntType,Frame_LF);
-                opVal = ChangeOperand(opVal,printfS,"",IntType,Frame_LF);
+                opVal = ChangeOperand(opVal,printfS,"",IntType,Frame_TF);
                 break;
             case Float64Type:
                 printfS = Calc_Float_Expression(RightItem,func_variable_list);
                 opVar = ChangeOperand(opVar,VarLLGetRealName(final_variables,LeftItem->Content, NULL, func_variable_list),"",Float64Type,Frame_LF);
-                opVal = ChangeOperand(opVal,printfS,"",Float64Type,Frame_LF);
+                opVal = ChangeOperand(opVal,printfS,"",Float64Type,Frame_TF);
                 break;
             case StringType:
                 printfS = Calc_String_Expression(RightItem,func_variable_list);
                 opVar = ChangeOperand(opVar,VarLLGetRealName(final_variables,LeftItem->Content, NULL, func_variable_list),"",StringType,Frame_LF);
-                opVal = ChangeOperand(opVal,printfS,"",StringType,Frame_LF);
+                opVal = ChangeOperand(opVal,printfS,"",StringType,Frame_TF);
                 break;
             case UnderscoreType:
                 break;
@@ -260,6 +267,26 @@ char* Calc_Int_Expression(tExpressionNode *Rules,tLinkedList *func_variable_list
         rule = ExprLLGetNthRuleRule(Rules,i);
         string ruleLeftStr; init_string(&ruleLeftStr);
         string ruleRightStr; init_string(&ruleRightStr);
+        printf("%p\n",(void*)rule->leftOperand);
+        printf("* %s %p %p *\n",rule->rightOperand->text->str,(void*)rule->leftOperand,(void*)rule->operator);
+        if(!(void*)rule->leftOperand)
+        {
+            tInstructionOperand *rescueOp = CreateOperand("","",Unknown_type,Frame_NaN);
+            if(rule->rightOperand->type == tId)
+            {
+                rescueOp = ChangeOperand(rescueOp,VarLLGetRealName(final_variables,rule->rightOperand->text->str,NULL,func_variable_list),"",IntType,Frame_LF);
+            }
+            else
+            {
+                rescueOp = ChangeOperand(rescueOp,"",rule->rightOperand->text->str,IntType,Frame_NaN);
+            }
+            opV = ChangeOperand(opV,"-tmp1","",IntType,Frame_TF);
+            Instruction1(I_DEFVAR,*opV);
+            Instruction2(I_MOVE,*opV,*rescueOp);
+
+        }
+        else
+        {
 
         if(rule->leftOperand->type == tId)
         {
@@ -274,7 +301,6 @@ char* Calc_Int_Expression(tExpressionNode *Rules,tLinkedList *func_variable_list
         }
         if (rule->rightOperand->type == tId)
         {
-
             adds_to_string(&ruleRightStr,rule->rightOperand->text->str);
             clear_str(rule->rightOperand->text);
             adds_to_string(rule->rightOperand->text,VarLLGetRealName(final_variables,ruleRightStr.str,NULL,func_variable_list));
@@ -285,9 +311,8 @@ char* Calc_Int_Expression(tExpressionNode *Rules,tLinkedList *func_variable_list
             opR = ChangeOperand(opR,"",rule->rightOperand->text->str,IntType,Frame_NaN);
         }
 
-        printf("DEFVAR %s\n",rule->placeHolder->text->str);fflush(stdout);
         opV = ChangeOperand(opV,rule->placeHolder->text->str,"",IntType,Frame_TF);
-
+        Instruction1(I_DEFVAR,*opV);
 
         switch(rule->operator->text->str[0])
         {
@@ -307,69 +332,37 @@ char* Calc_Int_Expression(tExpressionNode *Rules,tLinkedList *func_variable_list
                 Instruction3(I_IDIV,*opV,*opL,*opR);
                 break;
             case '>':
-                if(rule->operator->text->str[1] != '=')
-                {
-                    clear_str(&ifStatement);
-                    adds_to_string(&ifStatement,rule->leftOperand->text->str);
-                    adds_to_string(&ifStatement,rule->operator->text->str);
-                    adds_to_string(&ifStatement,rule->rightOperand->text->str);
-                    return ifStatement.str;
-                }
-                else
-                {
-                    clear_str(&ifStatement);
-                    adds_to_string(&ifStatement,rule->leftOperand->text->str);
-                    adds_to_string(&ifStatement,rule->operator->text->str);
-                    adds_to_string(&ifStatement,rule->rightOperand->text->str);
-                    return ifStatement.str;
-                }
-                break;
             case '<':
-                if(rule->operator->text->str[1] != '=')
-                {
-                    clear_str(&ifStatement);
-                    adds_to_string(&ifStatement,rule->leftOperand->text->str);
-                    adds_to_string(&ifStatement,rule->operator->text->str);
-                    adds_to_string(&ifStatement,rule->rightOperand->text->str);
-                    return ifStatement.str;
-                }
-                else
-                {
-                    clear_str(&ifStatement);
-                    adds_to_string(&ifStatement,rule->leftOperand->text->str);
-                    adds_to_string(&ifStatement,rule->operator->text->str);
-                    adds_to_string(&ifStatement,rule->rightOperand->text->str);
-                    return ifStatement.str;
-                }
-                break;
             case '=':
-                if(rule->operator->text->str[1] == '=')
-                {
-                    clear_str(&ifStatement);
-                    adds_to_string(&ifStatement,rule->leftOperand->text->str);
-                    adds_to_string(&ifStatement,rule->operator->text->str);
-                    adds_to_string(&ifStatement,rule->rightOperand->text->str);
-                    return ifStatement.str;
-                }
-                else
-                {}
-                break;
             case '!':
-                if(rule->operator->text->str[1] == '=')
+                clear_str(&ifStatement);
+                if(rule->leftOperand->type == tId)
                 {
-                    clear_str(&ifStatement);
+                    adds_to_string(&ifStatement,"LF@");
                     adds_to_string(&ifStatement,rule->leftOperand->text->str);
-                    adds_to_string(&ifStatement,rule->operator->text->str);
-                    adds_to_string(&ifStatement,rule->rightOperand->text->str);
-                    return ifStatement.str;
                 }
-                else
-                {}
+                else {
+                    adds_to_string(&ifStatement,"int@");
+                    adds_to_string(&ifStatement, rule->leftOperand->text->str);
+                }
+                adds_to_string(&ifStatement,rule->operator->text->str);
+                if(rule->rightOperand->type == tId)
+                {
+                    adds_to_string(&ifStatement,"LF@");
+                    adds_to_string(&ifStatement,rule->rightOperand->text->str);
+                } else{
+                    adds_to_string(&ifStatement,"int@");
+                    adds_to_string(&ifStatement,rule->rightOperand->text->str);
+                }
+                return ifStatement.str;
+
                 break;
             default:
                 break;
         }
+        }
     }
+
     return opV->name;
 }
 
@@ -416,8 +409,9 @@ char* Calc_Float_Expression(tExpressionNode *Rules,tLinkedList *func_variable_li
             opR = ChangeOperand(opR,"",rule->rightOperand->text->str,Float64Type,Frame_NaN);
         }
 
-        printf("DEFVAR %s\n",rule->placeHolder->text->str);fflush(stdout);
+
         opV = ChangeOperand(opV,rule->placeHolder->text->str,"",Float64Type,Frame_TF);
+        Instruction1(I_DEFVAR,*opV);
 
         switch(rule->operator->text->str[0])
         {
@@ -437,64 +431,30 @@ char* Calc_Float_Expression(tExpressionNode *Rules,tLinkedList *func_variable_li
                 Instruction3(I_IDIV,*opV,*opL,*opR);
                 break;
             case '>':
-                if(rule->operator->text->str[1] != '=')
-                {
-                    clear_str(&ifStatement);
-                    adds_to_string(&ifStatement,rule->leftOperand->text->str);
-                    adds_to_string(&ifStatement,rule->operator->text->str);
-                    adds_to_string(&ifStatement,rule->rightOperand->text->str);
-                    return ifStatement.str;
-                }
-                else
-                {
-                    clear_str(&ifStatement);
-                    adds_to_string(&ifStatement,rule->leftOperand->text->str);
-                    adds_to_string(&ifStatement,rule->operator->text->str);
-                    adds_to_string(&ifStatement,rule->rightOperand->text->str);
-                    return ifStatement.str;
-                }
-                break;
             case '<':
-                if(rule->operator->text->str[1] != '=')
-                {
-                    clear_str(&ifStatement);
-                    adds_to_string(&ifStatement,rule->leftOperand->text->str);
-                    adds_to_string(&ifStatement,rule->operator->text->str);
-                    adds_to_string(&ifStatement,rule->rightOperand->text->str);
-                    return ifStatement.str;
-                }
-                else
-                {
-                    clear_str(&ifStatement);
-                    adds_to_string(&ifStatement,rule->leftOperand->text->str);
-                    adds_to_string(&ifStatement,rule->operator->text->str);
-                    adds_to_string(&ifStatement,rule->rightOperand->text->str);
-                    return ifStatement.str;
-                }
-                break;
             case '=':
-                if(rule->operator->text->str[1] == '=')
-                {
-                    clear_str(&ifStatement);
-                    adds_to_string(&ifStatement,rule->leftOperand->text->str);
-                    adds_to_string(&ifStatement,rule->operator->text->str);
-                    adds_to_string(&ifStatement,rule->rightOperand->text->str);
-                    return ifStatement.str;
-                }
-                else
-                {}
-                break;
             case '!':
-                if(rule->operator->text->str[1] == '=')
+                clear_str(&ifStatement);
+                if(rule->leftOperand->type == tId)
                 {
-                    clear_str(&ifStatement);
+                    adds_to_string(&ifStatement,"LF@");
                     adds_to_string(&ifStatement,rule->leftOperand->text->str);
-                    adds_to_string(&ifStatement,rule->operator->text->str);
-                    adds_to_string(&ifStatement,rule->rightOperand->text->str);
-                    return ifStatement.str;
                 }
-                else
-                {}
+                else {
+                    adds_to_string(&ifStatement,"float@");
+                    adds_to_string(&ifStatement, rule->leftOperand->text->str);
+                }
+                adds_to_string(&ifStatement,rule->operator->text->str);
+                if(rule->rightOperand->type == tId)
+                {
+                    adds_to_string(&ifStatement,"LF@");
+                    adds_to_string(&ifStatement,rule->rightOperand->text->str);
+                } else{
+                    adds_to_string(&ifStatement,"float@");
+                    adds_to_string(&ifStatement,rule->rightOperand->text->str);
+                }
+                return ifStatement.str;
+
                 break;
             default:
                 break;
@@ -546,8 +506,9 @@ char* Calc_String_Expression(tExpressionNode *Rules,tLinkedList *func_variable_l
             opR = ChangeOperand(opR,"",rule->rightOperand->text->str,StringType,Frame_NaN);
         }
 
-        printf("DEFVAR %s\n",rule->placeHolder->text->str);fflush(stdout);
+
         opV = ChangeOperand(opV,rule->placeHolder->text->str,"",StringType,Frame_TF);
+        Instruction1(I_DEFVAR,*opV);
 
         switch(rule->operator->text->str[0])
         {
@@ -555,64 +516,30 @@ char* Calc_String_Expression(tExpressionNode *Rules,tLinkedList *func_variable_l
                 Instruction3(I_CONCAT,*opV,*opL,*opR);
                 break;
             case '>':
-                if(rule->operator->text->str[1] != '=')
-                {
-                    clear_str(&ifStatement);
-                    adds_to_string(&ifStatement,rule->leftOperand->text->str);
-                    adds_to_string(&ifStatement,rule->operator->text->str);
-                    adds_to_string(&ifStatement,rule->rightOperand->text->str);
-                    return ifStatement.str;
-                }
-                else
-                {
-                    clear_str(&ifStatement);
-                    adds_to_string(&ifStatement,rule->leftOperand->text->str);
-                    adds_to_string(&ifStatement,rule->operator->text->str);
-                    adds_to_string(&ifStatement,rule->rightOperand->text->str);
-                    return ifStatement.str;
-                }
-                break;
             case '<':
-                if(rule->operator->text->str[1] != '=')
-                {
-                    clear_str(&ifStatement);
-                    adds_to_string(&ifStatement,rule->leftOperand->text->str);
-                    adds_to_string(&ifStatement,rule->operator->text->str);
-                    adds_to_string(&ifStatement,rule->rightOperand->text->str);
-                    return ifStatement.str;
-                }
-                else
-                {
-                    clear_str(&ifStatement);
-                    adds_to_string(&ifStatement,rule->leftOperand->text->str);
-                    adds_to_string(&ifStatement,rule->operator->text->str);
-                    adds_to_string(&ifStatement,rule->rightOperand->text->str);
-                    return ifStatement.str;
-                }
-                break;
             case '=':
-                if(rule->operator->text->str[1] == '=')
-                {
-                    clear_str(&ifStatement);
-                    adds_to_string(&ifStatement,rule->leftOperand->text->str);
-                    adds_to_string(&ifStatement,rule->operator->text->str);
-                    adds_to_string(&ifStatement,rule->rightOperand->text->str);
-                    return ifStatement.str;
-                }
-                else
-                {}
-                break;
             case '!':
-                if(rule->operator->text->str[1] == '=')
+                clear_str(&ifStatement);
+                if(rule->leftOperand->type == tId)
                 {
-                    clear_str(&ifStatement);
+                    adds_to_string(&ifStatement,"LF@");
                     adds_to_string(&ifStatement,rule->leftOperand->text->str);
-                    adds_to_string(&ifStatement,rule->operator->text->str);
-                    adds_to_string(&ifStatement,rule->rightOperand->text->str);
-                    return ifStatement.str;
                 }
-                else
-                {}
+                else {
+                    adds_to_string(&ifStatement,"string@");
+                    adds_to_string(&ifStatement, rule->leftOperand->text->str);
+                }
+                adds_to_string(&ifStatement,rule->operator->text->str);
+                if(rule->rightOperand->type == tId)
+                {
+                    adds_to_string(&ifStatement,"LF@");
+                    adds_to_string(&ifStatement,rule->rightOperand->text->str);
+                } else{
+                    adds_to_string(&ifStatement,"string@");
+                    adds_to_string(&ifStatement,rule->rightOperand->text->str);
+                }
+                return ifStatement.str;
+
                 break;
             default:
                 break;
@@ -978,7 +905,8 @@ void print_function_assigment(tLinkedList *leftside, char* funcName,tPassedSide*
         Instruction2(I_MOVE,*opII,*retII);
     }
     else
-    {
+    {//MY FUNCTIONS
+
         int numberReturnVariables = StrLLLen(leftside);
         int numberInputVariables = PassedLLLen(params);
 
@@ -986,20 +914,26 @@ void print_function_assigment(tLinkedList *leftside, char* funcName,tPassedSide*
         tInstructionOperand *parI = CreateOperand("","",Unknown_type,Frame_NaN);
         tPassedNode *InputVariable;
         tPassedNode *InputParameter;
+
         for(int i = 0; i < numberInputVariables; i++)
         {
             InputVariable = PassedLLGetNode(variables,i);
             InputParameter = PassedLLGetNode(params,i);
 
 
+
             varI = ChangeOperand(varI, VarLLGetRealName(final_variables,InputVariable->value,funcName, NULL),"",InputVariable->data_type,Frame_LF);
+
             if(InputParameter->is_variable) {
+
                 parI = ChangeOperand(parI, VarLLGetRealName(final_variables, InputParameter->value, NULL, NULL), "",InputParameter->data_type, Frame_LF);
             }
             else {
+
                 parI = ChangeOperand(parI, "",InputParameter->value,InputParameter->data_type, Frame_NaN);
 
             }
+
             Instruction2(I_MOVE,*varI,*parI);
 
 
@@ -1110,8 +1044,9 @@ void print_if_begin(tExpressionNode* expList, tLinkedList *func_variable_list)
 
     tInstructionOperand *boolTmp = CreateOperand("boolTmp","",Unknown_type,Frame_TF);
     tInstructionOperand *boolTmp2 = CreateOperand("boolTmp2","",Unknown_type,Frame_TF);
-    tInstructionOperand *leftOp = CreateOperand(leftStr.str,"",Unknown_type,Frame_LF);
-    tInstructionOperand *rightOp = CreateOperand(rightStr.str,"",Unknown_type,Frame_LF);
+    tInstructionOperand *leftOp = CreateOperand(leftStr.str,"",Unknown_type,Frame_NaN);
+    tInstructionOperand *rightOp = CreateOperand(rightStr.str,"",Unknown_type,Frame_NaN);
+
 
     string specIf;      init_string(&specIf);
     string specElse;    init_string(&specElse);
@@ -1123,11 +1058,12 @@ void print_if_begin(tExpressionNode* expList, tLinkedList *func_variable_list)
     tInstructionOperand *boolFalse = CreateOperand("bool@false","",Unknown_type,Frame_NaN);
     //tInstructionOperand *boolTrue = CreateOperand("bool@true","",Unknown_type,Frame_NaN);
 
-    printf("LABEL %s",specIf.str);fflush(stdout);
+    printf("LABEL %s\n",specIf.str);fflush(stdout);
     printf("PUSHFRAME\n");fflush(stdout);
     printf("CREATEFRAME\n");fflush(stdout);
     printf("DEFVAR TF@boolTmp\n");fflush(stdout);
     printf("DEFVAR TF@boolTmp2\n");fflush(stdout);
+
 
     switch (middleOperand.str[0])
     {
@@ -1189,7 +1125,7 @@ void print_if_end(tLinkedList *func_variable_list)
 {
     string specIfEnd; init_string(&specIfEnd);
     adds_to_string(&specIfEnd,VarLLGetRealName(final_variables,"-ifend",NULL, func_variable_list));
-    printf("LABEL %s",specIfEnd.str);fflush(stdout);
+    printf("LABEL %s\n",specIfEnd.str);fflush(stdout);
     printf("POPFRAME\n");fflush(stdout);
     printf("#\n");fflush(stdout);
 }
@@ -1201,7 +1137,8 @@ void print_for_begin(tExpressionNode* expList, tLinkedList *leftsideAssigment, t
     //---------------------IF EXPRESSION-------------------------//
     string ifExpression;
     init_string(&ifExpression);
-
+    printf("%p %p %p\n",(void*)expList->first->leftOperand,(void*)expList->first->rightOperand,(void*)expList->first->operator);
+printf("%s %s %s\n",expList->first->leftOperand->text->str,expList->first->rightOperand->text->str,expList->first->operator->text->str);
     switch (expList->data_type)
     {
         case IntType:
@@ -1302,7 +1239,7 @@ void print_for_begin(tExpressionNode* expList, tLinkedList *leftsideAssigment, t
     printf("CREATEFRAME\n");fflush(stdout);
     printf("DEFVAR TF@boolTmp\n");fflush(stdout);
     printf("DEFVAR TF@boolTmp2\n");fflush(stdout);
-    printf("LABEL %s",specBeginFor.str);fflush(stdout);
+    printf("LABEL %s\n",specBeginFor.str);fflush(stdout);
 
     switch (middleOperand.str[0])
     {
