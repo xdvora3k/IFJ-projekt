@@ -11,6 +11,18 @@ extern string FUNC_NAME;
 extern tSymtable *GlobalFuncRoot;
 
 
+int str_cut(char *str, int begin, int len)
+{
+    int l = strlen(str);
+
+    if (len < 0) len = l - begin;
+    if (begin + len > l) len = l - begin;
+    memmove(str + begin, str + begin + len, l - len + 1);
+
+    return len;
+}
+
+
 void VarLLInit(tFinalList *L) {
     L->first = NULL;
 }
@@ -132,10 +144,10 @@ void define_built_in_variables(tFinalList* final_variables){
 
 void print_variable_declaration_Expression(tLinkedList *leftside, tExpressionList *rightside,
                                            tLinkedList *func_variable_list) {
-    /*printf("PUSHFRAME\n");
+    printf("PUSHFRAME\n");
     fflush(stdout);
     printf("CREATEFRAME\n");
-    fflush(stdout);*/
+    fflush(stdout);
 
     tInstructionOperand *left = CreateOperand("", "", Unknown_type, Frame_NaN);
     tInstructionOperand *right = CreateOperand("", "", Unknown_type, Frame_NaN);
@@ -166,8 +178,8 @@ void print_variable_declaration_Expression(tLinkedList *leftside, tExpressionLis
 
     Instruction1(I_DEFVAR, *left);
     Instruction2(I_MOVE, *left, *right);
-    /*printf("POPFRAME\n");
-    fflush(stdout);*/
+    printf("POPFRAME\n");
+    fflush(stdout);
 }
 
 void print_return_assignment(tExpressionList *rightside, char *funcName, tLinkedList *func_variable_list) {
@@ -1266,8 +1278,11 @@ void print_for_begin(tExpressionNode *expList, tLinkedList *leftsideAssigment, t
 
     tInstructionOperand *boolTmp = CreateOperand("boolTmp", "", Unknown_type, Frame_TF);
     tInstructionOperand *boolTmp2 = CreateOperand("boolTmp2", "", Unknown_type, Frame_TF);
-    tInstructionOperand *leftOp = CreateOperand(leftStr.str, "", Unknown_type, Frame_LF);
-    tInstructionOperand *rightOp = CreateOperand(rightStr.str, "", Unknown_type, Frame_LF);
+
+
+
+    tInstructionOperand *leftOp = CreateOperand(leftStr.str, "", Unknown_type, Frame_NaN);
+    tInstructionOperand *rightOp = CreateOperand(rightStr.str, "", Unknown_type, Frame_NaN);
 
     string specBeginFor;
     init_string(&specBeginFor);
@@ -1312,6 +1327,7 @@ void print_for_begin(tExpressionNode *expList, tLinkedList *leftsideAssigment, t
                 Instruction3(I_OR, *boolTmp, *boolTmp, *boolTmp2);
             } else {
                 //GT
+
                 Instruction3(I_GT, *boolTmp, *leftOp, *rightOp);
             }
             break;
