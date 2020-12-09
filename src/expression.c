@@ -95,6 +95,8 @@ tExpressionList* precedencSA(string *input, tExpressionList *expL, tLinkedList *
     tToken *inputToken = (tToken *)(StrLLLocateNthElem(tokens, index)->Content);
 
     topToken = findTerminalToken(&topOfStack);
+    int size = StrLLLen(tokens);
+
     do
     {
     
@@ -110,17 +112,16 @@ tExpressionList* precedencSA(string *input, tExpressionList *expL, tLinkedList *
                     rule = extractexpression(&topOfStack);
                     rule = applyrule(&topOfStack, rule, linkedL);
                     if(is_start){
+                        
                         CreateNode(rule, expL);
                         is_start = FALSE;
                     }
-                    if (rule.operator!= NULL)   
+                    if ((rule.operator!= NULL || (rule.typeOfRule == expIdentity && size == 1)) && rule.typeOfRule != expBrackets)   
                     {
-                        InsertList(rule, expL);
 
-                    }
-                   if(input->length == 1 ){
                         InsertList(rule, expL);
                     }
+                   
 
                   //  printRule(rule);
                    // printStack(&topOfStack);
