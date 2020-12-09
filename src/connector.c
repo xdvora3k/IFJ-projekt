@@ -175,17 +175,17 @@ void print_return_assignment( tExpressionList *rightside, char* funcName, tLinke
             case IntType:
                 printfS = Calc_Int_Expression(RightItem,func_variable_list);
                 opVar = ChangeOperand(opVar,returnVars,"",IntType,Frame_LF);
-                opVal = ChangeOperand(opVal,printfS,"",IntType,Frame_LF);
+                opVal = ChangeOperand(opVal,printfS,"",IntType,Frame_TF);
                 break;
             case Float64Type:
                 printfS = Calc_Float_Expression(RightItem,func_variable_list);
                 opVar = ChangeOperand(opVar,returnVars,"",Float64Type,Frame_LF);
-                opVal = ChangeOperand(opVal,printfS,"",Float64Type,Frame_LF);
+                opVal = ChangeOperand(opVal,printfS,"",Float64Type,Frame_TF);
                 break;
             case StringType:
                 printfS = Calc_String_Expression(RightItem,func_variable_list);
                 opVar = ChangeOperand(opVar,returnVars,"",StringType,Frame_LF);
-                opVal = ChangeOperand(opVal,printfS,"",StringType,Frame_LF);
+                opVal = ChangeOperand(opVal,printfS,"",StringType,Frame_TF);
                 break;
             case UnderscoreType:
                 break;
