@@ -771,10 +771,10 @@ void _process_if_call(tLinkedList *func_variable_list){
         }
         _process_one_line_and_follow(func_variable_list);
     }
-    print_else_begin(func_variable_list);
     // delete if layer
     TableLLDeleteFirst(func_variable_list);
     free(if_layer);
+    print_else_begin(func_variable_list);
     token = get_adjusted_token(&attr);
     // else is required after if
     if (strcmp(attr.str, "else")){
@@ -802,9 +802,9 @@ void _process_if_call(tLinkedList *func_variable_list){
     if (token != EOL){
         free_and_exit(SYN_ERROR, func_variable_list, NULL);
     }
-    print_if_end(func_variable_list);
     TableLLDeleteFirst(func_variable_list);
     free(else_layer);
+    print_if_end(func_variable_list);
 }
 
 void _process_for_cycle(tLinkedList *func_variable_list){

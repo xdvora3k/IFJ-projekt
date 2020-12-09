@@ -19,6 +19,7 @@ tFinalVariable* _search_for_variable(tFinalList *L, char* key){
     if (!L || !L->first){
         return NULL;
     }
+
     tFinalVariable *curr = L->first;
     while (curr && strcmp(curr->key, key)){
         curr = curr->next;
@@ -33,16 +34,13 @@ char* VarLLInsert(tFinalList *L, char* name, char* func_name, tLinkedList *func_
     if (!func_name){
         func_name = FUNC_NAME.str;
     }
+
     tFinalVariable *variable = malloc(sizeof(tFinalVariable));
     int malloc_size = strlen(name) + strlen(func_name) + 10;
     variable->key = malloc(malloc_size);
     int nests = TableLLGetNumOfNests(func_variable_list, name);
     if ((!strcmp(name, "-if") || !strcmp(name, "-else") || !strcmp(name,"-ifend") || !strcmp(name,"-forbegin") || !strcmp(name,"-forend")) && nests == -1){
         nests = TableLLLen(func_variable_list) - 1;
-//        if(!strcmp(name,"-forbegin") || !strcmp(name,"-forend"))
-//        {
-//            nests--;
-//        }
     }
     snprintf(variable->key, malloc_size, "%s_%s_%d", name, func_name, nests);
     tFinalVariable *last_found = _search_for_variable(L, name);
@@ -69,18 +67,21 @@ char* VarLLGetRealName(tFinalList *L, char* name, char* func_name, tLinkedList *
     if (!func_name){
         func_name = FUNC_NAME.str;
     }
+
+
     int nests;
-    char *key = malloc(strlen(name) + 10);
+    char *key = malloc(strlen(name) + strlen(func_name) + 10);
     if (func_variable_list) {
         nests = TableLLGetNumOfNests(func_variable_list, name);
     }
     else {
         nests = 1;
     }
-    if ((!strcmp(name, "-if") || !strcmp(name, "-else") || !strcmp(name,"-ifend") || !strcmp(name,"-forbegin") || !strcmp(name,"-forend")) && !nests){
+
+    if ((!strcmp(name, "-if") || !strcmp(name, "-else") || !strcmp(name,"-ifend") || !strcmp(name,"-forbegin") || !strcmp(name,"-forend")) && nests == -1){
         nests = TableLLLen(func_variable_list) - 1;
     }
-    snprintf(key, strlen(name) + 10, "%s_%s_%d", name, func_name, nests);
+    snprintf(key, strlen(name) + strlen(func_name) + 10, "%s_%s_%d", name, func_name, nests);
     tFinalVariable *var = _search_for_variable(L, key);
     if (!var){
         return NULL;
@@ -123,9 +124,6 @@ void print_variable_declaration_Expression(tLinkedList *leftside, tExpressionLis
     {
 
         // NELZE NAJÍT OPERAND N V TABULCE
-        printf("-%s-\n",rightside->first->first->leftOperand->text->str);
-        printf("-%s-\n",VarLLGetRealName(final_variables,rightside->first->first->leftOperand->text->str,NULL,func_variable_list));
-
 
         printfS = Calc_Int_Expression(rightside->first,func_variable_list);
         left = ChangeOperand(left,VarLLInsert(final_variables,leftside->first->Content, NULL, func_variable_list),"",IntType,Frame_LF);
@@ -267,8 +265,8 @@ char* Calc_Int_Expression(tExpressionNode *Rules,tLinkedList *func_variable_list
         rule = ExprLLGetNthRuleRule(Rules,i);
         string ruleLeftStr; init_string(&ruleLeftStr);
         string ruleRightStr; init_string(&ruleRightStr);
-        printf("%p\n",(void*)rule->leftOperand);
-        printf("* %s %p %p *\n",rule->rightOperand->text->str,(void*)rule->leftOperand,(void*)rule->operator);
+        //printf("%p\n",(void*)rule->leftOperand);
+        //printf("* %s %p %p *\n",rule->rightOperand->text->str,(void*)rule->leftOperand,(void*)rule->operator);
         if(!(void*)rule->leftOperand)
         {
             tInstructionOperand *rescueOp = CreateOperand("","",Unknown_type,Frame_NaN);
@@ -1115,6 +1113,8 @@ void print_else_begin(tLinkedList *func_variable_list)
 {
     string specIfEnd;   init_string(&specIfEnd);
     string specElse;    init_string(&specElse);
+
+    printf("*%s",VarLLGetRealName(final_variables,"-else",NULL,func_variable_list));
     adds_to_string(&specIfEnd,VarLLGetRealName(final_variables,"-ifend",NULL,func_variable_list));
     adds_to_string(&specElse,VarLLGetRealName(final_variables,"-else",NULL, func_variable_list));
     printf("JUMP %s\n",specIfEnd.str);fflush(stdout);
