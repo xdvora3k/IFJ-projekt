@@ -129,16 +129,38 @@ char *VarLLGetReturnRealName(char *func_name, int index) {
     return retval;
 }
 
+void preprint_variables_in_function(tBSTNodePtr node){
+    tDataFunction *func_node = node->Content;
+    for (int i = 0; i < StrLLLen(&func_node->paramNames); i++){
+        char *var_name = StrLLLocateNthElem(&func_node->paramNames, i)->Content;
+        printf("DEFVAR GF@%s\n", VarLLInsert(final_variables, var_name, node->Key, NULL));
+    }
+}
+
+void preprint_variables_in_functions(tBSTNodePtr node){
+    if (!node){
+        return;
+    }
+    if (node->LPtr){
+        preprint_variables_in_functions(node->LPtr);
+    }
+    if (node->RPtr){
+        preprint_variables_in_functions(node->RPtr);
+    }
+    preprint_variables_in_function(node);
+}
+
 void define_built_in_variables(tFinalList* final_variables){
-    printf("DEFVAR LF@%s\n", VarLLInsert(final_variables, "i", "int2float", NULL));
-    printf("DEFVAR LF@%s\n", VarLLInsert(final_variables, "f", "float2int", NULL));
-    printf("DEFVAR LF@%s\n", VarLLInsert(final_variables, "s", "len", NULL));
-    printf("DEFVAR LF@%s\n", VarLLInsert(final_variables, "s", "substr", NULL));
-    printf("DEFVAR LF@%s\n", VarLLInsert(final_variables, "i", "substr", NULL));
-    printf("DEFVAR LF@%s\n", VarLLInsert(final_variables, "n", "substr", NULL));
-    printf("DEFVAR LF@%s\n", VarLLInsert(final_variables, "s", "ord", NULL));
-    printf("DEFVAR LF@%s\n", VarLLInsert(final_variables, "i", "ord", NULL));
-    printf("DEFVAR LF@%s\n", VarLLInsert(final_variables, "i", "chr", NULL));
+    printf("DEFVAR GF@%s\n", VarLLInsert(final_variables, "i", "int2float", NULL));
+    printf("DEFVAR GF@%s\n", VarLLInsert(final_variables, "f", "float2int", NULL));
+    printf("DEFVAR GF@%s\n", VarLLInsert(final_variables, "s", "len", NULL));
+    printf("DEFVAR GF@%s\n", VarLLInsert(final_variables, "s", "substr", NULL));
+    printf("DEFVAR GF@%s\n", VarLLInsert(final_variables, "i", "substr", NULL));
+    printf("DEFVAR GF@%s\n", VarLLInsert(final_variables, "n", "substr", NULL));
+    printf("DEFVAR GF@%s\n", VarLLInsert(final_variables, "s", "ord", NULL));
+    printf("DEFVAR GF@%s\n", VarLLInsert(final_variables, "i", "ord", NULL));
+    printf("DEFVAR GF@%s\n", VarLLInsert(final_variables, "i", "chr", NULL));
+    preprint_variables_in_functions(GlobalFuncRoot->root);
     printf("CREATEFRAME\n");
 }
 
