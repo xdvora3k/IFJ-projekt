@@ -623,7 +623,7 @@ void inputi(tInstructionOperand o)
 {
     int size = strlen(_process_frame(&o)) + strlen(o.name) + strlen("READ  int") + 1;
     char *a = malloc(size);
-    snprintf(a, size, "READ %s@%s int", _process_frame(&o), o.name)
+    snprintf(a, size, "READ %s@%s int", _process_frame(&o), o.name);
     // TODO
 }
 
@@ -631,7 +631,7 @@ void inputs(tInstructionOperand o)
 {
     int size = strlen(_process_frame(&o)) + strlen(o.name) + strlen("READ  string") + 1;
     char *a = malloc(size);
-    snprintf(a, size, "READ %s@%s string", _process_frame(&o), o.name)
+    snprintf(a, size, "READ %s@%s string", _process_frame(&o), o.name);
     // TODO
 }
 
@@ -639,7 +639,7 @@ void inputf(tInstructionOperand o)
 {
     int size = strlen(_process_frame(&o)) + strlen(o.name) + strlen("READ  float") + 1;
     char *a = malloc(size);
-    snprintf(a, size, "READ %s@%s float", _process_frame(&o), o.name)
+    snprintf(a, size, "READ %s@%s float", _process_frame(&o), o.name);
     // TODO
 }
 
@@ -1055,136 +1055,172 @@ void Print_BuiltIn_Functions(tLinkedList *instructions)
 {
     StrLLInsert(instructions, "IFJcode20");
     StrLLInsert(instructions, "JUMP $$main");
+    StrLLInsert(instructions, "LABEL $inputi");
+
+    StrLLInsert(instructions, "PUSHFRAME");
+    StrLLInsert(instructions, "READ GF@-retvalInt_inputi_0 int");
+    StrLLInsert(instructions, "POPFRAME");
+    StrLLInsert(instructions, "RETURN");
+    StrLLInsert(instructions, "LABEL $inputi");
+    StrLLInsert(instructions, "LABEL $inputi");
+    StrLLInsert(instructions, "LABEL $inputi");
 
     //printf inputi
-    printf("LABEL $inputi\n"
-           "PUSHFRAME\n"
-           "READ GF@-retvalInt_inputi_0 int\n"
-           "POPFRAME\n"
-           "RETURN\n\n");
     fflush(stdout);
 
+    StrLLInsert(instructions, "LABEL $inputf");
+    StrLLInsert(instructions, "PUSHFRAME");
+    StrLLInsert(instructions, "READ GF@-retvalFloat_inputf_0 float");
+    StrLLInsert(instructions, "POPFRAME");
+    StrLLInsert(instructions, "RETURN");
+    
     //printf inputf
-    printf("LABEL $inputf\n"
-           "PUSHFRAME\n"
-           "READ GF@-retvalFloat_inputf_0 float\n"
-           "POPFRAME\n"
-           "RETURN\n\n");
-    fflush(stdout);
+
+
+    StrLLInsert(instructions, "LABEL $inputs");
+    StrLLInsert(instructions, "PUSHFRAME");
+    StrLLInsert(instructions, "READ GF@-retvalString_inputs_0 string");
+    StrLLInsert(instructions, "POPFRAME");
+    StrLLInsert(instructions, "RETURN");
+
 
     //printf inputs
-    printf("LABEL $inputs\n"
-           "PUSHFRAME\n"
-           "READ GF@-retvalString_inputs_0 string\n"
-           "POPFRAME\n"
-           "RETURN\n\n");
-    fflush(stdout);
+
+
+    StrLLInsert(instructions, "LABEL $int2float");
+    StrLLInsert(instructions, "PUSHFRAME");
+    StrLLInsert(instructions, "INT2FLOAT GF@-retvalFloat_int2float_0 GF@i_int2float_1_0");
+    StrLLInsert(instructions, "POPFRAME");
+    StrLLInsert(instructions, "RETURN");
 
     //printf int2float
-    printf("LABEL $int2float\n"
-           "PUSHFRAME\n"
-           "INT2FLOAT GF@-retvalFloat_int2float_0 GF@i_int2float_1_0\n"
-           "POPFRAME\n"
-           "RETURN\n\n");
-    fflush(stdout);
+  
 
     //printf float2int
-    printf("LABEL $float2int\n"
-           "PUSHFRAME\n"
-           "FLOAT2INT GF@-retvalInt_float2int_0 GF@f_float2int_1_0\n"
-           "POPFRAME\n"
-           "RETURN\n\n");
-    fflush(stdout);
+
+    StrLLInsert(instructions, "LABEL $float2int");
+    StrLLInsert(instructions, "PUSHFRAME");
+    StrLLInsert(instructions, "FLOAT2INT GF@-retvalInt_float2int_0 GF@f_float2int_1_0");
+    StrLLInsert(instructions, "POPFRAME");
+    StrLLInsert(instructions, "RETURN");
+
+
 
     //Print len
-    printf("LABEL $len\n"
-           "PUSHFRAME\n"
-           "STRLEN GF@-retvalInt_len_0 GF@s_len_1_0\n"
-           "POPFRAME \n"
-           "RETURN\n\n");
-    fflush(stdout);
+    StrLLInsert(instructions, "LABEL $len");
+    StrLLInsert(instructions, "PUSHFRAME");
+    StrLLInsert(instructions, "STRLEN GF@-retvalInt_len_0 GF@s_len_1_0");
+    StrLLInsert(instructions, "POPFRAME");
+    StrLLInsert(instructions, "RETURN");
+
 
 
     //print substr
-    printf("LABEL $substr\n"
-           "PUSHFRAME\n"
-           "MOVE GF@-retvalString_substr_0 string@\n"
-           "CREATEFRAME\n"
-           "DEFVAR TF@s\n"
-           "MOVE TF@s GF@substr_s\n"
-           "CALL $len\n"
-           "MOVE GF@substr_length GF@-retvalInt_len_0\n"
-           "LT GF@ret_substr GF@substr_length int@0\n"
-           "JUMPIFEQ $substr$return GF@ret_substr bool@true\n"
-           "EQ GF@ret_substr GF@substr_length int@0\n"
-           "JUMPIFEQ $substr$return GF@ret_substr bool@true\n"
-           "LT GF@ret_substr GF@substr_i int@0\n"
-           "JUMPIFEQ $substr$return GF@ret_substr bool@true\n"
-           "EQ GF@ret_substr GF@substr_i int@0\n"
-           "JUMPIFEQ $substr$return GF@ret_substr bool@true\n"
-           "GT GF@ret_substr GF@substr_i GF@substr_length\n"
-           "JUMPIFEQ $substr$return GF@ret_substr bool@true\n"
-           "EQ GF@ret_substr GF@substr_n int@0\n"
-           "JUMPIFEQ $substr$return GF@ret_substr bool@true\n"
-           "MOVE GF@max_substr GF@substr_length\n"
-           "SUB GF@max_substr GF@max_substr GF@substr_i\n"
-           "ADD GF@max_substr GF@max_substr int@1\n"
-           "LT GF@edit GF@substr_n int@0\n"
-           "JUMPIFEQ $substr$edit GF@edit bool@true\n"
-           "GT GF@edit GF@substr_n GF@max_substr\n"
-           "JUMPIFEQ $substr$edit GF@edit bool@true\n"
-           "JUMP $substr$process\n"
-           "LABEL $substr$edit\n"
-           "MOVE GF@substr_n GF@max_substr\n"
-           "LABEL $substr$process\n"
-           "MOVE GF@index_substr GF@substr_i\n"
-           "SUB GF@index_substr GF@index_substr int@1\n"
-           "DEFVAR GF@char\n"
-           "DEFVAR GF@processloop\n"
-           "LABEL $substr$loop\n"
-           "GETCHAR GF@char GF@substr_s GF@index_substr\n"
-           "CONCAT GF@-retvalString_substr_0 GF@-retvalString_substr_0 GF@char\n"
-           "ADD GF@index_substr GF@index_substr int@1\n"
-           "SUB GF@substr_n GF@substr_n int@1\n"
-           "GT GF@processloop GF@substr_n int@0\n"
-           "JUMPIFEQ $substr$loop GF@processloop bool@true\n"
-           "LABEL $substr$return\n"
-           "POPFRAME\n"
-           "RETURN\n\n");
-    fflush(stdout);
+
+    StrLLInsert(instructions, "LABEL $substr");
+    StrLLInsert(instructions, "PUSHFRAME");
+    StrLLInsert(instructions, "MOVE GF@-retvalString_substr_0 string@");
+    StrLLInsert(instructions, "CREATEFRAME");
+    StrLLInsert(instructions, "DEFVAR TF@s");
+
+    StrLLInsert(instructions, "MOVE TF@s GF@substr_s");
+    StrLLInsert(instructions, "CALL $len");
+    StrLLInsert(instructions, "MOVE GF@substr_length GF@-retvalInt_len_0");
+    StrLLInsert(instructions, "LT GF@ret_substr GF@substr_length int@0");
+    StrLLInsert(instructions, "JUMPIFEQ $substr$return GF@ret_substr bool@true");
+
+
+    StrLLInsert(instructions, "EQ GF@ret_substr GF@substr_length int@0");
+    StrLLInsert(instructions, "JUMPIFEQ $substr$return GF@ret_substr bool@true");
+    StrLLInsert(instructions, "LT GF@ret_substr GF@substr_i int@0");
+    StrLLInsert(instructions, "JUMPIFEQ $substr$return GF@ret_substr bool@true");
+    StrLLInsert(instructions, "EQ GF@ret_substr GF@substr_i int@0");
+
+
+    StrLLInsert(instructions, "JUMPIFEQ $substr$return GF@ret_substr bool@true");
+    StrLLInsert(instructions, "GT GF@ret_substr GF@substr_i GF@substr_length");
+    StrLLInsert(instructions, "JUMPIFEQ $substr$return GF@ret_substr bool@true");
+    StrLLInsert(instructions, "EQ GF@ret_substr GF@substr_n int@0");
+    StrLLInsert(instructions, "JUMPIFEQ $substr$return GF@ret_substr bool@true");
+
+
+    StrLLInsert(instructions, "MOVE GF@max_substr GF@substr_length");
+    StrLLInsert(instructions, "SUB GF@max_substr GF@max_substr GF@substr_i");
+    StrLLInsert(instructions, "ADD GF@max_substr GF@max_substr int@1");
+    StrLLInsert(instructions, "LT GF@edit GF@substr_n int@0");
+    StrLLInsert(instructions, "JUMPIFEQ $substr$edit GF@edit bool@true");
+
+
+    StrLLInsert(instructions, "GT GF@edit GF@substr_n GF@max_substr");
+    StrLLInsert(instructions, "JUMPIFEQ $substr$edit GF@edit bool@true");
+    StrLLInsert(instructions, "JUMP $substr$process");
+    StrLLInsert(instructions, "LABEL $substr$edit");
+    StrLLInsert(instructions, "MOVE GF@substr_n GF@max_substr");
+
+
+    StrLLInsert(instructions, "LABEL $substr$process");
+    StrLLInsert(instructions, "MOVE GF@index_substr GF@substr_i");
+    StrLLInsert(instructions, "SUB GF@index_substr GF@index_substr int@1");
+    StrLLInsert(instructions, "DEFVAR GF@char");
+    StrLLInsert(instructions, "DEFVAR GF@processloop");
+
+
+    StrLLInsert(instructions, "LABEL $substr$loop");
+    StrLLInsert(instructions, "GETCHAR GF@char GF@substr_s GF@index_substr");
+    StrLLInsert(instructions, "CONCAT GF@-retvalString_substr_0 GF@-retvalString_substr_0 GF@char");
+    StrLLInsert(instructions, "ADD GF@index_substr GF@index_substr int@1");
+    StrLLInsert(instructions, "SUB GF@substr_n GF@substr_n int@1");
+
+
+    StrLLInsert(instructions, "GT GF@processloop GF@substr_n int@0");
+    StrLLInsert(instructions, "JUMPIFEQ $substr$loop GF@processloop bool@true");
+    StrLLInsert(instructions, "LABEL $substr$return");
+    StrLLInsert(instructions, "POPFRAME");
+    StrLLInsert(instructions, "RETURN");
+
+    
 
     //printf chr
-    printf("LABEL $chr\n"
-           "PUSHFRAME\n"
-           "MOVE GF@-retvalString_chr_0 string@\n"
-           "LT GF@-retvalInt_chr_1 GF@i_chr_1_0 int@0\n"
-           "JUMPIFEQ $chr$return GF@-retvalInt_chr_1 bool@true\n"
-           "GT GF@cond GF@i_chr_1_0 int@255\n"
-           "JUMPIFEQ $chr$return GF@-retvalInt_chr_1 bool@true\n"
-           "INT2CHAR GF@-retvalString_chr_0 GF@i_chr_1_0\n"
-           "LABEL $chr$return\n"
-           "POPFRAME\n"
-           "RETURN\n\n");
-    fflush(stdout);
+
+    StrLLInsert(instructions, "LABEL $chr");
+    StrLLInsert(instructions, "PUSHFRAME");
+    StrLLInsert(instructions, "MOVE GF@-retvalString_chr_0 string@");
+    StrLLInsert(instructions, "LT GF@-retvalInt_chr_1 GF@i_chr_1_0 int@0");
+    StrLLInsert(instructions, "JUMPIFEQ $chr$return GF@-retvalInt_chr_1 bool@true");
+
+
+    StrLLInsert(instructions, "GT GF@cond GF@i_chr_1_0 int@255");
+    StrLLInsert(instructions, "JUMPIFEQ $chr$return GF@-retvalInt_chr_1 bool@true");
+    StrLLInsert(instructions, "INT2CHAR GF@-retvalString_chr_0 GF@i_chr_1_0");
+    StrLLInsert(instructions, "LABEL $chr$return");
+    StrLLInsert(instructions, "POPFRAME");
+    StrLLInsert(instructions, "RETURN");
+
+ 
 
     //printf ord
-    printf("LABEL $ord\n"
-           "PUSHFRAME\n"
-           "MOVE GF@-retvalInt_ord_0 int@0\n"
-           "LT GF@-retvalInt_ord_1 GF@s_ord_1_0 int@0\n"
-           "JUMPIFEQ $ord$return GF@-retvalInt_ord_1 bool@true\n"
-           "CREATEFRAME\n"
-           "MOVE GF@s_len_1_0 GF@s_ord_1_0\n"
-           "CALL $len\n"
-           "MOVE GF@length_ord GF@-retvalInt_len_0\n"
-           "GT GF@-retvalInt_ord_1 GF@s_len_1_0 GF@length_ord\n"
-           "JUMPIFEQ $ord$return GF@-retvalInt_ord_1 bool@true\n"
-           "SUB GF@i_ord_1_0 GF@s_len_1_0 int@1\n"
-           "STRI2INT GF@-retvalInt_ord_0 GF@s_ord_1_0 GF@s_len_1_0\n"
-           "LABEL $ord$return\n"
-           "POPFRAME\n"
-           "RETURN\n\n");
-    fflush(stdout);
+
+
+    StrLLInsert(instructions, "LABEL $ord");
+    StrLLInsert(instructions, "PUSHFRAME");
+    StrLLInsert(instructions, "MOVE GF@-retvalInt_ord_0 int@0");
+    StrLLInsert(instructions, "LT GF@-retvalInt_ord_1 GF@s_ord_1_0 int@0");
+    StrLLInsert(instructions, "JUMPIFEQ $ord$return GF@-retvalInt_ord_1 bool@true");
+    StrLLInsert(instructions, "CREATEFRAME");
+
+
+    StrLLInsert(instructions, "MOVE GF@s_len_1_0 GF@s_ord_1_0");
+    StrLLInsert(instructions, "CALL $len");
+    StrLLInsert(instructions, "MOVE GF@length_ord GF@-retvalInt_len_0");
+    StrLLInsert(instructions, "GT GF@-retvalInt_ord_1 GF@s_len_1_0 GF@length_ord");
+    StrLLInsert(instructions, "JUMPIFEQ $ord$return GF@-retvalInt_ord_1 bool@true");
+    StrLLInsert(instructions, "SUB GF@i_ord_1_0 GF@s_len_1_0 int@1");
+
+
+    StrLLInsert(instructions, "STRI2INT GF@-retvalInt_ord_0 GF@s_ord_1_0 GF@s_len_1_0");
+    StrLLInsert(instructions, "LABEL $ord$return");
+    StrLLInsert(instructions, "POPFRAME");
+    StrLLInsert(instructions, "RETURN");
 
 
 }
