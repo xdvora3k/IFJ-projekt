@@ -5,7 +5,7 @@
  */
 
 #include "ilist.h"
-
+extern tLinkedList *instructions;
 
 void StrLLInit(tLinkedList *L){
     L->first = NULL;
@@ -621,78 +621,259 @@ char* _process_frame(tInstructionOperand *o){
 
 void inputi(tInstructionOperand o)
 {
-    printf("READ %s@%s int\n", _process_frame(&o), o.name);
-    fflush(stdout);
+    int size = strlen(_process_frame(&o)) + strlen(o.name) + strlen("READ  int") + 1;
+    char *a = malloc(size);
+    snprintf(a, size, "READ %s@%s int", _process_frame(&o), o.name)
+    // TODO
 }
 
 void inputs(tInstructionOperand o)
 {
-    printf("READ %s@%s int\n", _process_frame(&o), o.name);
-    fflush(stdout);
+    int size = strlen(_process_frame(&o)) + strlen(o.name) + strlen("READ  string") + 1;
+    char *a = malloc(size);
+    snprintf(a, size, "READ %s@%s string", _process_frame(&o), o.name)
+    // TODO
 }
 
 void inputf(tInstructionOperand o)
 {
-    printf("READ %s@%s int\n", _process_frame(&o), o.name);
-    fflush(stdout);
+    int size = strlen(_process_frame(&o)) + strlen(o.name) + strlen("READ  float") + 1;
+    char *a = malloc(size);
+    snprintf(a, size, "READ %s@%s float", _process_frame(&o), o.name)
+    // TODO
 }
 
-void Instr_I_MOVE(tInstr i){            printf("MOVE %s %s\n",i.addr1,i.addr2);fflush(stdout);}
-void Instr_I_CREATEFRAME(){             printf("CREATEFRAME\n");fflush(stdout);}
-void Instr_I_PUSHFRAME(){               printf("PUSHFRAME\n");fflush(stdout);}
-void Instr_I_POPFRAME(){                printf("POPFRAME\n");fflush(stdout);}
-void Instr_I_DEFVAR(tInstr i){          printf("DEFVAR %s\n",i.addr1);fflush(stdout);}
-void Instr_I_CALL(tInstr i){            printf("LABEL %s\n",i.addr1);fflush(stdout);}
-void Instr_I_RETURN(){                  printf("RETURN\n");fflush(stdout);}
-void Instr_I_PUSHS(tInstr i){           printf("PUSHS %s\n",i.addr1);fflush(stdout);}
-void Instr_I_POPS(tInstr i){            printf("POPS %s\n",i.addr1);fflush(stdout);}
+void Instr_I_MOVE(tInstr i){
+    int size = strlen(i.addr1) + strlen(i.addr2) + strlen("MOVE  ") + 1;
+    char *a = malloc(size);
+    snprintf(a, size, "MOVE %s %s", i.addr1, i.addr2);
+    // TODO
+}
+void Instr_I_CREATEFRAME(){             char *a = "CREATEFRAME";}
+void Instr_I_PUSHFRAME(){               char *a = "PUSHFRAME";}
+void Instr_I_POPFRAME(){                char *a = "POPFRAME";}
+void Instr_I_DEFVAR(tInstr i){
+    int size = strlen(i.addr1) + strlen("DEFVAR ") + 1;
+    char *a = malloc(size);
+    snprintf(a, size, "DEFVAR %s", i.addr1);
+    // TODO
+}
+void Instr_I_CALL(tInstr i){
+    int size = strlen(i.addr1) + strlen("LABEL ") + 1;
+    char *a = malloc(size);
+    snprintf(a, size, "LABEL %s", i.addr1);
+    // TODO
+}
+void Instr_I_RETURN(){                  char *a = "RETURN";}
+void Instr_I_PUSHS(tInstr i){
+    int size = strlen(i.addr1) + strlen("PUSHS ") + 1;
+    char *a = malloc(size);
+    snprintf(a, size, "PUSHS %s", i.addr1);
+    // TODO
+}
+void Instr_I_POPS(tInstr i){
+    int size = strlen(i.addr1) + strlen("POPS ") + 1;
+    char *a = malloc(size);
+    snprintf(a, size, "POPS %s", i.addr1);
+    // TODO
+}
 void Instr_I_CLEARS(){                  printf("CLEARS\n");fflush(stdout);}
-void Instr_I_ADD(tInstr i){             printf("ADD %s %s %s\n",i.addr1,i.addr2,i.addr3);fflush(stdout);}
-void Instr_I_SUB(tInstr i){             printf("SUB %s %s %s\n",i.addr1,i.addr2,i.addr3);fflush(stdout);}
-void Instr_I_MUL(tInstr i){             printf("MUL %s %s %s\n",i.addr1,i.addr2,i.addr3);fflush(stdout);}
-void Instr_I_DIV(tInstr i){             printf("DIV %s %s %s\n",i.addr1,i.addr2,i.addr3);fflush(stdout);}
-void Instr_I_IDIV(tInstr i){            printf("IDIV %s %s %s\n",i.addr1,i.addr2,i.addr3);fflush(stdout);}
-void Instr_I_ADDS(){                    printf("ADDS\n");fflush(stdout);}
-void Instr_I_SUBS(){                    printf("SUBS\n");fflush(stdout);}
-void Instr_I_MULS(){                    printf("MULS\n");fflush(stdout);}
-void Instr_I_DIVS(){                    printf("DIVS\n");fflush(stdout);}
-void Instr_I_IDIVS(){                   printf("IDIVS\n");fflush(stdout);}
-void Instr_I_LT(tInstr i){              printf("LT %s %s %s\n",i.addr1,i.addr2,i.addr3);fflush(stdout);}
-void Instr_I_GT(tInstr i){              printf("GT %s %s %s\n",i.addr1,i.addr2,i.addr3);fflush(stdout);}
-void Instr_I_EQ(tInstr i){              printf("EQ %s %s %s\n",i.addr1,i.addr2,i.addr3);fflush(stdout);}
-void Instr_I_LTS(){                     printf("LTS\n");fflush(stdout);}
-void Instr_I_GTS(){                     printf("GTS\n");fflush(stdout);}
-void Instr_I_EQS(){                     printf("EQS\n");fflush(stdout);}
-void Instr_I_AND(tInstr i){             printf("AND %s %s %s\n",i.addr1,i.addr2,i.addr3);fflush(stdout);}
-void Instr_I_OR(tInstr i){              printf("OR %s %s %s\n",i.addr1,i.addr2,i.addr3);fflush(stdout);}
-void Instr_I_NOT(tInstr i){             printf("NOT %s %s %s\n",i.addr1,i.addr2,i.addr3);fflush(stdout);}
-void Instr_I_ANDS(){                    printf("ANDS\n");fflush(stdout);}
-void Instr_I_ORS(){                     printf("ORS\n");fflush(stdout);}
-void Instr_I_NOTS(){                    printf("NOTS\n");fflush(stdout);}
-void Instr_I_FLOAT2INT(tInstr i){       printf("FLOAT2INT %s %s\n",i.addr1,i.addr2);fflush(stdout);}
-void Instr_I_INT2FLOAT(tInstr i){       printf("INT2FLOAT %s %s\n",i.addr1,i.addr2);fflush(stdout);}
-void Instr_I_INT2CHAR(tInstr i){        printf("INT2CHAR %s %s\n",i.addr1,i.addr2);fflush(stdout);}
-void Instr_I_STRI2INT(tInstr i){        printf("STRI2INT %s %s %s\n",i.addr1,i.addr2,i.addr3);fflush(stdout);}
-void Instr_I_INT2FLOATS(){              printf("INT2FLOATS\n");fflush(stdout);}
-void Instr_I_FLOAT2INTS(){              printf("FLOAT2INTS\n");fflush(stdout);}
-void Instr_I_INT2CHARS(){               printf("INT2CHARS\n");fflush(stdout);}
-void Instr_I_STRI2INTS(){               printf("STRI2INTS\n");fflush(stdout);}
-void Instr_I_READ(tInstr i){            printf("READ %s %s\n",i.addr1,i.addr2);fflush(stdout);}
-void Instr_I_WRITE(tInstr i){           printf("WRITE %s\n",i.addr1);fflush(stdout);}
-void Instr_I_CONCAT(tInstr i){          printf("CONCAT %s %s %s\n",i.addr1,i.addr2,i.addr3);fflush(stdout);}
-void Instr_I_STRLEN(tInstr i){          printf("STRLEN %s %s\n",i.addr1,i.addr2);fflush(stdout);}
-void Instr_I_GETCHAR(tInstr i){         printf("GETCHAR %s %s %s\n",i.addr1,i.addr2,i.addr3);fflush(stdout);}
-void Instr_I_SETCHAR(tInstr i){         printf("SETCHAR %s %s %s\n",i.addr1,i.addr2,i.addr3);fflush(stdout);}
-void Instr_I_TYPE(tInstr i){            printf("TYPE %s %s\n",i.addr1,i.addr2);fflush(stdout);}
-void Instr_I_LABEL(tInstr i){           printf("LABEL %s\n",i.addr1);fflush(stdout);}
-void Instr_I_JUMP(tInstr i){            printf("JUMP %s\n",i.addr1);fflush(stdout);}
-void Instr_I_JUMPIFEQ(tInstr i){        printf("JUMPIFEQ %s %s %s\n",i.addr1,i.addr2,i.addr3);fflush(stdout);}
-void Instr_I_JUMPIFNEQ(tInstr i){       printf("JUMPIFNEQ %s %s %s\n",i.addr1,i.addr2,i.addr3);fflush(stdout);}
-void Instr_I_JUMPIFEQS(tInstr i){       printf("JUMPIFEQS %s\n",i.addr1);fflush(stdout);}
-void Instr_I_JUMPIFNEQS(tInstr i){      printf("JUMPIFNEQS %s\n",i.addr1);fflush(stdout);}
-void Instr_I_EXIT(tInstr i){            printf("EXIT %s\n",i.addr1);fflush(stdout);}
-void Instr_I_BREAK(){                   printf("BREAK\n");fflush(stdout);}
-void Instr_I_DPRINT(tInstr i){          printf("DPRINT %s\n",i.addr1);fflush(stdout);}
+void Instr_I_ADD(tInstr i){
+    int size = strlen(i.addr1) + strlen(i.addr2) + strlen(i.addr3) + strlen("ADD   ") + 1;
+    char *a = malloc(size);
+    snprintf(a, size, "ADD %s %s %s", i.addr1, i.addr2, i.addr3);
+    // TODO
+}
+void Instr_I_SUB(tInstr i) {
+    int size = strlen(i.addr1) + strlen(i.addr2) + strlen(i.addr3) + strlen("SUB   ") + 1;
+    char *a = malloc(size);
+    snprintf(a, size, "SUB %s %s %s", i.addr1, i.addr2, i.addr3);
+    // TODO
+}
+void Instr_I_MUL(tInstr i){
+    int size = strlen(i.addr1) + strlen(i.addr2) + strlen(i.addr3) + strlen("MUL   ") + 1;
+    char *a = malloc(size);
+    snprintf(a, size, "MUL %s %s %s", i.addr1, i.addr2, i.addr3);
+    // TODO
+}
+void Instr_I_DIV(tInstr i){
+    int size = strlen(i.addr1) + strlen(i.addr2) + strlen(i.addr3) + strlen("DIV   ") + 1;
+    char *a = malloc(size);
+    snprintf(a, size, "DIV %s %s %s", i.addr1, i.addr2, i.addr3);
+    // TODO
+}
+void Instr_I_IDIV(tInstr i) {
+    int size = strlen(i.addr1) + strlen(i.addr2) + strlen(i.addr3) + strlen("IDIV   ") + 1;
+    char *a = malloc(size);
+    snprintf(a, size, "IDIV %s %s %s", i.addr1, i.addr2, i.addr3);
+    // TODO
+}
+void Instr_I_ADDS(){                    char *a = "ADDS";}
+void Instr_I_SUBS(){                    char *a = "SUBS";}
+void Instr_I_MULS(){                    char *a = "MULS";}
+void Instr_I_DIVS(){                    char *a = "DIVS";}
+void Instr_I_IDIVS(){                   char *a = "IDIVS";}
+void Instr_I_LT(tInstr i){
+    int size = strlen(i.addr1) + strlen(i.addr2) + strlen(i.addr3) + strlen("LT   ") + 1;
+    char *a = malloc(size);
+    snprintf(a, size, "LT %s %s %s", i.addr1, i.addr2, i.addr3);
+    // TODO
+}
+void Instr_I_GT(tInstr i) {
+    int size = strlen(i.addr1) + strlen(i.addr2) + strlen(i.addr3) + strlen("GT   ") + 1;
+    char *a = malloc(size);
+    snprintf(a, size, "GT %s %s %s", i.addr1, i.addr2, i.addr3);
+    // TODO
+}
+void Instr_I_EQ(tInstr i) {
+    int size = strlen(i.addr1) + strlen(i.addr2) + strlen(i.addr3) + strlen("EQ   ") + 1;
+    char *a = malloc(size);
+    snprintf(a, size, "EQ %s %s %s", i.addr1, i.addr2, i.addr3);
+    // TODO
+}
+void Instr_I_LTS(){                     char *a = "LTS";}
+void Instr_I_GTS(){                     char *a = "GTS";}
+void Instr_I_EQS(){                     char *a = "EQS";}
+void Instr_I_AND(tInstr i) {
+    int size = strlen(i.addr1) + strlen(i.addr2) + strlen(i.addr3) + strlen("AND   ") + 1;
+    char *a = malloc(size);
+    snprintf(a, size, "AND %s %s %s", i.addr1, i.addr2, i.addr3);
+    // TODO
+}
+void Instr_I_OR(tInstr i) {
+    int size = strlen(i.addr1) + strlen(i.addr2) + strlen(i.addr3) + strlen("OR   ") + 1;
+    char *a = malloc(size);
+    snprintf(a, size, "OR %s %s %s", i.addr1, i.addr2, i.addr3);
+    // TODO
+}
+void Instr_I_NOT(tInstr i) {
+    int size = strlen(i.addr1) + strlen(i.addr2) + strlen(i.addr3) + strlen("NOT   ") + 1;
+    char *a = malloc(size);
+    snprintf(a, size, "NOT %s %s %s", i.addr1, i.addr2, i.addr3);
+    // TODO
+}
+void Instr_I_ANDS(){                    char *a = "ANDS";}
+void Instr_I_ORS(){                     char *a = "ORS";}
+void Instr_I_NOTS(){                    char *a = "NOTS";}
+void Instr_I_FLOAT2INT(tInstr i) {
+    int size = strlen(i.addr1) + strlen(i.addr2) + strlen("FLOAT2INT   ") + 1;
+    char *a = malloc(size);
+    snprintf(a, size, "FLOAT2INT %s %s", i.addr1, i.addr2);
+    // TODO
+}
+void Instr_I_INT2FLOAT(tInstr i) {
+    int size = strlen(i.addr1) + strlen(i.addr2) + strlen("INT2FLOAT   ") + 1;
+    char *a = malloc(size);
+    snprintf(a, size, "INT2FLOAT %s %s", i.addr1, i.addr2);
+    // TODO
+}
+void Instr_I_INT2CHAR(tInstr i) {
+    int size = strlen(i.addr1) + strlen(i.addr2) + strlen("INT2CHAR   ") + 1;
+    char *a = malloc(size);
+    snprintf(a, size, "INT2CHAR %s %s", i.addr1, i.addr2);
+    // TODO
+}
+void Instr_I_STRI2INT(tInstr i) {
+    int size = strlen(i.addr1) + strlen(i.addr2) + strlen(i.addr3) + strlen("STRI2INT   ") + 1;
+    char *a = malloc(size);
+    snprintf(a, size, "STRI2INT %s %s %s", i.addr1, i.addr2, i.addr3);
+    // TODO
+}
+void Instr_I_INT2FLOATS(){              char *a = "INT2FLOATS";}
+void Instr_I_FLOAT2INTS(){              char *a = "FLOAT2INTS";}
+void Instr_I_INT2CHARS(){               char *a = "INT2CHARS";}
+void Instr_I_STRI2INTS(){               char *a = "STRI2INTS";}
+void Instr_I_READ(tInstr i){
+    int size = strlen(i.addr1) + strlen(i.addr2) + strlen("READ   ") + 1;
+    char *a = malloc(size);
+    snprintf(a, size, "READ %s %s", i.addr1, i.addr2);
+    // TODO
+}
+void Instr_I_WRITE(tInstr i) {
+    int size = strlen(i.addr1) + strlen("WRITE  ") + 1;
+    char *a = malloc(size);
+    snprintf(a, size, "WRITE %s", i.addr1);
+    // TODO
+}
+void Instr_I_CONCAT(tInstr i) {
+    int size = strlen(i.addr1) + strlen(i.addr2) + strlen(i.addr3) + strlen("CONCAT   ") + 1;
+    char *a = malloc(size);
+    snprintf(a, size, "CONCAT %s %s %s", i.addr1, i.addr2, i.addr3);
+    // TODO
+}
+void Instr_I_STRLEN(tInstr i){
+    int size = strlen(i.addr1) + strlen(i.addr2) + strlen("STRLEN   ") + 1;
+    char *a = malloc(size);
+    snprintf(a, size, "STRLEN %s %s", i.addr1, i.addr2);
+    // TODO
+}
+void Instr_I_GETCHAR(tInstr i) {
+    int size = strlen(i.addr1) + strlen(i.addr2) + strlen(i.addr3) + strlen("GETCHAR   ") + 1;
+    char *a = malloc(size);
+    snprintf(a, size, "GETCHAR %s %s %s", i.addr1, i.addr2, i.addr3);
+    // TODO
+}
+void Instr_I_SETCHAR(tInstr i) {
+    int size = strlen(i.addr1) + strlen(i.addr2) + strlen(i.addr3) + strlen("SETCHAR   ") + 1;
+    char *a = malloc(size);
+    snprintf(a, size, "SETCHAR %s %s %s", i.addr1, i.addr2, i.addr3);
+    // TODO
+}
+void Instr_I_TYPE(tInstr i) {
+    int size = strlen(i.addr1) + strlen(i.addr2) + strlen("TYPE   ") + 1;
+    char *a = malloc(size);
+    snprintf(a, size, "TYPE %s %s", i.addr1, i.addr2);
+    // TODO
+}
+void Instr_I_LABEL(tInstr i) {
+    int size = strlen(i.addr1) + strlen("LABEL  ") + 1;
+    char *a = malloc(size);
+    snprintf(a, size, "LABEL %s", i.addr1);
+    // TODO
+}
+void Instr_I_JUMP(tInstr i) {
+    int size = strlen(i.addr1) + strlen("JUMP  ") + 1;
+    char *a = malloc(size);
+    snprintf(a, size, "JUMP %s", i.addr1);
+    // TODO
+}
+void Instr_I_JUMPIFEQ(tInstr i) {
+    int size = strlen(i.addr1) + strlen(i.addr2) + strlen(i.addr3) + strlen("JUMPIFEQ   ") + 1;
+    char *a = malloc(size);
+    snprintf(a, size, "JUMPIFEQ %s %s %s", i.addr1, i.addr2, i.addr3);
+    // TODO
+}
+void Instr_I_JUMPIFNEQ(tInstr i) {
+    int size = strlen(i.addr1) + strlen(i.addr2) + strlen(i.addr3) + strlen("JUMPIFNEQ   ") + 1;
+    char *a = malloc(size);
+    snprintf(a, size, "JUMPIFNEQ %s %s %s", i.addr1, i.addr2, i.addr3);
+    // TODO
+}
+void Instr_I_JUMPIFEQS(tInstr i) {
+    int size = strlen(i.addr1) + strlen("JUMPIFEQS  ") + 1;
+    char *a = malloc(size);
+    snprintf(a, size, "JUMPIFEQS %s", i.addr1);
+    // TODO
+}
+void Instr_I_JUMPIFNEQS(tInstr i) {
+    int size = strlen(i.addr1) + strlen("JUMPIFNEQS  ") + 1;
+    char *a = malloc(size);
+    snprintf(a, size, "JUMPIFNEQS %s", i.addr1);
+    // TODO
+}
+void Instr_I_EXIT(tInstr i) {
+    int size = strlen(i.addr1) + strlen("EXIT  ") + 1;
+    char *a = malloc(size);
+    snprintf(a, size, "EXIT %s", i.addr1);
+    // TODO
+}
+void Instr_I_BREAK(){                   char *a = "BREAK";}
+void Instr_I_DPRINT(tInstr i) {
+    int size = strlen(i.addr1) + strlen("DPRINT  ") + 1;
+    char *a = malloc(size);
+    snprintf(a, size, "DPRINT %s", i.addr1);
+    // TODO
+}
 
 void InstructionPrint(tInstr i)
 {
@@ -870,18 +1051,15 @@ void InstructionPrint(tInstr i)
     }
 }
 
-void Print_BuiltIn_Functions()
+void Print_BuiltIn_Functions(tLinkedList *instructions)
 {
-    printf(".IFJcode20\n\n");
-    fflush(stdout);
-
-    printf("JUMP $$main\n\n");
-    fflush(stdout);
+    StrLLInsert(instructions, "IFJcode20");
+    StrLLInsert(instructions, "JUMP $$main");
 
     //printf inputi
     printf("LABEL $inputi\n"
            "PUSHFRAME\n"
-           "READ LGF@-retvalInt_inputi_0 int\n"
+           "READ GF@-retvalInt_inputi_0 int\n"
            "POPFRAME\n"
            "RETURN\n\n");
     fflush(stdout);

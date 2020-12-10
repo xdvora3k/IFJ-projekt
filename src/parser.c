@@ -10,6 +10,7 @@ tLinkedList *GlobalInstr;
 tState token;
 string attr;
 tFinalList *final_variables;
+tLinkedList *instructions;
 
 
 int for_header_state;
@@ -1024,11 +1025,6 @@ void skip_func_declaration(){
     }
 }
 
-void _print_function_defvar_param(char* var_name, char* func_name, tLinkedList *func_variable_list){
-    char* var_real_name = VarLLInsert(final_variables, var_name, func_name, func_variable_list);
-    printf("DEFVAR LF@%s\n", var_real_name);
-}
-
 void func_definition(){
     tBSTNodePtr func_node = SymTableSearch(GlobalFuncRoot, FUNC_NAME.str);
     tSymtable local_variables;
@@ -1052,24 +1048,6 @@ void func_definition(){
         tListItem *var_item = StrLLLocateNthElem(&((tDataFunction*) func_node->Content)->paramNames, i);
         tBSTNodePtr var_node = SymTableInsertVariable(&local_variables, (char*) var_item->Content);
         _insert_var_datatype(var_node, ((tDataFunction*) func_node->Content)->params.str[i]);
-        _print_function_defvar_param(var_node->Key, FUNC_NAME.str, &func_variable_list);
-    }
-
-    int num_of_return_types = ((tDataFunction*) func_node->Content)->returnType.length;
-    for (int i = 0; i < num_of_return_types; i++){
-        switch (((tDataFunction*) func_node->Content)->returnType.str[i]){
-            case 'i':
-                printf("DEFVAR LF@-retvalInt_%s_%d\n", FUNC_NAME.str, i);
-                break;
-            case 's':
-                printf("DEFVAR LF@-retvalString_%s_%d\n", FUNC_NAME.str, i);
-                break;
-            case 'f':
-                printf("DEFVAR LF@-retvalFloat_%s_%d\n", FUNC_NAME.str, i);
-                break;
-            default:
-                free_and_exit(INTERNAL_ERROR, &func_variable_list, NULL);
-        }
     }
 
     // Proceeding with parsing function body
@@ -1100,7 +1078,7 @@ void parse_func(){
             adds_to_string(&FUNC_NAME, attr.str);
             if (!strcmp(FUNC_NAME.str, "main")) {
                 print_Mainframe_begin();
-                define_built_in_variables(final_variables);
+                define_built_in_variables();
             }
             else {
                 print_function_begin(FUNC_NAME.str);
@@ -1177,16 +1155,16 @@ void program(){
     }
 }
 
-void parse(tSymtable *RootPtr, tLinkedList *Instr, tFinalList *FinalList){
+void parse(tSymtable *RootPtr, tLinkedList *Instr, tFinalList *FinalList, tLinkedList *instructions_list){
     GlobalFuncRoot = RootPtr;
     GlobalInstr = Instr;
     final_variables = FinalList;
+    instructions = instructions_list;
     if (init_string(&attr)){
         free_and_exit(INTERNAL_ERROR, NULL, NULL);
     }
     if (init_string(&FUNC_NAME)){
         free_and_exit(INTERNAL_ERROR, NULL, NULL);
     }
-
     program();
 }

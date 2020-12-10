@@ -17,8 +17,10 @@ int main() {
     InstrLLInit(&InstrList);
     tFinalList FinalList;
     VarLLInit(&FinalList);
+    tLinkedList instructions_list;
+    StrLLInit(&instructions_list);
     InsertBuiltInFuncs(&SymTable);
-    Print_BuiltIn_Functions();
+    Print_BuiltIn_Functions(&instructions_list);
 
-    parse(&SymTable, &InstrList, &FinalList);
+    parse(&SymTable, &InstrList, &FinalList, &instructions_list);
 }
