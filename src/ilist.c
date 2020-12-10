@@ -881,8 +881,7 @@ void Print_BuiltIn_Functions()
     //printf inputi
     printf("LABEL $inputi\n"
            "PUSHFRAME\n"
-           "DEFVAR LF@-retvalInt_inputi_0\n"
-           "READ LF@-retvalInt_inputi_0 int\n"
+           "READ LGF@-retvalInt_inputi_0 int\n"
            "POPFRAME\n"
            "RETURN\n\n");
     fflush(stdout);
@@ -890,8 +889,7 @@ void Print_BuiltIn_Functions()
     //printf inputf
     printf("LABEL $inputf\n"
            "PUSHFRAME\n"
-           "DEFVAR LF@-retvalFloat_inputf_0\n"
-           "READ LF@-retvalFloat_inputf_0 float\n"
+           "READ GF@-retvalFloat_inputf_0 float\n"
            "POPFRAME\n"
            "RETURN\n\n");
     fflush(stdout);
@@ -899,8 +897,7 @@ void Print_BuiltIn_Functions()
     //printf inputs
     printf("LABEL $inputs\n"
            "PUSHFRAME\n"
-           "DEFVAR LF@-retvalString_inputs_0\n"
-           "READ LF@-retvalString_inputs_0 string\n"
+           "READ GF@-retvalString_inputs_0 string\n"
            "POPFRAME\n"
            "RETURN\n\n");
     fflush(stdout);
@@ -908,8 +905,7 @@ void Print_BuiltIn_Functions()
     //printf int2float
     printf("LABEL $int2float\n"
            "PUSHFRAME\n"
-           "DEFVAR LF@-retvalFloat_int2float_0\n"
-           "INT2FLOAT LF@-retvalFloat_int2float_0 LF@i_int2float_1_0\n"
+           "INT2FLOAT GF@-retvalFloat_int2float_0 GF@i_int2float_1_0\n"
            "POPFRAME\n"
            "RETURN\n\n");
     fflush(stdout);
@@ -917,8 +913,7 @@ void Print_BuiltIn_Functions()
     //printf float2int
     printf("LABEL $float2int\n"
            "PUSHFRAME\n"
-           "DEFVAR LF@-retvalInt_float2int_0\n"
-           "FLOAT2INT LF@-retvalInt_float2int_0 LF@f_float2int_1_0\n"
+           "FLOAT2INT GF@-retvalInt_float2int_0 GF@f_float2int_1_0\n"
            "POPFRAME\n"
            "RETURN\n\n");
     fflush(stdout);
@@ -926,8 +921,7 @@ void Print_BuiltIn_Functions()
     //Print len
     printf("LABEL $len\n"
            "PUSHFRAME\n"
-           "DEFVAR LF@-retvalInt_len_0\n"
-           "STRLEN LF@-retvalInt_len_0 LF@s_len_1_0\n"
+           "STRLEN GF@-retvalInt_len_0 GF@s_len_1_0\n"
            "POPFRAME \n"
            "RETURN\n\n");
     fflush(stdout);
@@ -936,52 +930,46 @@ void Print_BuiltIn_Functions()
     //print substr
     printf("LABEL $substr\n"
            "PUSHFRAME\n"
-           "DEFVAR LF@-retvalString_substr_0\n"
-           "MOVE LF@-retvalString_substr_0 string@\n"
-           "DEFVAR LF@substr_length\n"
+           "MOVE GF@-retvalString_substr_0 string@\n"
            "CREATEFRAME\n"
            "DEFVAR TF@s\n"
-           "MOVE TF@s LF@substr_s\n"
+           "MOVE TF@s GF@substr_s\n"
            "CALL $len\n"
-           "MOVE LF@substr_length LF@-retvalInt_len_0\n"
-           "DEFVAR LF@ret\n"
-           "LT LF@ret LF@substr_length int@0\n"
-           "JUMPIFEQ $substr$return LF@ret bool@true\n"
-           "EQ LF@ret LF@substr_length int@0\n"
-           "JUMPIFEQ $substr$return LF@ret bool@true\n"
-           "LT LF@ret LF@substr_i int@0\n"
-           "JUMPIFEQ $substr$return LF@ret bool@true\n"
-           "EQ LF@ret LF@substr_i int@0\n"
-           "JUMPIFEQ $substr$return LF@ret bool@true\n"
-           "GT LF@ret LF@substr_i LF@substr_length\n"
-           "JUMPIFEQ $substr$return LF@ret bool@true\n"
-           "EQ LF@ret LF@substr_n int@0\n"
-           "JUMPIFEQ $substr$return LF@ret bool@true\n"
-           "DEFVAR LF@max_substr\n"
-           "MOVE LF@max_substr LF@substr_length\n"
-           "SUB LF@max_substr LF@max_substr LF@substr_i\n"
-           "ADD LF@max_substr LF@max_substr int@1\n"
-           "DEFVAR LF@edit\n"
-           "LT LF@edit LF@substr_n int@0\n"
-           "JUMPIFEQ $substr$edit LF@edit bool@true\n"
-           "GT LF@edit LF@substr_n LF@max_substr\n"
-           "JUMPIFEQ $substr$edit LF@edit bool@true\n"
+           "MOVE GF@substr_length GF@-retvalInt_len_0\n"
+           "LT GF@ret_substr GF@substr_length int@0\n"
+           "JUMPIFEQ $substr$return GF@ret_substr bool@true\n"
+           "EQ GF@ret_substr GF@substr_length int@0\n"
+           "JUMPIFEQ $substr$return GF@ret_substr bool@true\n"
+           "LT GF@ret_substr GF@substr_i int@0\n"
+           "JUMPIFEQ $substr$return GF@ret_substr bool@true\n"
+           "EQ GF@ret_substr GF@substr_i int@0\n"
+           "JUMPIFEQ $substr$return GF@ret_substr bool@true\n"
+           "GT GF@ret_substr GF@substr_i GF@substr_length\n"
+           "JUMPIFEQ $substr$return GF@ret_substr bool@true\n"
+           "EQ GF@ret_substr GF@substr_n int@0\n"
+           "JUMPIFEQ $substr$return GF@ret_substr bool@true\n"
+           "MOVE GF@max_substr GF@substr_length\n"
+           "SUB GF@max_substr GF@max_substr GF@substr_i\n"
+           "ADD GF@max_substr GF@max_substr int@1\n"
+           "LT GF@edit GF@substr_n int@0\n"
+           "JUMPIFEQ $substr$edit GF@edit bool@true\n"
+           "GT GF@edit GF@substr_n GF@max_substr\n"
+           "JUMPIFEQ $substr$edit GF@edit bool@true\n"
            "JUMP $substr$process\n"
            "LABEL $substr$edit\n"
-           "MOVE LF@substr_n LF@max_substr\n"
+           "MOVE GF@substr_n GF@max_substr\n"
            "LABEL $substr$process\n"
-           "DEFVAR LF@index_substr\n"
-           "MOVE LF@index_substr LF@substr_i\n"
-           "SUB LF@index_substr LF@index_substr int@1\n"
-           "DEFVAR LF@char\n"
-           "DEFVAR LF@processloop\n"
+           "MOVE GF@index_substr GF@substr_i\n"
+           "SUB GF@index_substr GF@index_substr int@1\n"
+           "DEFVAR GF@char\n"
+           "DEFVAR GF@processloop\n"
            "LABEL $substr$loop\n"
-           "GETCHAR LF@char LF@substr_s LF@index_substr\n"
-           "CONCAT LF@-retvalString_substr_0 LF@-retvalString_substr_0 LF@char\n"
-           "ADD LF@index_substr LF@index_substr int@1\n"
-           "SUB LF@substr_n LF@substr_n int@1\n"
-           "GT LF@processloop LF@substr_n int@0\n"
-           "JUMPIFEQ $substr$loop LF@processloop bool@true\n"
+           "GETCHAR GF@char GF@substr_s GF@index_substr\n"
+           "CONCAT GF@-retvalString_substr_0 GF@-retvalString_substr_0 GF@char\n"
+           "ADD GF@index_substr GF@index_substr int@1\n"
+           "SUB GF@substr_n GF@substr_n int@1\n"
+           "GT GF@processloop GF@substr_n int@0\n"
+           "JUMPIFEQ $substr$loop GF@processloop bool@true\n"
            "LABEL $substr$return\n"
            "POPFRAME\n"
            "RETURN\n\n");
@@ -990,14 +978,12 @@ void Print_BuiltIn_Functions()
     //printf chr
     printf("LABEL $chr\n"
            "PUSHFRAME\n"
-           "DEFVAR LF@-retvalString_chr_0\n"
-           "MOVE LF@-retvalString_chr_0 string@\n"
-           "DEFVAR LF@-retvalInt_chr_1\n"
-           "LT LF@-retvalInt_chr_1 LF@i_chr_1_0 int@0\n"
-           "JUMPIFEQ $chr$return LF@-retvalInt_chr_1 bool@true\n"
-           "GT LF@cond LF@i_chr_1_0 int@255\n"
-           "JUMPIFEQ $chr$return LF@-retvalInt_chr_1 bool@true\n"
-           "INT2CHAR LF@-retvalString_chr_0 LF@i_chr_1_0\n"
+           "MOVE GF@-retvalString_chr_0 string@\n"
+           "LT GF@-retvalInt_chr_1 GF@i_chr_1_0 int@0\n"
+           "JUMPIFEQ $chr$return GF@-retvalInt_chr_1 bool@true\n"
+           "GT GF@cond GF@i_chr_1_0 int@255\n"
+           "JUMPIFEQ $chr$return GF@-retvalInt_chr_1 bool@true\n"
+           "INT2CHAR GF@-retvalString_chr_0 GF@i_chr_1_0\n"
            "LABEL $chr$return\n"
            "POPFRAME\n"
            "RETURN\n\n");
@@ -1006,21 +992,17 @@ void Print_BuiltIn_Functions()
     //printf ord
     printf("LABEL $ord\n"
            "PUSHFRAME\n"
-           "DEFVAR LF@-retvalInt_ord_0\n"
-           "MOVE LF@-retvalInt_ord_0 int@0\n"
-           "DEFVAR LF@-retvalInt_ord_1\n"
-           "LT LF@-retvalInt_ord_1 LF@s_ord_1_0 int@0\n"
-           "JUMPIFEQ $ord$return LF@-retvalInt_ord_1 bool@true\n"
+           "MOVE GF@-retvalInt_ord_0 int@0\n"
+           "LT GF@-retvalInt_ord_1 GF@s_ord_1_0 int@0\n"
+           "JUMPIFEQ $ord$return GF@-retvalInt_ord_1 bool@true\n"
            "CREATEFRAME\n"
-           "DEFVAR LF@length_ord\n"
-           "DEFVAR LF@s_len_1_0\n"
-           "MOVE LF@s_len_1_0 LF@s_ord_1_0\n"
+           "MOVE GF@s_len_1_0 GF@s_ord_1_0\n"
            "CALL $len\n"
-           "MOVE LF@length_ord LF@-retvalInt_len_0\n"
-           "GT LF@-retvalInt_ord_1 LF@s_len_1_0 LF@length_ord\n"
-           "JUMPIFEQ $ord$return LF@-retvalInt_ord_1 bool@true\n"
-           "SUB LF@i_ord_1_0 LF@s_len_1_0 int@1\n"
-           "STRI2INT LF@-retvalInt_ord_0 LF@s_ord_1_0 LF@s_len_1_0\n"
+           "MOVE GF@length_ord GF@-retvalInt_len_0\n"
+           "GT GF@-retvalInt_ord_1 GF@s_len_1_0 GF@length_ord\n"
+           "JUMPIFEQ $ord$return GF@-retvalInt_ord_1 bool@true\n"
+           "SUB GF@i_ord_1_0 GF@s_len_1_0 int@1\n"
+           "STRI2INT GF@-retvalInt_ord_0 GF@s_ord_1_0 GF@s_len_1_0\n"
            "LABEL $ord$return\n"
            "POPFRAME\n"
            "RETURN\n\n");
@@ -1036,6 +1018,7 @@ void print_Mainframe_begin()
     fflush(stdout);
     printf("CREATEFRAME\n");
     printf("PUSHFRAME\n");
+
     fflush(stdout);
 
 }
